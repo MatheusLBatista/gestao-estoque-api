@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Modelo de Usuário deve falhar ao criar um usuário sem matrícula 1`] = `"usuarios validation failed: matricula: Path \`matricula\` is required."`;
+
+exports[`Modelo de Usuário deve falhar ao criar um usuário sem nome 1`] = `"usuarios validation failed: nome_usuario: Path \`nome_usuario\` is required."`;

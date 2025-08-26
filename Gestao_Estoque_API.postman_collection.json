@@ -1,0 +1,2020 @@
+{
+  "info": {
+    "name": "Gestão de Estoque Automotivo API",
+    "description": "Collection completa da API de Gestão de Estoque Automotivo com todos os endpoints documentados",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "gestao-estoque-api-collection",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "patch": 0
+    }
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "variable": [],
+  "item": [
+    {
+      "name": "🔐 Autenticação",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Salvar accessToken\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"accessToken\", jsonData.accessToken);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"matricula\": \"ADM0001\",\n  \"senha\": \"Admin@123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login com usuário administrador"
+          }
+        },
+        {
+          "name": "Login - Gerente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', response.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', response.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"matricula\": \"USR0001\",\n  \"senha\": \"Senha123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login com usuário gerente"
+          }
+        },
+        {
+          "name": "Login - Estoquista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', response.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', response.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"matricula\": \"USR0003\",\n  \"senha\": \"Senha123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login com usuário estoquista"
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Revogar Token",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"matricula\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/revoke/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "revoke",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "USER_ID"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Produtos",
+      "item": [
+        {
+          "name": "Listar Produtos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/produtos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "produtos"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "disabled": true
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Criar Produto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome_produto\": \"Pastilha de Freio Dianteira\",\n  \"categoria\": \"Freios\",\n  \"codigo_produto\": \"PF001\",\n  \"preco\": 89.90,\n  \"custo\": 45.00,\n  \"estoque\": 25,\n  \"estoque_min\": 5,\n  \"id_fornecedor\": 548,\n  \"marca\": \"Bosch\",\n  \"descricao\": \"Pastilha de freio para veículos nacionais\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/produtos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "produtos"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Produto por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/produtos/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "produtos",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "686c19c68acd55b88614e1ff"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Produtos com Estoque Baixo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/produtos/estoque-baixo",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "produtos",
+                "estoque-baixo"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Produtos por Nome",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/produtos/busca?nome=Pastilha",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "produtos",
+                "busca"
+              ],
+              "query": [
+                {
+                  "key": "nome",
+                  "value": "Pastilha"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Produtos por Categoria",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/produtos/busca?categoria=Freios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "produtos",
+                "busca"
+              ],
+              "query": [
+                {
+                  "key": "categoria",
+                  "value": "Freios"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Produtos por Código",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/produtos/busca?codigo=PF001",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "produtos",
+                "busca"
+              ],
+              "query": [
+                {
+                  "key": "codigo",
+                  "value": "PF001"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Produtos por Marca",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/produtos/busca?marca=Bosch",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "produtos",
+                "busca"
+              ],
+              "query": [
+                {
+                  "key": "marca",
+                  "value": "Bosch"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Produto",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome_produto\": \"Pastilha de Freio Dianteira Melhorada\",\n  \"categoria\": \"Freios\",\n  \"preco\": 99.90,\n  \"custo\": 55.00,\n  \"estoque\": 30,\n  \"estoque_min\": 8,\n  \"marca\": \"Bosch Premium\",\n  \"descricao\": \"Pastilha de freio premium para veículos nacionais e importados\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/produtos/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "produtos",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "PRODUCT_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Desativar Produto",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/produtos/desativar/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "produtos",
+                "desativar",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "PRODUCT_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reativar Produto",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/produtos/reativar/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "produtos",
+                "reativar",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "PRODUCT_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Deletar Produto",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/produtos/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "produtos",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "PRODUCT_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Usuários",
+      "item": [
+        {
+          "name": "Listar Usuários",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/usuarios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "disabled": true
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Criar Usuário",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome_usuario\": \"João Silva\",\n  \"email\": \"joao@teste.com\",\n  \"matricula\": \"USR0010\",\n  \"perfil\": \"estoquista\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/usuarios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Usuário por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/usuarios/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "686c144bdd83d42d47a8bd7a"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar por Matrícula",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/usuarios/busca/:matricula",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "busca",
+                ":matricula"
+              ],
+              "variable": [
+                {
+                  "key": "matricula",
+                  "value": "ADM0001"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Usuário",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome_usuario\": \"João Silva Atualizado\",\n  \"email\": \"joao.novo@teste.com\",\n  \"perfil\": \"gerente\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/usuarios/:matricula",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                ":matricula"
+              ],
+              "variable": [
+                {
+                  "key": "matricula",
+                  "value": "USR0010"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Desativar Usuário",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/usuarios/desativar/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "desativar",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "USER_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reativar Usuário",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/usuarios/reativar/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "reativar",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "USER_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Deletar Usuário",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/usuarios/:matricula",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                ":matricula"
+              ],
+              "variable": [
+                {
+                  "key": "matricula",
+                  "value": "USR0010"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏢 Fornecedores",
+      "item": [
+        {
+          "name": "Listar Fornecedores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/fornecedores",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "fornecedores"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "disabled": true
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Criar Fornecedor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome_fornecedor\": \"Auto Peças Norte\",\n  \"cnpj\": \"98765432000110\",\n  \"telefone\": \"1188888888\",\n  \"email\": \"contato@autopecasnorte.com\",\n  \"endereco\": [\n    {\n      \"logradouro\": \"Av. das Peças, 456\",\n      \"bairro\": \"Vila Industrial\",\n      \"cidade\": \"São Paulo\",\n      \"estado\": \"SP\",\n      \"cep\": \"01234567\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/fornecedores",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "fornecedores"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Fornecedor por Nome",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/fornecedores?nome_fornecedor=Distribuidora Central",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "fornecedores"
+              ],
+              "query": [
+                {
+                  "key": "nome_fornecedor",
+                  "value": "Distribuidora Central"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Fornecedor por CNPJ",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/fornecedores?cnpj=12345678901234",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "fornecedores"
+              ],
+              "query": [
+                {
+                  "key": "cnpj",
+                  "value": "12345678901234"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Fornecedor",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome_fornecedor\": \"Auto Peças Norte Atualizada\",\n  \"telefone\": \"1199999999\",\n  \"email\": \"novo@autopecasnorte.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/fornecedores/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "fornecedores",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "FORNECEDOR_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Deletar Fornecedor",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/fornecedores/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "fornecedores",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "FORNECEDOR_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Movimentações",
+      "item": [
+        {
+          "name": "Listar Movimentações",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movimentacoes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movimentacoes"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limite",
+                  "value": "10",
+                  "disabled": true
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Criar Movimentação",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"entrada\",\n  \"destino\": \"Estoque Principal\",\n  \"data_movimentacao\": \"2025-07-07T20:00:00.000Z\",\n  \"id_produto\": \"686c12577770446a1ee99bc2\",\n  \"nome_usuario\": \"Administrador\",\n  \"produtos\": [\n    {\n      \"produto_ref\": \"686c12577770446a1ee99bc2\",\n      \"id_produto\": 471,\n      \"codigo_produto\": \"DIS-9441\",\n      \"nome_produto\": \"Fantástico Borracha Sapatos\",\n      \"quantidade_produtos\": 25,\n      \"preco\": 4201.69,\n      \"custo\": 2941.18,\n      \"id_fornecedor\": 47,\n      \"nome_fornecedor\": \"Distribuidora Central Ltda\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/movimentacoes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movimentacoes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Movimentação por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movimentacoes/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movimentacoes",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "MOVIMENTACAO_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Movimentações por Produto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movimentacoes/busca?nome_produto=Pastilha",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movimentacoes",
+                "busca"
+              ],
+              "query": [
+                {
+                  "key": "nome_produto",
+                  "value": "Pastilha"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Movimentações por Tipo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movimentacoes/busca?tipo=entrada",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movimentacoes",
+                "busca"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "entrada"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Movimentações por Usuário",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movimentacoes/busca?nome_usuario=João",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movimentacoes",
+                "busca"
+              ],
+              "query": [
+                {
+                  "key": "nome_usuario",
+                  "value": "João"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filtro Avançado de Movimentações",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movimentacoes/filtro?dataInicio=2024-01-01&dataFim=2024-01-31&tipo=SAIDA",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movimentacoes",
+                "filtro"
+              ],
+              "query": [
+                {
+                  "key": "dataInicio",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "dataFim",
+                  "value": "2024-01-31"
+                },
+                {
+                  "key": "tipo",
+                  "value": "SAIDA"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Movimentação",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"entrada\",\n  \"destino\": \"Transferência\",\n  \"data_movimentacao\": \"2025-07-07T20:00:00.000Z\",\n  \"nome_usuario\": \"Novo Usuario\",\n  \"produtos\": [\n    {\n      \"produto_ref\": \"686c12577770446a1ee99bc2\",\n      \"id_produto\": 471,\n      \"codigo_produto\": \"DIS-9441\",\n      \"nome_produto\": \"Fantástico Borracha Sapatos\",\n      \"quantidade_produtos\": 30,\n      \"preco\": 4201.69,\n      \"custo\": 2941.18,\n      \"id_fornecedor\": 47,\n      \"nome_fornecedor\": \"Distribuidora Central Ltda\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/movimentacoes/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movimentacoes",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "MOVIMENTACAO_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Desativar Movimentação",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movimentacoes/desativar/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movimentacoes",
+                "desativar",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "MOVIMENTACAO_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reativar Movimentação",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movimentacoes/reativar/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movimentacoes",
+                "reativar",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "MOVIMENTACAO_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Deletar Movimentação",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movimentacoes/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "movimentacoes",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "MOVIMENTACAO_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Grupos e Permissões",
+      "item": [
+        {
+          "name": "Listar Grupos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/grupos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "grupos"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Criar Grupo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Vendedores\",\n  \"descricao\": \"Grupo para equipe de vendas\",\n  \"permissoes\": [\n    {\n      \"rota\": \"produtos\",\n      \"dominio\": \"localhost\",\n      \"ativo\": true,\n      \"buscar\": true,\n      \"enviar\": false,\n      \"substituir\": false,\n      \"modificar\": false,\n      \"excluir\": false\n    },\n    {\n      \"rota\": \"movimentacoes\",\n      \"dominio\": \"localhost\",\n      \"ativo\": true,\n      \"buscar\": true,\n      \"enviar\": true,\n      \"substituir\": false,\n      \"modificar\": false,\n      \"excluir\": false\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/grupos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "grupos"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Grupo por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/grupos/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "grupos",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "GRUPO_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Grupo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Vendedores Atualizados\",\n  \"descricao\": \"Grupo atualizado para equipe de vendas\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/grupos/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "grupos",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "GRUPO_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Deletar Grupo",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/grupos/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "grupos",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "GRUPO_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Adicionar Usuário ao Grupo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario_id\": \"686c144bdd83d42d47a8bd7a\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/grupos/:id/usuarios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "grupos",
+                ":id",
+                "usuarios"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "GRUPO_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remover Usuário do Grupo",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/grupos/:id/usuarios/:usuario_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "grupos",
+                ":id",
+                "usuarios",
+                ":usuario_id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "GRUPO_ID"
+                },
+                {
+                  "key": "usuario_id",
+                  "value": "USER_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Logs e Sessões",
+      "item": [
+        {
+          "name": "Listar Usuários Online",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/logs/online-users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "logs",
+                "online-users"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obter Logs de Usuário",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/logs/usuario/:userId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "logs",
+                "usuario",
+                ":userId"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USER_ID"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar Eventos Específicos (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/logs/search?action=LOGIN&startDate=2025-01-01&endDate=2025-12-31",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "logs",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "LOGIN"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2025-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-12-31"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obter Estatísticas de Logs (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/logs/statistics",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "logs",
+                "statistics"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obter Eventos Críticos (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/logs/critical",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "logs",
+                "critical"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

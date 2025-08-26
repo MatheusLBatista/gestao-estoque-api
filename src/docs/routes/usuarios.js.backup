@@ -1,0 +1,668 @@
+import commonSchemas from "../schemas/common.js";
+
+const usuariosRoutes = {
+    "/api/usuarios": {
+        get: {
+            tags: ["Usuários"],
+            summary: "Lista todos os usuários",
+            description: `
+            Lista todos os usuários cadastrados no sistema com suporte a paginação e filtros.
+            
+            **Funcionalidades:**
+            - Paginação automática
+            - Filtros por perfil, status, nome
+            - Busca por texto
+            - Ordenação customizável
+            - Controle de acesso por perfil
+            `,
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                ...commonSchemas.PaginationParams,
+                {
+                    name: "nome_usuario",
+                    in: "query",
+                    description: "Filtrar por nome de usuário (busca parcial)",
+                    schema: { type: "string", example: "joão" }
+                },
+                {
+                    name: "matricula",
+                    in: "query",
+                    description: "Filtrar por matrícula (busca parcial)",
+                    schema: { type: "string", example: "123" }
+                },
+                {
+                    name: "perfil",
+                    in: "query",
+                    description: "Filtrar por perfil",
+                    schema: { 
+                        type: "string", 
+                        enum: ["administrador", "gerente", "estoquista"], 
+                        example: "estoquista" 
+                    }
+                },
+                {
+                    name: "ativo",
+                    in: "query",
+                    description: "Filtrar por status ativo",
+                    schema: { type: "boolean", example: true }
+                }
+            ],
+            responses: {
+                200: {
+                    description: "Usuários listados com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: { "$ref": "#/components/schemas/UsuariosList" }
+                        }
+                    }
+                },
+                401: { "$ref": "#/components/responses/401" },
+                403: { "$ref": "#/components/responses/403" },
+                500: { "$ref": "#/components/responses/500" }
+            }
+        },
+        post: {
+            tags: ["Usuários"],
+            summary: "Cadastra novo usuário",
+            description: `
+            Cadastra um novo usuário no sistema.
+            
+            **Funcionalidades:**
+            - Validação de matrícula única
+            - Validação de email único
+            - Criptografia automática da senha
+            - Definição de perfil de acesso
+            - Registro automático de logs
+            
+            **Permissões:** Apenas administradores podem cadastrar usuários.
+            `,
+            security: [{ bearerAuth: [] }],
+            requestBody: {
+                required: true,
+                content: {
+                    "application/json": {
+                        schema: { "$ref": "#/components/schemas/UsuarioCreate" }
+                    }
+                }
+            },
+            responses: {
+                201: {
+                    description: "Usuário cadastrado com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: { "$ref": "#/components/schemas/UsuarioCreateResponse" }
+                        }
+                    }
+                },
+                400: commonResponses[400](),
+                401: { "$ref": "#/components/responses/401" },
+                403: commonResponses[403](),
+                409: {
+                    description: "Matrícula ou email já cadastrados",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    message: {
+                                        type: "string",
+                                        example: "Matrícula ou email já está cadastrado no sistema"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                422: commonResponses[422](),
+                500: commonResponses[500]()
+            }
+        }
+    },
+
+    "/api/usuarios/{matricula}": {
+        get: {
+            tags: ["Usuários"],
+            summary: "Busca usuário por matrícula",
+            description: `
+            Retorna os dados de um usuário específico pela sua matrícula.
+            
+            **Permissões:** 
+            - Administradores podem ver qualquer usuário
+            - Funcionários podem ver apenas seus próprios dados
+            `,
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: "matricula",
+                    in: "path",
+                    required: true,
+                    description: "Matrícula do usuário",
+                    schema: { type: "string", example: "USR001" }
+                }
+            ],
+            responses: {
+                200: {
+                    description: "Usuário encontrado com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: { "$ref": "#/components/schemas/UsuarioResponse" }
+                        }
+                    }
+                },
+                401: { "$ref": "#/components/responses/401" },
+                403: commonResponses[403](),
+                404: commonResponses[404](),
+                500: commonResponses[500]()
+            }
+        },
+        patch: {
+            tags: ["Usuários"],
+            summary: "Atualiza usuário",
+            description: `
+            Atualiza os dados de um usuário existente.
+            
+            **Funcionalidades:**
+            - Atualização parcial de campos
+            - Validação de dados
+            - Controle de permissões
+            - Registro de logs de alteração
+            
+            **Permissões:**
+            - Administradores podem alterar qualquer usuário
+            - Funcionários podem alterar apenas alguns de seus próprios dados
+            `,
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: "matricula",
+                    in: "path",
+                    required: true,
+                    description: "Matrícula do usuário",
+                    schema: { type: "string", example: "USR001" }
+                }
+            ],
+            requestBody: {
+                required: true,
+                content: {
+                    "application/json": {
+                        schema: { "$ref": "#/components/schemas/UsuarioUpdate" }
+                    }
+                }
+            },
+            responses: {
+                200: {
+                    description: "Usuário atualizado com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: { "$ref": "#/components/schemas/UsuarioUpdateResponse" }
+                        }
+                    }
+                },
+                400: commonResponses[400](),
+                401: { "$ref": "#/components/responses/401" },
+                403: commonResponses[403](),
+                404: commonResponses[404](),
+                422: commonResponses[422](),
+                500: commonResponses[500]()
+            }
+        },
+        delete: {
+            tags: ["Usuários"],
+            summary: "Exclui usuário",
+            description: `
+            Exclui um usuário do sistema (exclusão lógica).
+            
+            **Funcionalidades:**
+            - Desativação do usuário
+            - Invalidação de tokens ativos
+            - Preservação do histórico
+            - Registro de logs
+            
+            **Permissões:** Apenas administradores podem excluir usuários.
+            **Regra:** Não é possível excluir o próprio usuário.
+            `,
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: "matricula",
+                    in: "path",
+                    required: true,
+                    description: "Matrícula do usuário",
+                    schema: { type: "string", example: "USR001" }
+                }
+            ],
+            responses: {
+                200: commonResponses[200](),
+                401: { "$ref": "#/components/responses/401" },
+                403: commonResponses[403](),
+                404: commonResponses[404](),
+                409: {
+                    description: "Não é possível excluir o próprio usuário",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    message: {
+                                        type: "string",
+                                        example: "Não é possível excluir o próprio usuário"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                500: commonResponses[500]()
+            }
+        }
+    },
+
+    "/api/usuarios/busca": {
+        get: {
+            tags: ["Usuários"],
+            summary: "Busca usuário por matrícula específica",
+            description: `
+            Busca um usuário específico pela matrícula usando query parameter.
+            
+            **Funcionalidades:**
+            - Busca exata por matrícula
+            - Validação de acesso
+            - Retorno de dados básicos
+            `,
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: "matricula",
+                    in: "query",
+                    required: true,
+                    description: "Matrícula do usuário a buscar",
+                    schema: { type: "string", example: "USR001" }
+                }
+            ],
+            responses: {
+                200: {
+                    description: "Usuário encontrado com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: { "$ref": "#/components/schemas/UsuarioResponse" }
+                        }
+                    }
+                },
+                400: commonResponses[400](),
+                401: { "$ref": "#/components/responses/401" },
+                403: commonResponses[403](),
+                404: commonResponses[404](),
+                500: commonResponses[500]()
+            }
+        }
+    },
+
+    "/api/usuarios/desativar/{id}": {
+        patch: {
+            tags: ["Usuários"],
+            summary: "Desativa usuário",
+            description: `
+            Desativa um usuário do sistema (desativação lógica).
+            
+            **Funcionalidades:**
+            - Marca usuário como inativo
+            - Invalida tokens ativos do usuário
+            - Preserva histórico de atividades
+            - Registra ação nos logs do sistema
+            
+            **Permissões:** Apenas administradores podem desativar usuários.
+            **Regra:** Não é possível desativar o próprio usuário.
+            `,
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: "id",
+                    in: "path",
+                    required: true,
+                    description: "ID do usuário a ser desativado",
+                    schema: { type: "string", example: "60d5ecb74f8e4b2b3c8d6e7f" }
+                }
+            ],
+            responses: {
+                200: {
+                    description: "Usuário desativado com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    message: {
+                                        type: "string",
+                                        example: "Usuário desativado com sucesso"
+                                    },
+                                    usuario: {
+                                        "$ref": "#/components/schemas/UsuarioResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                400: commonResponses[400](),
+                401: { "$ref": "#/components/responses/401" },
+                403: commonResponses[403](),
+                404: commonResponses[404](),
+                409: {
+                    description: "Não é possível desativar o próprio usuário",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    message: {
+                                        type: "string",
+                                        example: "Não é possível desativar o próprio usuário"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                500: commonResponses[500]()
+            }
+        }
+    },
+
+    "/api/usuarios/reativar/{id}": {
+        patch: {
+            tags: ["Usuários"],
+            summary: "Reativa usuário",
+            description: `
+            Reativa um usuário que estava desativado no sistema.
+            
+            **Funcionalidades:**
+            - Marca usuário como ativo novamente
+            - Permite novo acesso ao sistema
+            - Registra ação nos logs do sistema
+            - Notifica por email sobre reativação
+            
+            **Permissões:** Apenas administradores podem reativar usuários.
+            `,
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: "id",
+                    in: "path",
+                    required: true,
+                    description: "ID do usuário a ser reativado",
+                    schema: { type: "string", example: "60d5ecb74f8e4b2b3c8d6e7f" }
+                }
+            ],
+            responses: {
+                200: {
+                    description: "Usuário reativado com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    message: {
+                                        type: "string",
+                                        example: "Usuário reativado com sucesso"
+                                    },
+                                    usuario: {
+                                        "$ref": "#/components/schemas/UsuarioResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                400: commonResponses[400](),
+                401: { "$ref": "#/components/responses/401" },
+                403: commonResponses[403](),
+                404: commonResponses[404](),
+                500: commonResponses[500]()
+            }
+        }
+    },
+
+    "/api/usuarios/{matricula}/alterar-senha": {
+        patch: {
+            tags: ["Usuários"],
+            summary: "Altera senha do usuário",
+            description: `
+            Permite que o usuário altere sua própria senha.
+            
+            **Funcionalidades:**
+            - Validação da senha atual
+            - Criptografia da nova senha
+            - Invalidação de tokens ativos
+            - Registro de logs de segurança
+            
+            **Permissões:** Usuários podem alterar apenas sua própria senha.
+            `,
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: "matricula",
+                    in: "path",
+                    required: true,
+                    description: "Matrícula do usuário",
+                    schema: { type: "string", example: "USR001" }
+                }
+            ],
+            requestBody: {
+                required: true,
+                content: {
+                    "application/json": {
+                        schema: { "$ref": "#/components/schemas/AlterarSenhaRequest" }
+                    }
+                }
+            },
+            responses: {
+                200: commonResponses[200](),
+                400: commonResponses[400](),
+                401: { "$ref": "#/components/responses/401" },
+                403: commonResponses[403](),
+                404: commonResponses[404](),
+                422: commonResponses[422](),
+                500: commonResponses[500]()
+            }
+        }
+    },
+
+    "/api/usuarios/cadastrar-sem-senha": {
+        post: {
+            tags: ["Usuários"],
+            summary: "Cadastrar usuário sem senha (gera código de segurança)",
+            description: `
+            Permite ao administrador cadastrar um usuário sem definir senha. 
+            Um código de segurança será gerado para que o usuário defina sua própria senha.
+            
+            **Fluxo:**
+            1. Administrador cadastra usuário com dados básicos
+            2. Sistema gera código de 6 dígitos válido por 24 horas
+            3. Usuário usa código no endpoint \`/auth/redefinir-senha/codigo\`
+            4. Conta é ativada automaticamente após definir senha
+            
+            **Vantagens:**
+            - Maior segurança (admin não conhece senhas)
+            - Usuário define sua própria senha
+            - Reutiliza sistema de recuperação existente
+            `,
+            security: [{ bearerAuth: [] }],
+            requestBody: {
+                required: true,
+                content: {
+                    "application/json": {
+                        schema: {
+                            type: "object",
+                            required: ["nome_usuario", "email", "matricula"],
+                            properties: {
+                                nome_usuario: {
+                                    type: "string",
+                                    description: "Nome completo do usuário",
+                                    example: "João Silva",
+                                    minLength: 2,
+                                    maxLength: 100
+                                },
+                                email: {
+                                    type: "string",
+                                    format: "email",
+                                    description: "Email válido do usuário",
+                                    example: "joao.silva@empresa.com"
+                                },
+                                matricula: {
+                                    type: "string",
+                                    description: "Matrícula única do usuário",
+                                    example: "12345",
+                                    minLength: 1,
+                                    maxLength: 20
+                                },
+                                perfil: {
+                                    type: "string",
+                                    enum: ["administrador", "gerente", "estoquista"],
+                                    description: "Perfil de acesso do usuário",
+                                    example: "estoquista",
+                                    default: "estoquista"
+                                },
+                                grupos: {
+                                    type: "array",
+                                    items: {
+                                        type: "string"
+                                    },
+                                    description: "IDs dos grupos de permissão (opcional)",
+                                    example: ["60d5ecb54b24a12a5c8e4f1a"]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            responses: {
+                201: {
+                    description: "Usuário cadastrado com sucesso, código de segurança gerado",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    success: {
+                                        type: "boolean",
+                                        example: true
+                                    },
+                                    message: {
+                                        type: "string",
+                                        example: "Usuário cadastrado com sucesso"
+                                    },
+                                    data: {
+                                        type: "object",
+                                        properties: {
+                                            id: {
+                                                type: "string",
+                                                example: "60d5ecb54b24a12a5c8e4f1a"
+                                            },
+                                            nome_usuario: {
+                                                type: "string",
+                                                example: "João Silva"
+                                            },
+                                            email: {
+                                                type: "string",
+                                                example: "joao.silva@empresa.com"
+                                            },
+                                            matricula: {
+                                                type: "string",
+                                                example: "12345"
+                                            },
+                                            perfil: {
+                                                type: "string",
+                                                example: "estoquista"
+                                            },
+                                            ativo: {
+                                                type: "boolean",
+                                                example: false,
+                                                description: "Usuário fica inativo até definir senha"
+                                            },
+                                            senha_definida: {
+                                                type: "boolean",
+                                                example: false,
+                                                description: "Indica se a senha foi definida"
+                                            },
+                                            codigoSeguranca: {
+                                                type: "string",
+                                                example: "123456",
+                                                description: "Código de 6 dígitos para definir senha"
+                                            },
+                                            instrucoes: {
+                                                type: "string",
+                                                example: "O usuário deve usar este código na endpoint '/auth/redefinir-senha/codigo' para definir sua senha. Código válido por 24 horas."
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                400: {
+                    description: "Dados de entrada inválidos",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/ValidationErrorResponse"
+                            }
+                        }
+                    }
+                },
+                401: {
+                    description: "Token de acesso inválido ou ausente",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/ErrorResponse"
+                            }
+                        }
+                    }
+                },
+                403: {
+                    description: "Acesso negado - apenas administradores podem cadastrar usuários",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/ErrorResponse"
+                            }
+                        }
+                    }
+                },
+                409: {
+                    description: "Matrícula ou email já cadastrados",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    success: {
+                                        type: "boolean",
+                                        example: false
+                                    },
+                                    message: {
+                                        type: "string",
+                                        example: "Usuário com este email ou matrícula já existe"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                500: {
+                    description: "Erro interno do servidor",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/ErrorResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+
+export default usuariosRoutes;

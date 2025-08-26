@@ -1,0 +1,2163 @@
+{
+	"info": {
+		"_postman_id": "ad2c7087-3d9a-417d-859f-b9cff956f857",
+		"name": "gestao-de-estoque",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43925946",
+		"_collection_link": "https://hr-gesto-de-estoque.postman.co/workspace/HR-Gest%C3%A3o-de-Estoque-Workspace~bee5860d-92bf-4b7d-8b4c-f833c4373487/collection/43925946-ad2c7087-3d9a-417d-859f-b9cff956f857?action=share&source=collection_link&creator=43925946"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Salvar accessToken\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"accessToken\", jsonData.accessToken);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"matricula\": \"ADM0001\",\n    \"senha\": \"Admin@123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/refresh",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Revoke",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"matricula\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/revoke/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"revoke",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Recuperar-Senha",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/recuperar-senha",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"recuperar-senha"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Redefinir-Senha-Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"senha\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/redefinir-senha/token?token=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"redefinir-senha",
+								"token"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Redefinir-Senha-Codigo",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"codigo\": \"\",\n    \"senha\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/redefinir-senha/codigo",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"redefinir-senha",
+								"codigo"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Produtos",
+			"item": [
+				{
+					"name": "Produtos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome_produto\": \"Produto Apresentação\",\r\n    \"descricao\": \"Descrição Teste\",\r\n    \"preco\": 10000,\r\n    \"marca\": \"Marca Teste\",\r\n    \"custo\": 7000,\r\n    \"categoria\": \"A\",\r\n    \"estoque\": 50,\r\n    \"estoque_min\": 5,\r\n    \"data_ultima_entrada\": \"2025-05-14T19:00:51.530Z\",\r\n    \"status\": true,\r\n    \"id_fornecedor\": 2,\r\n    \"codigo_produto\": \"PT1452\",\r\n    \"data_cadastro\": \"2025-05-14T19:00:51.581Z\",\r\n    \"data_ultima_atualizacao\": \"2025-05-14T19:27:13.498Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/produtos",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"produtos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Produtos",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/produtos/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"produtos",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Produtos-id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/produtos/6824da3de681aea690e39156",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"produtos",
+								"6824da3de681aea690e39156"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Produtos-Estoque_Baixo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/produtos/estoque-baixo",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"produtos",
+								"estoque-baixo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Produtos-Nome",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/produtos/busca?nome=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"produtos",
+								"busca"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Produtos-Categoria",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/produtos/busca?categoria=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"produtos",
+								"busca"
+							],
+							"query": [
+								{
+									"key": "categoria",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Produtos-Codigo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/produtos/busca?codigo=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"produtos",
+								"busca"
+							],
+							"query": [
+								{
+									"key": "codigo",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Produtos-Fornecedor",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/produtos/busca?fornecedor=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"produtos",
+								"busca"
+							],
+							"query": [
+								{
+									"key": "fornecedor",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Produtos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/produtos/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"produtos",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Produtos-Desativar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/produtos/desativar/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"produtos",
+								"desativar",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Produtos-Reativar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/produtos/reativar/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"produtos",
+								"reativar",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Produtos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/produtos/6824da3de681aea690e39156",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"produtos",
+								"6824da3de681aea690e39156"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Usuarios",
+			"item": [
+				{
+					"name": "Usuarios",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome_usuario\": \"Ruan Lopes\",\n    \"email\": \"intel.spec.lopes@gmail.com\",\n    \"matricula\": \"ADM1350\",\n    \"perfil\": \"administrador\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/usuarios",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Usuarios",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/usuarios",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Usuarios-Nome",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/usuarios/?nome_usuario=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								""
+							],
+							"query": [
+								{
+									"key": "nome_usuario",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Usuarios-Matricula",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/usuarios/?matricula=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								""
+							],
+							"query": [
+								{
+									"key": "matricula",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Usuarios",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/usuarios/?matricula=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								""
+							],
+							"query": [
+								{
+									"key": "matricula",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Usuarios-Desativar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/usuarios/desativar/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								"desativar",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Usuarios",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/usuarios/:matricula",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								":matricula"
+							],
+							"variable": [
+								{
+									"key": "matricula",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Online-Users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/logs/online-users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"logs",
+								"online-users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obter Permissões do Usuário",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Resposta contém permissões\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data).to.have.property('permissoes');",
+									"    pm.expect(response.data.permissoes).to.have.property('efetivas');",
+									"});",
+									"",
+									"// Log das permissões efetivas",
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    console.log(\"Permissões efetivas:\", response.data.permissoes.efetivas);",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/usuarios/:id/permissoes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								":id",
+								"permissoes"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Fornecedores",
+			"item": [
+				{
+					"name": "Fornecedores",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/fornecedores",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"fornecedores"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fornecedores",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/fornecedores",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"fornecedores"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fornecedores-Nome",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/fornecedores?nome_fornecedor=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"fornecedores"
+							],
+							"query": [
+								{
+									"key": "nome_fornecedor",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fornecedores-Cnpj",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/fornecedores?cnpj=98765432109876",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"fornecedores"
+							],
+							"query": [
+								{
+									"key": "cnpj",
+									"value": "98765432109876"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fornecedores",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/fornecedores/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"fornecedores",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fornecedores-Desativar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/fornecedores/desativar/68521e69a614fd0c4a743dd4",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"fornecedores",
+								"desativar",
+								"68521e69a614fd0c4a743dd4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fornecedores-Reativar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/fornecedores/reativar/68521e69a614fd0c4a743dd4",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"fornecedores",
+								"reativar",
+								"68521e69a614fd0c4a743dd4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Movimentações",
+			"item": [
+				{
+					"name": "Movimentacoes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"tipo\": \"entrada\",\r\n  \"destino\": \"Depósito Central\",\r\n  \"data_movimentacao\": \"2025-06-14T01:23:07.364Z\",\r\n  \"id_produto\": \"64b6f9e5a4b7c2d1f8a12345\",\r\n  \"nome_usuario\": \"João da Silva\",\r\n  \"produtos\": [\r\n    {\r\n      \"produto_ref\": \"684ccefbd28f571293d09f9c\",\r\n      \"id_produto\": 1,\r\n      \"codigo_produto\": \"DIS-6267\",\r\n      \"nome_produto\": \"Ergonômico Algodão Cadeira\",\r\n      \"quantidade_produtos\": 10,\r\n      \"preco\": 5499.99,\r\n      \"custo\": 3849.993,\r\n      \"id_fornecedor\": 187,\r\n      \"nome_fornecedor\": \"Distribuidora Central Ltda\"\r\n    },\r\n    {\r\n      \"produto_ref\": \"684ccefbd28f571293d0a0bd\",\r\n      \"id_produto\": 2,\r\n      \"codigo_produto\": \"DIS-8652\",\r\n      \"nome_produto\": \"Ergonômico Algodão Computador\",\r\n      \"quantidade_produtos\": 5,\r\n      \"preco\": 7190.89,\r\n      \"custo\": 5033.623,\r\n      \"id_fornecedor\": 187,\r\n      \"nome_fornecedor\": \"Distribuidora Central Ltda\"\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/movimentacoes/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"movimentacoes",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Movimentacoes",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/movimentacoes/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"movimentacoes",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Movimentacoes-Desativar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/movimentacoes/desativar/68521e69a614fd0c4a743dd4",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"movimentacoes",
+								"desativar",
+								"68521e69a614fd0c4a743dd4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Movimentacoes-Reativar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/movimentacoes/reativar/68521e69a614fd0c4a743dd4",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"movimentacoes",
+								"reativar",
+								"68521e69a614fd0c4a743dd4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Movimentacoes ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/movimentacoes/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"movimentacoes",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Movimentacoes Busca",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NGNjZWZhZDI4ZjU3MTI5M2QwOWY0OSIsIm1hdHJpY3VsYSI6IkFETTAwMDEiLCJwZXJmaWwiOiJhZG1pbmlzdHJhZG9yIiwiaWF0IjoxNzUwMjEwMDA4LCJleHAiOjE3NTAyMTM2MDh9.jCtiF73hksHB3QSODtb-Y3FEnrRpwpQMUijPKkgESZc",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/movimentacoes/busca?nome_produto=Freio",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"movimentacoes",
+								"busca"
+							],
+							"query": [
+								{
+									"key": "nome_produto",
+									"value": "Freio"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Movimentacoes-Filtro-Data",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/movimentacoes/filtro?dataInicio=2024-01-01&DataFim=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"movimentacoes",
+								"filtro"
+							],
+							"query": [
+								{
+									"key": "dataInicio",
+									"value": "2024-01-01"
+								},
+								{
+									"key": "DataFim",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Movimentacoes-Filtro-Tipo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/movimentacoes/filtro?tipo=SAIDA",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"movimentacoes",
+								"filtro"
+							],
+							"query": [
+								{
+									"key": "tipo",
+									"value": "SAIDA"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Movimentacoes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"tipo\": \"entrada\",\r\n  \"destino\": \"Depósito Central de LAELE\",\r\n  \"data_movimentacao\": \"2025-06-14T01:23:07.364Z\",\r\n  \"id_produto\": \"64b6f9e5a4b7c2d1f8a12345\",\r\n  \"nome_usuario\": \"João da Souza\",\r\n  \"produtos\": [\r\n    {\r\n      \"produto_ref\": \"684ccefbd28f571293d09f9c\",\r\n      \"id_produto\": 1,\r\n      \"codigo_produto\": \"DIS-6267\",\r\n      \"nome_produto\": \"Ergonômico Algodão Cadeira\",\r\n      \"quantidade_produtos\": 10,\r\n      \"preco\": 5499.99,\r\n      \"custo\": 3849.993,\r\n      \"id_fornecedor\": 187,\r\n      \"nome_fornecedor\": \"Distribuidora Central Ltda\"\r\n    },\r\n    {\r\n      \"produto_ref\": \"684ccefbd28f571293d0a0bd\",\r\n      \"id_produto\": 2,\r\n      \"codigo_produto\": \"DIS-8652\",\r\n      \"nome_produto\": \"Ergonômico Algodão Computador\",\r\n      \"quantidade_produtos\": 5,\r\n      \"preco\": 7190.89,\r\n      \"custo\": 5033.623,\r\n      \"id_fornecedor\": 187,\r\n      \"nome_fornecedor\": \"Distribuidora Central Ltda\"\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/movimentacoes/68521e69a614fd0c4a743dd4",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"movimentacoes",
+								"68521e69a614fd0c4a743dd4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Movimentacoes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/movimentacoes/685b219ba962fb815774cf28",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"movimentacoes",
+								"685b219ba962fb815774cf28"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Permissoes",
+			"item": [
+				{
+					"name": "Criar Grupo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set(\"GRUPO_ID\", response.data._id);",
+									"    console.log(\"Grupo criado com ID:\", response.data._id);",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Gerentes de Estoque\",\n  \"descricao\": \"Grupo com permissões de gerência para estoque\",\n  \"ativo\": true,\n  \"permissoes\": [\n    {\n      \"rota\": \"produtos\",\n      \"dominio\": \"localhost\",\n      \"ativo\": true,\n      \"buscar\": true,\n      \"enviar\": true,\n      \"substituir\": true,\n      \"modificar\": true,\n      \"excluir\": false\n    },\n    {\n      \"rota\": \"movimentacao\",\n      \"dominio\": \"localhost\",\n      \"ativo\": true,\n      \"buscar\": true,\n      \"enviar\": true,\n      \"substituir\": false,\n      \"modificar\": true,\n      \"excluir\": false\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/grupos",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"grupos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Grupos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/grupos",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"grupos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar Grupo por ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/grupos/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"grupos",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Grupo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"descricao\": \"Descrição atualizada do grupo de gerentes\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/grupos/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"grupos",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Ativar Grupo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/grupos/:id/ativar",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"grupos",
+								":id",
+								"ativar"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Desativar Grupo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/grupos/:id/desativar",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"grupos",
+								":id",
+								"desativar"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Adicionar Permissão ao Grupo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rota\": \"fornecedores\",\n  \"dominio\": \"localhost\",\n  \"ativo\": true,\n  \"buscar\": true,\n  \"enviar\": true,\n  \"substituir\": false,\n  \"modificar\": true,\n  \"excluir\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/grupos/:id/permissoes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"grupos",
+								":id",
+								"permissoes"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remover Permissão do Grupo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rota\": \"fornecedores\",\n  \"dominio\": \"localhost\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/grupos/:id/permissoes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"grupos",
+								":id",
+								"permissoes"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Grupo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/grupos/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"grupos",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Adicionar Usuário ao Grupo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usuarioId\": \"{{NEW_USER_ID}}\",\n  \"grupoId\": \"{{GRUPO_ID}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/usuarios/grupos/adicionar",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								"grupos",
+								"adicionar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remover Usuário do Grupo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usuarioId\": \"{{NEW_USER_ID}}\",\n  \"grupoId\": \"{{GRUPO_ID}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/usuarios/grupos/remover",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								"grupos",
+								"remover"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Adicionar Permissão Individual ao Usuário",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rota\": \"relatorios\",\n  \"dominio\": \"localhost\",\n  \"ativo\": true,\n  \"buscar\": true,\n  \"enviar\": false,\n  \"substituir\": false,\n  \"modificar\": false,\n  \"excluir\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/usuarios/:id/permissoes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								":id",
+								"permissoes"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remover Permissão Individual do Usuário",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"rota\": \"relatorios\",\n  \"dominio\": \"localhost\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/usuarios/:id/permissoes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								":id",
+								"permissoes"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
