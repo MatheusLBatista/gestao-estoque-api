@@ -1,127 +1,166 @@
-import authPaths from "../routes/auth.js";
-import produtosPaths from "../routes/produtos.js";
-import fornecedoresPaths from "../routes/fornecedores.js";
-import usuariosPaths from "../routes/usuarios.js";
-import movimentacoesPaths from "../routes/movimentacoes.js";
-import logsPaths from "../routes/logs.js";
+import swaggerJsDoc from "swagger-jsdoc";
+import swaggerUI from "swagger-ui-express";
+import dotenv from "dotenv";
 
-import authSchemas from "../schemas/authSchema.js";
-import produtosSchemas from "../schemas/produtosSchema.js";
-import fornecedoresSchemas from "../schemas/fornecedoresSchema.js";
-import usuariosSchemas from "../schemas/usuariosSchema.js";
-import movimentacoesSchemas from "../schemas/movimentacoesSchema.js";
-import logsSchemas from "../schemas/logsSchema.js";
+// Importar todas as definições de rotas
+import authRoutes from "../routes/auth.js";
+import usuariosRoutes from "../routes/usuarios.js";
+import produtosRoutes from "../routes/produtos.js";
+import fornecedoresRoutes from "../routes/fornecedores.js";
+import movimentacoesRoutes from "../routes/movimentacoes.js";
+import gruposRoutes from "../routes/grupos.js";
+import logsRoutes from "../routes/logs.js";
 
-// Função para definir as URLs do servidor dependendo do ambiente
-const getServersInCorrectOrder = () => {
-    const devUrl = { url: process.env.SWAGGER_DEV_URL || "http://localhost:5011" };
-    const prodUrl = { url: process.env.SWAGGER_PROD_URL || "https://gestao-estoque.com" };
+// Importar schemas
+import commonSchemas from "../schemas/common.js";
+import usuarioSchemas from "../schemas/usuario.js";
+import produtoSchemas from "../schemas/produto.js";
+import fornecedorSchemas from "../schemas/fornecedor.js";
+import movimentacaoSchemas from "../schemas/movimentacao.js";
+import authSchemas from "../schemas/auth.js";
+import grupoSchemas from "../schemas/grupo.js";
+import logsSchemas from "../schemas/logs.js";
 
-    if (process.env.NODE_ENV === "production") return [prodUrl, devUrl];
-    else return [devUrl, prodUrl];
-};
+dotenv.config();
 
-// Função para obter as opções do Swagger
-const getSwaggerOptions = () => {
-    return {
-        swaggerDefinition: {
-            openapi: "3.0.0",
+class SwaggerConfig {
+    constructor() {
+        this.swaggerDefinition = {
+            openapi: '3.0.0',
             info: {
-                title: "API Sistema de Gestão de Estoque Automotivo",
-                version: "1.0.0",
+                title: 'Sistema de Gestão de Estoque API',
+                version: '1.0.0',
                 description: `
-                # Sistema de Gestão de Estoque Automotivo
-
-                Esta API REST foi desenvolvida para gerenciar o estoque de uma empresa do setor automotivo, 
-                permitindo controle completo de produtos, fornecedores, usuários, movimentações e logs do sistema.
-
-                ## Recursos Principais
-                - **Autenticação JWT**: Sistema seguro com tokens de acesso e refresh
-                - **Gestão de Produtos**: CRUD completo com controle de estoque
-                - **Gestão de Fornecedores**: Cadastro e manutenção de fornecedores
-                - **Controle de Usuários**: Sistema de permissões e perfis
-                - **Movimentações**: Histórico completo de entradas e saídas
-                - **Sistema de Logs**: Auditoria completa de ações do sistema
-
-                ## Autenticação
-                É necessário autenticar com token JWT antes de utilizar a maioria das rotas. 
-                Faça login na rota \`/auth/login\` com matrícula e senha válidos.
-                
-                O sistema conta com:
-                - **Access Token**: Válido por 15 minutos
-                - **Refresh Token**: Válido por 7 dias
-                - **Logout**: Invalidação segura de tokens
-                - **Sistema de Logs**: Registro de todas as ações
-
-                ## Permissões
-                - **Administrador**: Acesso completo ao sistema
-                - **Funcionário**: Acesso limitado conforme configuração
-
-                Para mais informações, consulte a documentação técnica do projeto.
+                    ## Sistema de Gestão de Estoque
+                    
+                    API completa para gerenciamento de estoque, produtos, fornecedores e usuários.
+                    
+                    ### Funcionalidades Principais:
+                    - **Autenticação**: Sistema JWT com refresh tokens
+                    - **Usuários**: Gestão completa com perfis e permissões
+                    - **Produtos**: Controle de estoque e categorização
+                    - **Fornecedores**: Cadastro e relacionamento com produtos
+                    - **Movimentações**: Entrada e saída de produtos
+                    - **Auditoria**: Logs completos de todas as operações
+                    
+                    ### Segurança:
+                    - Autenticação via JWT Bearer Token
+                    - Controle de acesso baseado em perfis
+                    - Logs de auditoria para operações críticas
+                    - Validação rigorosa de dados de entrada
+                    
+                    ### Como usar:
+                    1. Faça login em \`/auth/login\` para obter o token
+                    2. Use o token no header: \`Authorization: Bearer <token>\`
+                    3. Consulte os endpoints disponíveis abaixo
                 `,
                 contact: {
                     name: "Equipe de Desenvolvimento",
-                    email: "dev@gestao-estoque.com",
-                },
+                    email: "dev@empresa.com"
+                }
             },
-            servers: getServersInCorrectOrder(),
-            tags: [
+            servers: [
                 {
-                    name: "Autenticação",
-                    description: "Rotas para autenticação e autorização (login, logout, refresh token)"
-                },
-                {
-                    name: "Produtos",
-                    description: "Gestão de produtos automotivos (CRUD, estoque baixo, busca)"
-                },
-                {
-                    name: "Fornecedores", 
-                    description: "Gestão de fornecedores (CRUD, busca por CNPJ/nome)"
-                },
-                {
-                    name: "Usuários",
-                    description: "Gestão de usuários do sistema (CRUD, controle de permissões)"
-                },
-                {
-                    name: "Movimentações",
-                    description: "Controle de movimentações de estoque (entradas, saídas, histórico)"
-                },
-                {
-                    name: "Logs",
-                    description: "Sistema de logs e auditoria (usuários online, eventos, estatísticas)"
+                    url: process.env.SYSTEM_URL || `http://localhost:${process.env.APP_PORT || 5011}`,
+                    description: 'Servidor da API'
                 }
             ],
-            paths: {
-                ...authPaths,
-                ...produtosPaths,
-                ...fornecedoresPaths,
-                ...usuariosPaths,
-                ...movimentacoesPaths,
-                ...logsPaths
-            },
             components: {
                 securitySchemes: {
                     bearerAuth: {
-                        type: "http",
-                        scheme: "bearer",
-                        bearerFormat: "JWT"
+                        type: 'http',
+                        scheme: 'bearer',
+                        bearerFormat: 'JWT',
+                        description: 'Token JWT obtido através do endpoint de login'
                     }
                 },
                 schemas: {
+                    ...commonSchemas,
+                    ...usuarioSchemas,
+                    ...produtoSchemas,
+                    ...fornecedorSchemas,
+                    ...movimentacaoSchemas,
                     ...authSchemas,
-                    ...produtosSchemas,
-                    ...fornecedoresSchemas,
-                    ...usuariosSchemas,
-                    ...movimentacoesSchemas,
+                    ...grupoSchemas,
                     ...logsSchemas
                 }
             },
-            security: [{
-                bearerAuth: []
-            }]
-        },
-        apis: ["./src/routes/*.js"]
-    };
-};
+            paths: {
+                ...authRoutes,
+                ...usuariosRoutes,
+                ...produtosRoutes,
+                ...fornecedoresRoutes,
+                ...movimentacoesRoutes,
+                ...gruposRoutes,
+                ...logsRoutes
+            },
+            tags: [
+                {
+                    name: 'Autenticação',
+                    description: 'Endpoints para login, logout e gerenciamento de tokens'
+                },
+                {
+                    name: 'Usuários',
+                    description: 'Gestão de usuários, perfis e permissões'
+                },
+                {
+                    name: 'Produtos',
+                    description: 'Cadastro e gerenciamento de produtos'
+                },
+                {
+                    name: 'Fornecedores',
+                    description: 'Cadastro e gerenciamento de fornecedores'
+                },
+                {
+                    name: 'Movimentações',
+                    description: 'Controle de entrada e saída de produtos'
+                },
+                {
+                    name: 'Grupos',
+                    description: 'Gestão de grupos e permissões'
+                },
+                {
+                    name: 'Logs',
+                    description: 'Auditoria e logs do sistema'
+                }
+            ]
+        };
+    }
 
-export default getSwaggerOptions;
+    getSwaggerSpec() {
+        return this.swaggerDefinition;
+    }
+
+    setupSwagger(app) {
+        const swaggerSpec = this.getSwaggerSpec();
+        
+        // Servir arquivos do Swagger UI
+        app.use('/api-docs', swaggerUI.serve);
+        app.get('/api-docs', swaggerUI.setup(swaggerSpec, {
+            customCss: `
+                .swagger-ui .topbar { display: none; }
+                .swagger-ui .info .title { color: #2c3e50; }
+                .swagger-ui .scheme-container { 
+                    background: #f8f9fa; 
+                    border: 1px solid #dee2e6; 
+                    border-radius: 0.375rem; 
+                    padding: 1rem; 
+                    margin: 1rem 0; 
+                }
+            `,
+            customSiteTitle: "Sistema de Gestão de Estoque - API Documentation",
+            customfavIcon: "/favicon.ico"
+        }));
+
+        // Endpoint para obter spec JSON
+        app.get('/api-docs.json', (req, res) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.send(swaggerSpec);
+        });
+
+        console.log('📚 Swagger configurado em: /api-docs');
+        console.log('📄 Spec JSON disponível em: /api-docs.json');
+    }
+}
+
+export default SwaggerConfig;
