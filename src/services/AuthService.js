@@ -5,6 +5,7 @@ import UsuarioRepository from '../repositories/usuarioRepository.js';
 import CustomError from '../utils/helpers/CustomError.js';
 import TokenUtil from '../utils/TokenUtil.js';
 import EmailService from './EmailService.js';
+import nodemailer from "nodemailer";
 
 dotenv.config();
 
@@ -173,32 +174,82 @@ export class AuthService {
         return { data };
     }
 
-    async recuperarSenha(email) {
-        // Buscar o usuário pelo email
-        const usuario = await this.usuarioRepository.buscarPorEmail(email);
+    // async recuperarSenha(email) {
+    //     // Buscar o usuário pelo email
+    //     const usuario = await this.usuarioRepository.buscarPorEmail(email);
 
-        // Mesmo que não encontre o usuário, não revelamos isso por segurança
-        if (!usuario) {
-            return {
-                message: 'Solicitação de recuperação de senha recebida, um email será enviado com as instruções para recuperação de senha'
-            };
+    //     // Mesmo que não encontre o usuário, não revelamos isso por segurança
+    //     if (!usuario) {
+    //         return {
+    //             message: 'Solicitação de recuperação de senha recebida, um email será enviado com as instruções para recuperação de senha'
+    //         };
+    //     }
+
+    //     // Gerar token de recuperação (JWT)
+    //     const token = await this.tokenUtil.generatePasswordRecoveryToken(usuario._id);
+
+    //     // Gerar código de recuperação (4 dígitos)
+    //     const codigo = Math.random().toString(36).replace(/[^a-z0-9]/gi, '').slice(0, 4).toUpperCase();
+
+    //     // Salvar token e código no usuário
+    //     await this.usuarioRepository.atualizarTokenRecuperacao(usuario._id, token, codigo);
+
+    //     // Tentar enviar email de recuperação
+    //     await EmailService.enviarCodigoRecuperacao(usuario, codigo);
+
+    //     return {
+    //         message: 'Solicitação de recuperação de senha recebida, um email será enviado com as instruções para recuperação de senha'
+    //     };
+    // }
+
+    async recuperarSenha(email) {
+        const user = await this.usuarioRepository.buscarPorEmail(email);
+
+        if (!user) {
+            throw new CustomError({
+                statusCode: 404,
+                field: "Email",
+                details: [],
+                customMessage: "Usuário não encontrado"
+            });
         }
 
-        // Gerar token de recuperação (JWT)
-        const token = await this.tokenUtil.generatePasswordRecoveryToken(usuario._id);
+        // Gerar código e token único
+        const codigo = Math.random().toString(36).substring(2, 6).toUpperCase();
+        const tokenUnico = await this.tokenUtil.generatePasswordRecoveryToken(user._id);
 
-        // Gerar código de recuperação (4 dígitos)
-        const codigo = Math.random().toString(36).replace(/[^a-z0-9]/gi, '').slice(0, 4).toUpperCase();
+        // Salvar no banco
+        await this.usuarioRepository.atualizarUsuario(user._id, {
+            tokenUnico,
+            codigo_recupera_senha: codigo,
+            exp_codigo_recupera_senha: new Date(Date.now() + 60 * 60 * 1000) // 1h
+        });
 
-        // Salvar token e código no usuário
-        await this.usuarioRepository.atualizarTokenRecuperacao(usuario._id, token, codigo);
+        const resetUrl = `${process.env.FRONTEND_URL}/auth/reset?token=${tokenUnico}`;
 
-        // Tentar enviar email de recuperação
-        await EmailService.enviarCodigoRecuperacao(usuario, codigo);
+        // Configuração do transporter
+        const transporter = nodemailer.createTransport({
+            host: process.env.EMAIL_HOST,
+            port: process.env.EMAIL_PORT,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
 
-        return {
-            message: 'Solicitação de recuperação de senha recebida, um email será enviado com as instruções para recuperação de senha'
-        };
+        await transporter.sendMail({
+            from: process.env.EMAIL_FROM || '"Equipe Auth" <no-reply@auth.com>',
+            to: user.email,
+            subject: "Redefinir senha",
+            html: `
+                <p>Olá ${user.nome_usuario || user.nome},</p>
+                <p>Clique no link abaixo para redefinir sua senha:</p>
+                <a href="${resetUrl}" target="_blank">${resetUrl}</a>
+                <p>Este link expira em 60 minutos.</p>
+            `
+        });
+
+        return { message: "E-mail de recuperação enviado com sucesso." };
     }
 
     async redefinirSenhaComToken(token, novaSenha) {
