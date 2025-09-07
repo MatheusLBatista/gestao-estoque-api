@@ -13,10 +13,16 @@ export class AuthService {
     constructor() {
         this.usuarioRepository = new UsuarioRepository();
         this.tokenUtil = TokenUtil;
-        this.ACCESS_TOKEN_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
-        this.REFRESH_TOKEN_SECRET = process.env.JWT_REFRESH_SECRET || "your_jwt_refresh_secret";
-        this.ACCESS_TOKEN_EXPIRY = '1h';
-        this.REFRESH_TOKEN_EXPIRY = '7d';
+
+        this.ACCESS_TOKEN_SECRET =
+        process.env.JWT_SECRET_ACCESS_TOKEN || process.env.JWT_SECRET_ACCESS_TOKEN || "your_jwt_secret";
+
+        this.REFRESH_TOKEN_SECRET =
+        process.env.JWT_SECRET_REFRESH_TOKEN || process.env.JWT_REFRESH_SECRET || "your_jwt_refresh_secret";
+
+        this.ACCESS_TOKEN_EXPIRY = process.env.JWT_ACCESS_TOKEN_EXPIRATION || '1h';
+        this.REFRESH_TOKEN_EXPIRY = process.env.JWT_REFRESH_TOKEN_EXPIRATION || '7d';
+
     }
 
     async autenticar(matricula, senha) {
@@ -254,10 +260,8 @@ export class AuthService {
 
     async redefinirSenhaComToken(token, novaSenha) {
         try {
-            // Decodificar o token para obter o ID do usuário
             const usuarioId = await this.tokenUtil.decodePasswordRecoveryToken(token);
 
-            // Verificar se o usuário existe
             const usuario = await this.usuarioRepository.buscarPorId(usuarioId);
             if (!usuario) {
                 throw new CustomError({
@@ -267,20 +271,15 @@ export class AuthService {
                 });
             }
 
-            // Hash da nova senha
             const senhaCriptografada = await bcrypt.hash(novaSenha, 10);
-
-            // Atualizar senha e remover tokens de recuperação
             await this.usuarioRepository.atualizarSenha(usuarioId, senhaCriptografada);
 
-            return {
-                message: 'Senha atualizada com sucesso'
-            };
+            return { message: "Senha atualizada com sucesso" };
         } catch (error) {
             throw new CustomError({
                 statusCode: 401,
                 errorType: 'authError',
-                customMessage: 'Token inválido ou expirado'
+                customMessage: 'Token inválido ou expirado' + error
             });
         }
     }
