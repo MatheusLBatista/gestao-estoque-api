@@ -207,8 +207,8 @@ export class AuthService {
         // Salvar no banco
         await this.usuarioRepository.atualizarUsuario(user._id, {
             tokenUnico,
-            codigo_recupera_senha: codigo,
-            exp_codigo_recupera_senha: new Date(Date.now() + 60 * 60 * 1000) // 1h
+            codigo_recuperacao: codigo,
+            data_expiracao_codigo: new Date(Date.now() + 60 * 60 * 1000) // 1h
         });
 
         const resetUrl = `${process.env.FRONTEND_URL}/auth/reset?token=${tokenUnico}`;
@@ -231,6 +231,8 @@ export class AuthService {
                 <p>Olá ${user.nome_usuario || user.nome},</p>
                 <p>Clique no link abaixo para redefinir sua senha:</p>
                 <a href="${resetUrl}" target="_blank">${resetUrl}</a>
+                <p>Ou redefina sua senha a partir do código:</p>
+                <h4>${codigo}</h4>
                 <p>Este link expira em 60 minutos.</p>
             `
         });
