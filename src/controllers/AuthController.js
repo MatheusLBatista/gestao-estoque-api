@@ -1,8 +1,11 @@
+import jwt from 'jsonwebtoken';
+import { promisify } from 'util';
 import { AuthService } from "../services/AuthService.js";
 import CommonResponse from "../utils/helpers/CommonResponse.js";
 import HttpStatusCodes from "../utils/helpers/HttpStatusCodes.js";
 import { UsuarioUpdateSchema } from '../utils/validators/schemas/zod/UsuarioSchema.js';
 import LogMiddleware from '../middlewares/LogMiddleware.js';
+import CustomError from '../utils/helpers/CustomError.js';
 
 class AuthController {
     constructor() {
@@ -51,18 +54,22 @@ class AuthController {
         const { refreshToken } = req.body;
 
         if (!refreshToken) {
-            return res.status(400).json({
-                message: 'Token de atualização não fornecido',
-                type: 'validationError'
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'invalidRefresh',
+                field: 'Refresh',
+                details: [],
+                customMessage: 'Refresh token não informado.'
             });
         }
 
-        const tokens = await this.service.refreshToken(refreshToken);
+        const decoded = await promisify(jwt.verify)(
+            refreshToken, 
+            process.env.JWT_SECRET_REFRESH_TOKEN
+        );
 
-        return res.status(200).json({
-            message: 'Token atualizado com sucesso',
-            ...tokens
-        });
+        const data = await this.service.refreshToken(decoded.id, refreshToken);
+        return CommonResponse.success(res, data);
     }
 
     async revoke(req, res) {

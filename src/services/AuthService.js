@@ -6,6 +6,8 @@ import CustomError from '../utils/helpers/CustomError.js';
 import TokenUtil from '../utils/TokenUtil.js';
 import EmailService from './EmailService.js';
 import nodemailer from "nodemailer";
+import HttpStatusCodes from '../utils/helpers/HttpStatusCodes.js';
+import messages from '../utils/helpers/messages.js';
 
 dotenv.config();
 
@@ -97,40 +99,41 @@ export class AuthService {
         return await this.usuarioRepository.removeToken(userId);
     }
 
-    async refreshToken(refreshToken) {
-        try {
-            // Verificar se o token é válido
-            const decoded = jwt.verify(refreshToken, this.REFRESH_TOKEN_SECRET);
+    async refreshToken(id, refreshToken) {
+        const user = await this.usuarioRepository.buscarPorId(id, { includeTokens: true });
 
-            // Buscar usuário pelo ID
-            const usuario = await this.usuarioRepository.buscarPorId(decoded.id);
-
-            if (!usuario || usuario.refreshtoken !== refreshToken) {
-                throw new CustomError({
-                    statusCode: 401,
-                    errorType: 'authError',
-                    customMessage: 'Token de atualização inválido'
-                });
-            }
-
-            // Gerar novos tokens
-            const accessToken = this._gerarAccessToken(usuario);
-            const newRefreshToken = this._gerarRefreshToken(usuario);
-
-            // Armazenar novos tokens
-            await this.usuarioRepository.armazenarTokens(usuario._id, accessToken, newRefreshToken);
-
-            return {
-                accessToken,
-                refreshToken: newRefreshToken
-            };
-        } catch (error) {
+        if (user.refreshtoken !== refreshToken) {
+            console.log('Token inválido');
             throw new CustomError({
-                statusCode: 401,
-                errorType: 'authError',
-                customMessage: 'Token de atualização inválido ou expirado'
+                statusCode: HttpStatusCodes.UNAUTHORIZED.code,
+                errorType: 'invalidToken',
+                field: 'Token',
+                details: [],
+                customMessage: messages.error.unauthorized('Token')
             });
         }
+
+        const accesstoken = await this.tokenUtil.generateAccessToken(id);
+
+        let refreshtoken = '';
+        if (process.env.SINGLE_SESSION_REFRESH_TOKEN === 'true') {
+            refreshtoken = await this.tokenUtil.generateRefreshToken(id);
+        } else {
+            refreshtoken = user.refreshtoken;
+        }
+
+        await this.usuarioRepository.armazenarTokens(id, accesstoken, refreshtoken);
+
+        const userLogado = await this.usuarioRepository.buscarPorId(id, { includeTokens: true });
+        const userObjeto = userLogado.toObject();
+
+        const userComTokens = {
+            accesstoken,
+            refreshtoken,
+            ...userObjeto
+        };
+
+        return { user: userComTokens };
     }
 
     _gerarAccessToken(usuario) {
