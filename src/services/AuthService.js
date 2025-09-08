@@ -2,12 +2,9 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import UsuarioRepository from '../repositories/usuarioRepository.js';
-import CustomError from '../utils/helpers/CustomError.js';
 import TokenUtil from '../utils/TokenUtil.js';
-import EmailService from './EmailService.js';
+import { CommonResponse, CustomError, HttpStatusCodes, errorHandler, messages, StatusService, asyncWrapper } from '../utils/helpers/index.js';
 import nodemailer from "nodemailer";
-import HttpStatusCodes from '../utils/helpers/HttpStatusCodes.js';
-import messages from '../utils/helpers/messages.js';
 
 dotenv.config();
 
@@ -134,26 +131,6 @@ export class AuthService {
         };
 
         return { user: userComTokens };
-    }
-
-    _gerarAccessToken(usuario) {
-        return jwt.sign(
-            {
-                id: usuario._id,
-                matricula: usuario.matricula,
-                perfil: usuario.perfil
-            },
-            this.ACCESS_TOKEN_SECRET,
-            { expiresIn: this.ACCESS_TOKEN_EXPIRY }
-        );
-    }
-
-    _gerarRefreshToken(usuario) {
-        return jwt.sign(
-            { id: usuario._id },
-            this.REFRESH_TOKEN_SECRET,
-            { expiresIn: this.REFRESH_TOKEN_EXPIRY }
-        );
     }
 
     async revoke(matricula) {
