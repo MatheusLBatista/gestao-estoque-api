@@ -65,10 +65,8 @@ export class AuthService {
         }
 
         // Gerar tokens
-        console.log('🔍 [AuthService] Gerando tokens para usuário ID:', usuario._id?.toString());
-        const accessToken = this._gerarAccessToken(usuario);
-        const refreshToken = this._gerarRefreshToken(usuario);
-        console.log('🔍 [AuthService] Token gerado:', accessToken.substring(0, 50) + '...');
+        const accessToken = await this.tokenUtil.generateAccessToken(usuario._id);
+        const refreshToken = await this.tokenUtil.generateRefreshToken(usuario._id);
 
         // Armazenar tokens no usuário e marcar como online
         await this.usuarioRepository.armazenarTokens(usuario._id, accessToken, refreshToken);
@@ -160,34 +158,6 @@ export class AuthService {
         return { data };
     }
 
-    // async recuperarSenha(email) {
-    //     // Buscar o usuário pelo email
-    //     const usuario = await this.usuarioRepository.buscarPorEmail(email);
-
-    //     // Mesmo que não encontre o usuário, não revelamos isso por segurança
-    //     if (!usuario) {
-    //         return {
-    //             message: 'Solicitação de recuperação de senha recebida, um email será enviado com as instruções para recuperação de senha'
-    //         };
-    //     }
-
-    //     // Gerar token de recuperação (JWT)
-    //     const token = await this.tokenUtil.generatePasswordRecoveryToken(usuario._id);
-
-    //     // Gerar código de recuperação (4 dígitos)
-    //     const codigo = Math.random().toString(36).replace(/[^a-z0-9]/gi, '').slice(0, 4).toUpperCase();
-
-    //     // Salvar token e código no usuário
-    //     await this.usuarioRepository.atualizarTokenRecuperacao(usuario._id, token, codigo);
-
-    //     // Tentar enviar email de recuperação
-    //     await EmailService.enviarCodigoRecuperacao(usuario, codigo);
-
-    //     return {
-    //         message: 'Solicitação de recuperação de senha recebida, um email será enviado com as instruções para recuperação de senha'
-    //     };
-    // }
-
     async recuperarSenha(email) {
         const user = await this.usuarioRepository.buscarPorEmail(email);
 
@@ -206,7 +176,8 @@ export class AuthService {
 
         // Salvar no banco
         await this.usuarioRepository.atualizarUsuario(user._id, {
-            tokenUnico,
+            token_recuperacao: tokenUnico,
+            token_recuperacao_expira: new Date(Date.now() + 60 * 60 * 1000), // 1h
             codigo_recuperacao: codigo,
             data_expiracao_codigo: new Date(Date.now() + 60 * 60 * 1000) // 1h
         });
@@ -241,29 +212,37 @@ export class AuthService {
     }
 
     async redefinirSenhaComToken(token, novaSenha) {
-        try {
-            const usuarioId = await this.tokenUtil.decodePasswordRecoveryToken(token);
-
-            const usuario = await this.usuarioRepository.buscarPorId(usuarioId);
-            if (!usuario) {
-                throw new CustomError({
-                    statusCode: 404,
-                    errorType: 'notFound',
-                    customMessage: 'Usuário não encontrado'
-                });
-            }
-
-            const senhaCriptografada = await bcrypt.hash(novaSenha, 10);
-            await this.usuarioRepository.atualizarSenha(usuarioId, senhaCriptografada);
-
-            return { message: "Senha atualizada com sucesso" };
-        } catch (error) {
+        const usuarioId = await this.tokenUtil.decodePasswordRecoveryToken(token)
+            .catch(() => {
             throw new CustomError({
                 statusCode: 401,
                 errorType: 'authError',
-                customMessage: 'Token inválido ou expirado' + error
+                customMessage: 'Token inválido ou expirado'
+            });
+            });
+
+        const usuario = await this.usuarioRepository.buscarPorId(usuarioId);
+
+        if (!usuario.token_recuperacao_expira || usuario.token_recuperacao_expira && new Date(usuario.token_recuperacao_expira) < new Date()) {
+            throw new CustomError({
+            statusCode: 401,
+            errorType: 'authError',
+            customMessage: 'Token expirado'
             });
         }
+
+        const senhaCriptografada = await bcrypt.hash(novaSenha, 10);
+
+        await this.usuarioRepository.atualizarUsuario(usuarioId, {
+            senha: senhaCriptografada,
+            senha_definida: true,
+            ativo: true,
+            codigo_recuperacao: null,
+            token_recuperacao: null,
+            token_recuperacao_expira: null,
+        });
+
+        return { message: "Senha atualizada com sucesso" };
     }
 
     async redefinirSenhaComCodigo(codigo, novaSenha) {
