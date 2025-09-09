@@ -25,27 +25,19 @@ export class AuthService {
     }
 
     async autenticar(matricula, senha) {
-        console.log('🔍 [AuthService] Iniciando autenticação para matrícula:', matricula);
         const usuario = await this.usuarioRepository.buscarPorMatricula(matricula, '+senha +senha_definida');
-        console.log('🔍 [AuthService] Usuário encontrado com ID:', usuario?._id?.toString());
-
-        if (!usuario) {
-            throw new CustomError({
-                statusCode: 401,
-                errorType: 'authError',
-                customMessage: 'Matrícula ou senha incorretos'
-            });
-        }
 
         if (!usuario.ativo) {
             throw new CustomError({
                 statusCode: 401,
                 errorType: 'authError',
-                customMessage: 'Usuário inativo'
+                field: "Usuário",
+                details: [],
+                customMessage: messages.error.resourceNotFound("Usuário")
             });
         }
-
-        // Verificar se a senha foi definida
+        
+        //TODO: verificar a veracidade desse if após revisar o usuário
         if (!usuario.senha_definida || !usuario.senha) {
             throw new CustomError({
                 statusCode: 401,
@@ -59,8 +51,10 @@ export class AuthService {
         if (!senhaCorreta) {
             throw new CustomError({
                 statusCode: 401,
-                errorType: 'authError',
-                customMessage: 'Matrícula ou senha incorretos'
+                errorType:'authError',
+                field:'Senha',
+                details:[],
+                customMessage: messages.error.unauthorized('Credenciais inválidas')
             });
         }
 
@@ -98,7 +92,6 @@ export class AuthService {
         const user = await this.usuarioRepository.buscarPorId(id, { includeTokens: true });
 
         if (user.refreshtoken !== refreshToken) {
-            console.log('Token inválido');
             throw new CustomError({
                 statusCode: HttpStatusCodes.UNAUTHORIZED.code,
                 errorType: 'invalidToken',
@@ -132,25 +125,8 @@ export class AuthService {
     }
 
     async revoke(matricula) {
-        // Verificar se a matrícula foi fornecida
-        if (!matricula) {
-            throw new CustomError({
-                statusCode: 400,
-                errorType: 'validationError',
-                customMessage: 'Matrícula não fornecida'
-            });
-        }
-
         // Buscar usuário pela matrícula
         const usuario = await this.usuarioRepository.buscarPorMatricula(matricula);
-
-        if (!usuario) {
-            throw new CustomError({
-                statusCode: 404,
-                errorType: 'notFoundError',
-                customMessage: 'Usuário não encontrado com esta matrícula'
-            });
-        }
 
         // Remove tokens do usuário e marca como offline
         await this.usuarioRepository.setUserOnlineStatus(usuario._id, false);
@@ -160,15 +136,6 @@ export class AuthService {
 
     async recuperarSenha(email) {
         const user = await this.usuarioRepository.buscarPorEmail(email);
-
-        if (!user) {
-            throw new CustomError({
-                statusCode: 404,
-                field: "Email",
-                details: [],
-                customMessage: "Usuário não encontrado"
-            });
-        }
 
         // Gerar código e token único
         const codigo = Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -214,15 +181,18 @@ export class AuthService {
     async redefinirSenhaComToken(token, novaSenha) {
         const usuarioId = await this.tokenUtil.decodePasswordRecoveryToken(token)
             .catch(() => {
-            throw new CustomError({
-                statusCode: 401,
-                errorType: 'authError',
-                customMessage: 'Token inválido ou expirado'
-            });
+                throw new CustomError({
+                    statusCode: 404,
+                    errorType: 'authError',
+                    field: 'Usuário',
+                    details: [],
+                    customMessage: messages.error.resourceNotFound("Token")
+                });
             });
 
         const usuario = await this.usuarioRepository.buscarPorId(usuarioId);
 
+        //TODO: revisar e consertar inconsistência no token
         if (!usuario.token_recuperacao_expira || usuario.token_recuperacao_expira && new Date(usuario.token_recuperacao_expira) < new Date()) {
             throw new CustomError({
             statusCode: 401,
@@ -249,21 +219,15 @@ export class AuthService {
         // Buscar usuário pelo código de recuperação
         const usuario = await this.usuarioRepository.buscarPorCodigoRecuperacao(codigo);
 
-        if (!usuario) {
-            throw new CustomError({
-                statusCode: 404,
-                errorType: 'notFound',
-                customMessage: 'Código de recuperação inválido'
-            });
-        }
-
         // Verificar se o código não expirou
         const agora = new Date();
         if (usuario.data_expiracao_codigo && usuario.data_expiracao_codigo < agora) {
             throw new CustomError({
                 statusCode: 401,
                 errorType: 'authError',
-                customMessage: 'Código de recuperação expirado'
+                field: "Usuário",
+                details: [],
+                customMessage: messages.error.resourceNotFound("Código de recuperação")
             });
         }
 

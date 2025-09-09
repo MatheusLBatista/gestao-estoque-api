@@ -87,11 +87,25 @@ class UsuarioRepository {
     }
 
     async buscarPorMatricula(matricula, incluirSenha = false) {
-        const query = { matricula };
+        let query = this.model.findOne({ matricula });
+
         if (incluirSenha) {
-            return await this.model.findOne(query).select('+senha');
+            query = query.select('+senha');
         }
-        return await this.model.findOne(query);
+
+        const user = await query;
+
+        if (!user) {
+            throw new CustomError({
+                statusCode: 404,
+                errorType: 'resourceNotFound',
+                field: 'Usuário',
+                details: [],
+                customMessage: messages.error.resourceNotFound('Usuário')
+            });
+        }
+
+        return user;
     }
 
     async cadastrarUsuario(dadosUsuario) {
@@ -305,14 +319,44 @@ class UsuarioRepository {
     }
 
     async buscarPorEmail(email, incluirSenha = false) {
-        const select = incluirSenha ? '+senha' : '';
-        return await this.model.findOne({ email }).select(select);
+        let query = this.model.findOne({ email });
+
+        if (incluirSenha) {
+            query = query.select('+senha');
+        }
+
+        const user = await query;
+
+        if (!user) {
+            throw new CustomError({
+                statusCode: 404,
+                errorType: 'resourceNotFound',
+                field: 'Usuário',
+                details: [],
+                customMessage: messages.error.resourceNotFound('Usuário')
+            });
+        }
+
+        return user;
     }
 
     async buscarPorCodigoRecuperacao(codigo) {
-        return await this.model.findOne({
-            codigo_recuperacao: codigo
-        }).select('+senha +token_recuperacao +codigo_recuperacao +token_recuperacao_expira');
+        let query = this.model.findOne({ codigo_recuperacao: codigo })
+            .select('+senha +token_recuperacao +codigo_recuperacao +token_recuperacao_expira');
+
+        const user = await query;
+
+        if (!user) {
+            throw new CustomError({
+                statusCode: 404,
+                errorType: 'resourceNotFound',
+                field: 'Usuário',
+                details: [],
+                customMessage: messages.error.resourceNotFound('Usuário')
+            });
+        }
+
+        return user;
     }
 
     async atualizarTokenRecuperacao(id, token, codigo) {
