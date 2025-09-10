@@ -1,6 +1,7 @@
+import jwt from 'jsonwebtoken';
+import { promisify } from 'util';
+import { CommonResponse, CustomError, HttpStatusCodes, errorHandler, messages, StatusService, asyncWrapper } from '../utils/helpers/index.js';
 import { AuthService } from "../services/AuthService.js";
-import CommonResponse from "../utils/helpers/CommonResponse.js";
-import HttpStatusCodes from "../utils/helpers/HttpStatusCodes.js";
 import { UsuarioUpdateSchema } from '../utils/validators/schemas/zod/UsuarioSchema.js';
 import LogMiddleware from '../middlewares/LogMiddleware.js';
 
@@ -13,9 +14,12 @@ class AuthController {
         const { matricula, senha } = req.body;
 
         if (!matricula || !senha) {
-            return res.status(400).json({
-                message: 'Matrícula e senha são obrigatórios',
-                type: 'validationError'
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'authError',
+                field: "Usuário",
+                details: [],
+                customMessage: messages.error.resourceNotFound("Matricula ou senha")
             });
         }
 
@@ -51,35 +55,45 @@ class AuthController {
         const { refreshToken } = req.body;
 
         if (!refreshToken) {
-            return res.status(400).json({
-                message: 'Token de atualização não fornecido',
-                type: 'validationError'
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'invalidRefresh',
+                field: 'Refresh',
+                details: [],
+                customMessage: messages.error.resourceNotFound("Refresh token")
             });
         }
 
-        const tokens = await this.service.refreshToken(refreshToken);
+        const decoded = await promisify(jwt.verify)(
+            refreshToken, 
+            process.env.JWT_SECRET_REFRESH_TOKEN
+        );
 
-        return res.status(200).json({
-            message: 'Token atualizado com sucesso',
-            ...tokens
-        });
+        const data = await this.service.refreshToken(decoded.id, refreshToken);
+        return CommonResponse.success(res, data);
     }
 
     async revoke(req, res) {
         //verificação defensiva do body
         if (!req.body) {
-            return res.status(400).json({
-                message: 'Corpo da requisição ausente',
-                type: 'validationError'
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'validationError',
+                field: 'Body',
+                details: [],
+                customMessage: messages.error.resourceNotFound("Body")
             });
         }
 
         const { matricula } = req.body;
 
         if (!matricula) {
-            return res.status(400).json({
-                message: 'Matrícula não fornecida',
-                type: 'validationError'
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'authError',
+                field: 'Matrícula',
+                details: [],
+                customMessage: messages.error.resourceNotFound("Matrícula")
             });
         }
 
@@ -100,9 +114,12 @@ class AuthController {
         const { email } = req.body;
 
         if (!email) {
-            return res.status(400).json({
-                message: 'Email é obrigatório',
-                type: 'validationError'
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'validationError',
+                field: 'Email',
+                details: [],
+                customMessage: messages.error.resourceNotFound("Email")
             });
         }
 
@@ -116,9 +133,12 @@ class AuthController {
         const { senha } = req.body;
 
         if (!token || !senha) {
-            return res.status(400).json({
-                message: 'Token e senha são obrigatórios',
-                type: 'validationError'
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'authError',
+                field: 'Token e senha',
+                details: [],
+                customMessage: messages.error.resourceNotFound("Token ou senha")
             });
         }
 
@@ -131,9 +151,12 @@ class AuthController {
         const { codigo, senha } = req.body;
 
         if (!codigo || !senha) {
-            return res.status(400).json({
-                message: 'Código e senha são obrigatórios',
-                type: 'validationError'
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'authError',
+                field: 'Código e senha',
+                details: [],
+                customMessage: messages.error.resourceNotFound("Código ou senha")
             });
         }
 

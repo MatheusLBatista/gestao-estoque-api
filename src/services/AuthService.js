@@ -2,9 +2,9 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import UsuarioRepository from '../repositories/usuarioRepository.js';
-import CustomError from '../utils/helpers/CustomError.js';
 import TokenUtil from '../utils/TokenUtil.js';
-import EmailService from './EmailService.js';
+import { CommonResponse, CustomError, HttpStatusCodes, errorHandler, messages, StatusService, asyncWrapper } from '../utils/helpers/index.js';
+import nodemailer from "nodemailer";
 
 dotenv.config();
 
@@ -12,34 +12,32 @@ export class AuthService {
     constructor() {
         this.usuarioRepository = new UsuarioRepository();
         this.tokenUtil = TokenUtil;
-        this.ACCESS_TOKEN_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
-        this.REFRESH_TOKEN_SECRET = process.env.JWT_REFRESH_SECRET || "your_jwt_refresh_secret";
-        this.ACCESS_TOKEN_EXPIRY = '1h';
-        this.REFRESH_TOKEN_EXPIRY = '7d';
+
+        this.ACCESS_TOKEN_SECRET =
+        process.env.JWT_SECRET_ACCESS_TOKEN || process.env.JWT_SECRET_ACCESS_TOKEN || "your_jwt_secret";
+
+        this.REFRESH_TOKEN_SECRET =
+        process.env.JWT_SECRET_REFRESH_TOKEN || process.env.JWT_REFRESH_SECRET || "your_jwt_refresh_secret";
+
+        this.ACCESS_TOKEN_EXPIRY = process.env.JWT_ACCESS_TOKEN_EXPIRATION || '1h';
+        this.REFRESH_TOKEN_EXPIRY = process.env.JWT_REFRESH_TOKEN_EXPIRATION || '7d';
+
     }
 
     async autenticar(matricula, senha) {
-        console.log('🔍 [AuthService] Iniciando autenticação para matrícula:', matricula);
         const usuario = await this.usuarioRepository.buscarPorMatricula(matricula, '+senha +senha_definida');
-        console.log('🔍 [AuthService] Usuário encontrado com ID:', usuario?._id?.toString());
-
-        if (!usuario) {
-            throw new CustomError({
-                statusCode: 401,
-                errorType: 'authError',
-                customMessage: 'Matrícula ou senha incorretos'
-            });
-        }
 
         if (!usuario.ativo) {
             throw new CustomError({
                 statusCode: 401,
                 errorType: 'authError',
-                customMessage: 'Usuário inativo'
+                field: "Usuário",
+                details: [],
+                customMessage: messages.error.resourceNotFound("Usuário")
             });
         }
-
-        // Verificar se a senha foi definida
+        
+        //TODO: verificar a veracidade desse if após revisar o usuário
         if (!usuario.senha_definida || !usuario.senha) {
             throw new CustomError({
                 statusCode: 401,
@@ -53,16 +51,16 @@ export class AuthService {
         if (!senhaCorreta) {
             throw new CustomError({
                 statusCode: 401,
-                errorType: 'authError',
-                customMessage: 'Matrícula ou senha incorretos'
+                errorType:'authError',
+                field:'Senha',
+                details:[],
+                customMessage: messages.error.unauthorized('Credenciais inválidas')
             });
         }
 
         // Gerar tokens
-        console.log('🔍 [AuthService] Gerando tokens para usuário ID:', usuario._id?.toString());
-        const accessToken = this._gerarAccessToken(usuario);
-        const refreshToken = this._gerarRefreshToken(usuario);
-        console.log('🔍 [AuthService] Token gerado:', accessToken.substring(0, 50) + '...');
+        const accessToken = await this.tokenUtil.generateAccessToken(usuario._id);
+        const refreshToken = await this.tokenUtil.generateRefreshToken(usuario._id);
 
         // Armazenar tokens no usuário e marcar como online
         await this.usuarioRepository.armazenarTokens(usuario._id, accessToken, refreshToken);
@@ -90,82 +88,45 @@ export class AuthService {
         return await this.usuarioRepository.removeToken(userId);
     }
 
-    async refreshToken(refreshToken) {
-        try {
-            // Verificar se o token é válido
-            const decoded = jwt.verify(refreshToken, this.REFRESH_TOKEN_SECRET);
+    async refreshToken(id, refreshToken) {
+        const user = await this.usuarioRepository.buscarPorId(id, { includeTokens: true });
 
-            // Buscar usuário pelo ID
-            const usuario = await this.usuarioRepository.buscarPorId(decoded.id);
-
-            if (!usuario || usuario.refreshtoken !== refreshToken) {
-                throw new CustomError({
-                    statusCode: 401,
-                    errorType: 'authError',
-                    customMessage: 'Token de atualização inválido'
-                });
-            }
-
-            // Gerar novos tokens
-            const accessToken = this._gerarAccessToken(usuario);
-            const newRefreshToken = this._gerarRefreshToken(usuario);
-
-            // Armazenar novos tokens
-            await this.usuarioRepository.armazenarTokens(usuario._id, accessToken, newRefreshToken);
-
-            return {
-                accessToken,
-                refreshToken: newRefreshToken
-            };
-        } catch (error) {
+        if (user.refreshtoken !== refreshToken) {
             throw new CustomError({
-                statusCode: 401,
-                errorType: 'authError',
-                customMessage: 'Token de atualização inválido ou expirado'
+                statusCode: HttpStatusCodes.UNAUTHORIZED.code,
+                errorType: 'invalidToken',
+                field: 'Token',
+                details: [],
+                customMessage: messages.error.unauthorized('Token')
             });
         }
-    }
 
-    _gerarAccessToken(usuario) {
-        return jwt.sign(
-            {
-                id: usuario._id,
-                matricula: usuario.matricula,
-                perfil: usuario.perfil
-            },
-            this.ACCESS_TOKEN_SECRET,
-            { expiresIn: this.ACCESS_TOKEN_EXPIRY }
-        );
-    }
+        const accesstoken = await this.tokenUtil.generateAccessToken(id);
 
-    _gerarRefreshToken(usuario) {
-        return jwt.sign(
-            { id: usuario._id },
-            this.REFRESH_TOKEN_SECRET,
-            { expiresIn: this.REFRESH_TOKEN_EXPIRY }
-        );
+        let refreshtoken = '';
+        if (process.env.SINGLE_SESSION_REFRESH_TOKEN === 'true') {
+            refreshtoken = await this.tokenUtil.generateRefreshToken(id);
+        } else {
+            refreshtoken = user.refreshtoken;
+        }
+
+        await this.usuarioRepository.armazenarTokens(id, accesstoken, refreshtoken);
+
+        const userLogado = await this.usuarioRepository.buscarPorId(id, { includeTokens: true });
+        const userObjeto = userLogado.toObject();
+
+        const userComTokens = {
+            accesstoken,
+            refreshtoken,
+            ...userObjeto
+        };
+
+        return { user: userComTokens };
     }
 
     async revoke(matricula) {
-        // Verificar se a matrícula foi fornecida
-        if (!matricula) {
-            throw new CustomError({
-                statusCode: 400,
-                errorType: 'validationError',
-                customMessage: 'Matrícula não fornecida'
-            });
-        }
-
         // Buscar usuário pela matrícula
         const usuario = await this.usuarioRepository.buscarPorMatricula(matricula);
-
-        if (!usuario) {
-            throw new CustomError({
-                statusCode: 404,
-                errorType: 'notFoundError',
-                customMessage: 'Usuário não encontrado com esta matrícula'
-            });
-        }
 
         // Remove tokens do usuário e marca como offline
         await this.usuarioRepository.setUserOnlineStatus(usuario._id, false);
@@ -174,77 +135,88 @@ export class AuthService {
     }
 
     async recuperarSenha(email) {
-        // Buscar o usuário pelo email
-        const usuario = await this.usuarioRepository.buscarPorEmail(email);
+        const user = await this.usuarioRepository.buscarPorEmail(email);
 
-        // Mesmo que não encontre o usuário, não revelamos isso por segurança
-        if (!usuario) {
-            return {
-                message: 'Solicitação de recuperação de senha recebida, um email será enviado com as instruções para recuperação de senha'
-            };
-        }
+        // Gerar código e token único
+        const codigo = Math.random().toString(36).substring(2, 6).toUpperCase();
+        const tokenUnico = await this.tokenUtil.generatePasswordRecoveryToken(user._id);
 
-        // Gerar token de recuperação (JWT)
-        const token = await this.tokenUtil.generatePasswordRecoveryToken(usuario._id);
+        // Salvar no banco
+        await this.usuarioRepository.atualizarUsuario(user._id, {
+            token_recuperacao: tokenUnico,
+            token_recuperacao_expira: new Date(Date.now() + 60 * 60 * 1000), // 1h
+            codigo_recuperacao: codigo,
+            data_expiracao_codigo: new Date(Date.now() + 60 * 60 * 1000) // 1h
+        });
 
-        // Gerar código de recuperação (4 dígitos)
-        const codigo = Math.random().toString(36).replace(/[^a-z0-9]/gi, '').slice(0, 4).toUpperCase();
+        const resetUrl = `${process.env.FRONTEND_URL}/auth/reset?token=${tokenUnico}`;
 
-        // Salvar token e código no usuário
-        await this.usuarioRepository.atualizarTokenRecuperacao(usuario._id, token, codigo);
+        // Configuração do transporter
+        const transporter = nodemailer.createTransport({
+            host: process.env.EMAIL_HOST,
+            port: process.env.EMAIL_PORT,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
 
-        // Tentar enviar email de recuperação
-        await EmailService.enviarCodigoRecuperacao(usuario, codigo);
+        await transporter.sendMail({
+            from: process.env.EMAIL_FROM || '"Equipe Auth" <no-reply@auth.com>',
+            to: user.email,
+            subject: "Redefinir senha",
+            html: `
+                <p>Olá ${user.nome_usuario || user.nome},</p>
+                <p>Clique no link abaixo para redefinir sua senha:</p>
+                <a href="${resetUrl}" target="_blank">${resetUrl}</a>
+                <p>Ou redefina sua senha a partir do código:</p>
+                <h4>${codigo}</h4>
+                <p>Este link expira em 60 minutos.</p>
+            `
+        });
 
-        return {
-            message: 'Solicitação de recuperação de senha recebida, um email será enviado com as instruções para recuperação de senha'
-        };
+        return { message: "E-mail de recuperação enviado com sucesso." };
     }
 
     async redefinirSenhaComToken(token, novaSenha) {
-        try {
-            // Decodificar o token para obter o ID do usuário
-            const usuarioId = await this.tokenUtil.decodePasswordRecoveryToken(token);
-
-            // Verificar se o usuário existe
-            const usuario = await this.usuarioRepository.buscarPorId(usuarioId);
-            if (!usuario) {
+        const usuarioId = await this.tokenUtil.decodePasswordRecoveryToken(token)
+            .catch(() => {
                 throw new CustomError({
                     statusCode: 404,
-                    errorType: 'notFound',
-                    customMessage: 'Usuário não encontrado'
+                    errorType: 'authError',
+                    field: 'Usuário',
+                    details: [],
+                    customMessage: messages.error.resourceNotFound("Token")
                 });
-            }
+            });
 
-            // Hash da nova senha
-            const senhaCriptografada = await bcrypt.hash(novaSenha, 10);
+        const usuario = await this.usuarioRepository.buscarPorId(usuarioId);
 
-            // Atualizar senha e remover tokens de recuperação
-            await this.usuarioRepository.atualizarSenha(usuarioId, senhaCriptografada);
-
-            return {
-                message: 'Senha atualizada com sucesso'
-            };
-        } catch (error) {
+        if (usuario.token_recuperacao_expira && new Date(usuario.token_recuperacao_expira) < new Date()) {
             throw new CustomError({
-                statusCode: 401,
-                errorType: 'authError',
-                customMessage: 'Token inválido ou expirado'
+            statusCode: 401,
+            errorType: 'authError',
+            customMessage: 'Token expirado'
             });
         }
+
+        const senhaCriptografada = await bcrypt.hash(novaSenha, 10);
+
+        await this.usuarioRepository.atualizarUsuario(usuarioId, {
+            senha: senhaCriptografada,
+            senha_definida: true,
+            ativo: true,
+            codigo_recuperacao: null,
+            token_recuperacao: null,
+            token_recuperacao_expira: null,
+        });
+
+        return { message: "Senha atualizada com sucesso" };
     }
 
     async redefinirSenhaComCodigo(codigo, novaSenha) {
         // Buscar usuário pelo código de recuperação
         const usuario = await this.usuarioRepository.buscarPorCodigoRecuperacao(codigo);
-
-        if (!usuario) {
-            throw new CustomError({
-                statusCode: 404,
-                errorType: 'notFound',
-                customMessage: 'Código de recuperação inválido'
-            });
-        }
 
         // Verificar se o código não expirou
         const agora = new Date();
@@ -252,7 +224,9 @@ export class AuthService {
             throw new CustomError({
                 statusCode: 401,
                 errorType: 'authError',
-                customMessage: 'Código de recuperação expirado'
+                field: "Usuário",
+                details: [],
+                customMessage: messages.error.resourceNotFound("Código de recuperação")
             });
         }
 
