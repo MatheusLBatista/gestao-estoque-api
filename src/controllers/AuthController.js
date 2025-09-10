@@ -14,9 +14,12 @@ class AuthController {
         const { matricula, senha } = req.body;
 
         if (!matricula || !senha) {
-            return res.status(400).json({
-                message: 'Matrícula e senha são obrigatórios',
-                type: 'validationError'
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'authError',
+                field: "Usuário",
+                details: [],
+                customMessage: messages.error.resourceNotFound("Matricula ou senha")
             });
         }
 
@@ -57,7 +60,7 @@ class AuthController {
                 errorType: 'invalidRefresh',
                 field: 'Refresh',
                 details: [],
-                customMessage: 'Refresh token não informado.'
+                customMessage: messages.error.resourceNotFound("Refresh token")
             });
         }
 
@@ -73,18 +76,24 @@ class AuthController {
     async revoke(req, res) {
         //verificação defensiva do body
         if (!req.body) {
-            return res.status(400).json({
-                message: 'Corpo da requisição ausente',
-                type: 'validationError'
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'validationError',
+                field: 'Body',
+                details: [],
+                customMessage: messages.error.resourceNotFound("Body")
             });
         }
 
         const { matricula } = req.body;
 
         if (!matricula) {
-            return res.status(400).json({
-                message: 'Matrícula não fornecida',
-                type: 'validationError'
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'authError',
+                field: 'Matrícula',
+                details: [],
+                customMessage: messages.error.resourceNotFound("Matrícula")
             });
         }
 
@@ -105,13 +114,18 @@ class AuthController {
         const { email } = req.body;
 
         if (!email) {
-            return res.status(400).json({
-                message: 'Email é obrigatório',
-                type: 'validationError'
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'validationError',
+                field: 'Email',
+                details: [],
+                customMessage: messages.error.resourceNotFound("Email")
             });
         }
 
-        const resultado = await this.service.recuperarSenha(email);
+        const validatedBody = UsuarioUpdateSchema.parse(body);
+
+        const resultado = await this.service.recuperarSenha(validatedBody);
 
         return res.status(200).json(resultado);
     }
@@ -121,9 +135,12 @@ class AuthController {
         const { senha } = req.body;
 
         if (!token || !senha) {
-            return res.status(400).json({
-                message: 'Token e senha são obrigatórios',
-                type: 'validationError'
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'authError',
+                field: 'Token e senha',
+                details: [],
+                customMessage: messages.error.resourceNotFound("Token ou senha")
             });
         }
 
@@ -136,9 +153,12 @@ class AuthController {
         const { codigo, senha } = req.body;
 
         if (!codigo || !senha) {
-            return res.status(400).json({
-                message: 'Código e senha são obrigatórios',
-                type: 'validationError'
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'authError',
+                field: 'Código e senha',
+                details: [],
+                customMessage: messages.error.resourceNotFound("Código ou senha")
             });
         }
 

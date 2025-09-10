@@ -192,8 +192,7 @@ export class AuthService {
 
         const usuario = await this.usuarioRepository.buscarPorId(usuarioId);
 
-        //TODO: revisar e consertar inconsistência no token
-        if (!usuario.token_recuperacao_expira || usuario.token_recuperacao_expira && new Date(usuario.token_recuperacao_expira) < new Date()) {
+        if (usuario.token_recuperacao_expira && new Date(usuario.token_recuperacao_expira) < new Date()) {
             throw new CustomError({
             statusCode: 401,
             errorType: 'authError',
