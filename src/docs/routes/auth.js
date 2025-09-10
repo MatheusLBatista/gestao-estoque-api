@@ -85,6 +85,67 @@ const authRoutes = {
         }
     },
 
+    "/auth/logout": {
+        post: {
+            tags: ["Autenticação"],
+            summary: "Realizar logout no sistema",
+            description: `
+            Realiza o logout de um usuário no sistema.
+
+            **Importante:**
+            - O access token deve ser enviado no header \`Authorization: Bearer <token>\`
+            - Usuários devem ter definido sua senha
+            - Conta deve estar ativa
+            - Tokens são armazenados para controle de sessão
+            `,
+            security: [
+                { bearerAuth: [] }
+            ],
+            responses: {
+                200: {
+                    description: "Logout realizado com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/LogoutResponse"
+                            }
+                        }
+                    }
+                },
+                401: {
+                    description: "Token inválido ou expirado",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    success: {
+                                        type: "boolean",
+                                        example: false
+                                    },
+                                    message: {
+                                        type: "string",
+                                        example: "Token inválido ou expirado"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                500: {
+                    description: "Erro interno do servidor",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/ErrorResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+
     "/auth/redefinir-senha/codigo": {
         post: {
             tags: ["Autenticação"],

@@ -20,6 +20,11 @@ const authSchemas = {
         }
     },
 
+    LogoutRequest: {
+        type: 'object',
+        description: 'Não há corpo para esta requisição. O access token deve ser fornecido no header Authorization.'
+    },
+
     RefreshTokenRequest: {
         type: 'object',
         required: ['refreshToken'],
