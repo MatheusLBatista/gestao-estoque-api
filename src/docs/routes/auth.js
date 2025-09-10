@@ -420,6 +420,179 @@ const authRoutes = {
                 }
             }
         }
+    },
+
+    "/redefinir-senha/token": {
+        post: {
+            tags: ["Autenticação"],
+            summary: "Redefinir senha usando token de recuperação",
+            description: `
+            Redefine a senha do usuário usando um token de recuperação enviado por e-mail.
+            `,
+            requestBody: {
+                required: true,
+                content: {
+                    "application/json": {
+                        schema: {
+                            $ref: "#/components/schemas/RedefinirSenhaTokenRequest"
+                        }
+                    }
+                }
+            },
+            responses: {
+                200: {
+                    description: "Senha redefinida com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    success: {
+                                        type: "boolean",
+                                        example: true
+                                    },
+                                    message: {
+                                        type: "string",
+                                        example: "Senha atualizada com sucesso"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                400: {
+                    description: "Dados de entrada inválidos",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/ValidationErrorResponse"
+                            }
+                        }
+                    }
+                },
+                401: {
+                    description: "Token expirado",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    success: {
+                                        type: "boolean",
+                                        example: false
+                                    },
+                                    message: {
+                                        type: "string",
+                                        example: "Token de recuperação expirado"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                404: {
+                    description: "Token inválido",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    success: {
+                                        type: "boolean",
+                                        example: false
+                                    },
+                                    message: {
+                                        type: "string",
+                                        example: "Token de recuperação inválido"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                500: {
+                    description: "Erro interno do servidor",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/ErrorResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+    "/revoke": {
+        post: {
+            tags: ["Autenticação"],
+            summary: "Revogar tokens de acesso e refresh",
+            description: `
+            Revoga o access token e o refresh token do usuário, encerrando a sessão atual.
+            
+            **Importante:**
+            - O access token deve ser enviado no header \`Authorization: Bearer <token>\`
+            - Usuários devem ter definido sua senha
+            - Conta deve estar ativa
+            - Tokens são armazenados para controle de sessão
+            `,
+            security: [
+                { bearerAuth: [] }
+            ],
+            requestBody: {
+                required: true,
+                content: {
+                    "application/json": {
+                        schema: {
+                            $ref: "#/components/schemas/RevokeRequest"
+                        }
+                    }
+                }
+            },
+            responses: {
+                200: {
+                    description: "Tokens revogados com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/RevokeResponse"
+                            }
+                        }
+                    }
+                },
+                401: {
+                    description: "Token inválido ou expirado",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    success: {
+                                        type: "boolean",
+                                        example: false
+                                    },
+                                    message: {
+                                        type: "string",
+                                        example: "Token inválido ou expirado"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                500: {
+                    description: "Erro interno do servidor",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/ErrorResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 };
 
