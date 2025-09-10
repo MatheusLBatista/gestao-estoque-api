@@ -1,5 +1,5 @@
 import express from "express";
-import SwaggerConfig from "../docs/index.js";
+import SwaggerConfig from "../docs/config/head.js";
 import authMiddleware from "../middlewares/AuthMiddleware.js";
 import authPermission from "../middlewares/AuthPermission.js";
 import rotasProdutos from "./produtoRoutes.js";

@@ -65,16 +65,47 @@ class UsuarioRepository {
     }
 
     async buscarPorId(id, includeTokens = false) {
-        const projection = includeTokens ? {} : { accesstoken: 0, refreshtoken: 0 };
-        return await this.model.findById(id, projection);
+        let query = this.model.findById(id)
+
+        if (includeTokens) {
+            query = query.select('+refreshtoken +accesstoken');
+        }
+
+        const user = await query;
+        
+        if (!user) {
+            throw new CustomError({
+                statusCode: 404,
+                errorType: 'resourceNotFound',
+                field: 'Usuário',
+                details: [],
+                customMessage: messages.error.resourceNotFound('Usuário')
+            });
+        }
+
+        return user;
     }
 
     async buscarPorMatricula(matricula, incluirSenha = false) {
-        const query = { matricula };
+        let query = this.model.findOne({ matricula });
+
         if (incluirSenha) {
-            return await this.model.findOne(query).select('+senha');
+            query = query.select('+senha');
         }
-        return await this.model.findOne(query);
+
+        const user = await query;
+
+        if (!user) {
+            throw new CustomError({
+                statusCode: 404,
+                errorType: 'resourceNotFound',
+                field: 'Usuário',
+                details: [],
+                customMessage: messages.error.resourceNotFound('Usuário')
+            });
+        }
+
+        return user;
     }
 
     async cadastrarUsuario(dadosUsuario) {
@@ -200,11 +231,20 @@ class UsuarioRepository {
      * Armazenar accesstoken e refreshtoken no banco de dados
      */
     async armazenarTokens(id, accesstoken, refreshtoken) {
-        return await this.model.findByIdAndUpdate(
-            id,
-            { accesstoken, refreshtoken },
-            { new: true }
-        );
+        const document = await this.model.findById(id);
+        if(!document) {
+            throw new CustomError({
+                statusCode: 401,
+                errorType: "resourceNotFound",
+                field: "Usuário",
+                details: [],
+                customMessage: messages.error.resourceNotFound("Usuário")
+            })
+        }
+        document.accesstoken = accesstoken;
+        document.refreshtoken = refreshtoken;
+        const data = await document.save();
+        return data;
     }
 
     /**
@@ -279,14 +319,44 @@ class UsuarioRepository {
     }
 
     async buscarPorEmail(email, incluirSenha = false) {
-        const select = incluirSenha ? '+senha' : '';
-        return await this.model.findOne({ email }).select(select);
+        let query = this.model.findOne({ email });
+
+        if (incluirSenha) {
+            query = query.select('+senha');
+        }
+
+        const user = await query;
+
+        if (!user) {
+            throw new CustomError({
+                statusCode: 404,
+                errorType: 'resourceNotFound',
+                field: 'Usuário',
+                details: [],
+                customMessage: messages.error.resourceNotFound('Usuário')
+            });
+        }
+
+        return user;
     }
 
     async buscarPorCodigoRecuperacao(codigo) {
-        return await this.model.findOne({
-            codigo_recuperacao: codigo
-        }).select('+senha +token_recuperacao +codigo_recuperacao +token_recuperacao_expira');
+        let query = this.model.findOne({ codigo_recuperacao: codigo })
+            .select('+senha +token_recuperacao +codigo_recuperacao +token_recuperacao_expira');
+
+        const user = await query;
+
+        if (!user) {
+            throw new CustomError({
+                statusCode: 404,
+                errorType: 'resourceNotFound',
+                field: 'Usuário',
+                details: [],
+                customMessage: messages.error.resourceNotFound('Usuário')
+            });
+        }
+
+        return user;
     }
 
     async atualizarTokenRecuperacao(id, token, codigo) {

@@ -18,7 +18,7 @@ const authMiddleware = async (req, res, next) => {
         const token = authHeader.split(' ')[1];
         
         // Verificar o token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_jwt_secret");
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_ACCESS_TOKEN || "your_jwt_secret");
         const Usuario = (await import('../models/Usuario.js')).default;
         // Usar select para incluir o campo accesstoken que normalmente está oculto
         const usuario = await Usuario.findById(decoded.id).select('+accesstoken');
