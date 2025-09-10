@@ -123,9 +123,7 @@ class AuthController {
             });
         }
 
-        const validatedBody = UsuarioUpdateSchema.parse(body);
-
-        const resultado = await this.service.recuperarSenha(validatedBody);
+        const resultado = await this.service.recuperarSenha(email);
 
         return res.status(200).json(resultado);
     }
