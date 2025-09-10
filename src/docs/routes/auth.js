@@ -1,5 +1,5 @@
 const authRoutes = {
-    "/auth/login": {
+    "/login": {
         post: {
             tags: ["Autenticação"],
             summary: "Realizar login no sistema",
@@ -85,7 +85,7 @@ const authRoutes = {
         }
     },
 
-    "/auth/logout": {
+    "/logout": {
         post: {
             tags: ["Autenticação"],
             summary: "Realizar logout no sistema",
@@ -146,7 +146,167 @@ const authRoutes = {
         }
     },
 
-    "/auth/redefinir-senha/codigo": {
+    "/refresh": {
+        post: {
+            tags: ["Autenticação"],
+            summary: "Obter novo access token usando refresh token",
+            description: `
+            Gera um novo token de acesso (access token) usando um token de refresh válido.
+            
+            **Importante:**
+            - O novo access token é válido por 1 hora
+            - O refresh token permanece válido por 7 dias
+            - O refresh token não é alterado nesta operação
+            `,
+            requestBody: {
+                required: true,
+                content: {
+                    "application/json": {
+                        schema: {
+                            $ref: "#/components/schemas/RefreshTokenRequest"
+                        }
+                    }
+                }
+            },
+            responses: {
+                200: {
+                    description: "Novo access token gerado com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/RefreshTokenResponse"
+                            }
+                        }
+                    }
+                },
+                400: {
+                    description: "Dados de entrada inválidos",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/ValidationErrorResponse"
+                            }
+                        }
+                    }
+                },
+                401: {
+                    description: "Refresh token inválido ou expirado",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    success: {
+                                        type: "boolean",
+                                        example: false
+                                    },
+                                    message: {
+                                        type: "string",
+                                        example: "Refresh token inválido ou expirado"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                500: {
+                    description: "Erro interno do servidor",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/ErrorResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+    "/recuperar-senha": {
+        post: {
+            tags: ["Autenticação"],
+            summary: "Solicitar recuperação de senha",
+            description: `
+            Inicia o processo de recuperação de senha para um usuário.
+            Um e-mail será enviado com instruções para redefinir a senha.
+            `,
+            requestBody: {
+                required: true,
+                content: {
+                    "application/json": {
+                        schema: {
+                            $ref: "#/components/schemas/RecuperarSenhaRequest"
+                        }
+                    }
+                }
+            },
+            responses: {
+                200: {
+                    description: "E-mail de recuperação enviado com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    success: {
+                                        type: "boolean",
+                                        example: true
+                                    },
+                                    message: {
+                                        type: "string",
+                                        example: "Instruções de recuperação de senha enviadas para seu e-mail."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                400: {
+                    description: "Dados de entrada inválidos",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/ValidationErrorResponse"
+                            }
+                        }
+                    }
+                },
+                404: {
+                    description: "Usuário não encontrado",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    success: {
+                                        type: "boolean",
+                                        example: false
+                                    },
+                                    message: {
+                                        type: "string",
+                                        example: "Usuário não encontrado"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                500: {
+                    description: "Erro interno do servidor",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/ErrorResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+    "/redefinir-senha/codigo": {
         post: {
             tags: ["Autenticação"],
             summary: "Redefinir senha usando código de 6 dígitos",

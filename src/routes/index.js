@@ -25,7 +25,7 @@ const routes = (app) => {
   });
 
   // Rotas públicas (não necessitam de autenticação)
-  app.use("/auth", express.json(), rotasAuth);
+  app.use(express.json(), rotasAuth);
   
   // Rotas protegidas (precisam de autenticação)
   app.use("/api/produtos", express.json(), authMiddleware, authPermission, rotasProdutos);
