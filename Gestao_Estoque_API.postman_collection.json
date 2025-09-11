@@ -46,7 +46,7 @@
               "raw": "{\n  \"matricula\": \"ADM0001\",\n  \"senha\": \"Admin@123\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/auth/login",
+              "raw": "{{base_url}}/login",
               "host": [
                 "{{base_url}}"
               ],
@@ -87,7 +87,7 @@
               "raw": "{\n  \"matricula\": \"USR0001\",\n  \"senha\": \"Senha123\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/auth/login",
+              "raw": "{{base_url}}/login",
               "host": [
                 "{{base_url}}"
               ],
@@ -128,7 +128,7 @@
               "raw": "{\n  \"matricula\": \"USR0003\",\n  \"senha\": \"Senha123\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/auth/login",
+              "raw": "{{base_url}}/login",
               "host": [
                 "{{base_url}}"
               ],
@@ -155,7 +155,7 @@
               "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/auth/refresh",
+              "raw": "{{base_url}}/refresh",
               "host": [
                 "{{base_url}}"
               ],
@@ -182,7 +182,7 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/auth/logout",
+              "raw": "{{base_url}}/logout",
               "host": [
                 "{{base_url}}"
               ],
@@ -218,7 +218,7 @@
               "raw": "{\n  \"matricula\": \"\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/auth/revoke/:id",
+              "raw": "{{base_url}}/revoke/:id",
               "host": [
                 "{{base_url}}"
               ],
