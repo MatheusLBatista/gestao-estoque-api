@@ -197,103 +197,109 @@ const usuariosRoutes = {
     },
   },
 
-  "/api/usuarios/{id}": {
-    get: {
-      tags: ["Usuários"],
-      summary: "Buscar usuário por ID",
-      description: "Retorna os dados de um usuário específico pelo seu ID.",
-      security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          name: "id",
-          in: "path",
-          required: true,
-          description: "ID do usuário",
-          schema: { type: "string", example: "60d5ecb54b24a12a5c8e4f1a" },
-        },
-      ],
-      responses: {
-        200: {
-          description: "Usuário encontrado com sucesso",
-          content: {
-            "application/json": {
-              schema: {
-                $ref: "#/components/schemas/UsuarioResponse",
-              },
-            },
-          },
-        },
-        ...commonSchemas.CommonResponses,
-      },
+    "/api/usuarios/{id}": {
+        get: {
+            tags: ["Usuários"],
+            summary: "Buscar usuário por ID",
+            description: "Retorna os dados de um usuário específico pelo seu ID.",
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: "id",
+                    in: "path",
+                    required: true,
+                    description: "ID do usuário",
+                    schema: { type: "string", example: "60d5ecb54b24a12a5c8e4f1a" }
+                }
+            ],
+            responses: {
+                200: {
+                    description: "Usuário encontrado com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/UsuarioResponse"
+                            }
+                        }
+                    }
+                },
+                ...commonSchemas.CommonResponses
+            }
+        }
     },
-    put: {
-      tags: ["Usuários"],
-      summary: "Atualizar usuário",
-      description: "Atualiza os dados de um usuário existente.",
-      security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          name: "id",
-          in: "path",
-          required: true,
-          description: "ID do usuário",
-          schema: { type: "string", example: "60d5ecb54b24a12a5c8e4f1a" },
-        },
-      ],
-      requestBody: {
-        required: true,
-        content: {
-          "application/json": {
-            schema: {
-              $ref: "#/components/schemas/UsuarioUpdateRequest",
+    "/api/usuarios/{matricula}": {
+        patch: {
+            tags: ["Usuários"],
+            summary: "Atualizar usuário por matrícula",
+            description: "Atualiza os dados de um usuário existente usando sua matrícula.",
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: "matricula",
+                    in: "path",
+                    required: true,
+                    description: "Matrícula do usuário",
+                    schema: { type: "string", example: "ADM0001" }
+                }
+            ],
+            requestBody: {
+                required: true,
+                content: {
+                    "application/json": {
+                        schema: {
+                            $ref: "#/components/schemas/UsuarioUpdateRequest"
+                        }
+                    }
+                }
             },
-          },
+            responses: {
+                200: {
+                    description: "Usuário atualizado com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/UsuarioResponse"
+                            }
+                        }
+                    }
+                },
+                ...commonSchemas.CommonResponses
+            }
         },
-      },
-      responses: {
-        200: {
-          description: "Usuário atualizado com sucesso",
-          content: {
-            "application/json": {
-              schema: {
-                $ref: "#/components/schemas/UsuarioResponse",
-              },
-            },
-          },
-        },
-        ...commonSchemas.CommonResponses,
-      },
-    },
-    delete: {
-      tags: ["Usuários"],
-      summary: "Excluir usuário",
-      description: "Remove um usuário do sistema.",
-      security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          name: "id",
-          in: "path",
-          required: true,
-          description: "ID do usuário",
-          schema: { type: "string", example: "60d5ecb54b24a12a5c8e4f1a" },
-        },
-      ],
-      responses: {
-        200: {
-          description: "Usuário excluído com sucesso",
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  success: {
-                    type: "boolean",
-                    example: true,
-                  },
-                  message: {
-                    type: "string",
-                    example: "Usuário excluído com sucesso",
-                  },
+        delete: {
+            tags: ["Usuários"],
+            summary: "Excluir usuário por matrícula",
+            description: "Remove um usuário do sistema usando sua matrícula.",
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: "matricula",
+                    in: "path",
+                    required: true,
+                    description: "Matrícula do usuário",
+                    schema: { type: "string", example: "ADM0001" }
+                }
+            ],
+            responses: {
+                200: {
+                    description: "Usuário excluído com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    success: {
+                                        type: "boolean",
+                                        example: true
+                                    },
+                                    message: {
+                                        type: "string",
+                                        example: "Usuário excluído com sucesso"
+                                    }
+                                }
+                            }
+                        }
+                    }
                 },
               },
             },
@@ -302,111 +308,114 @@ const usuariosRoutes = {
         ...commonSchemas.CommonResponses,
       },
     },
-  },
-  "/api/usuarios/busca": {
-    get: {
-      tags: ["Usuários"],
-      summary: "Buscar usuário por matrícula",
-      description: `
-            Busca um usuário específico pela matrícula.
+    "/api/usuarios/busca/{matricula}": {
+        get: {
+            tags: ["Usuários"],
+            summary: "Buscar usuário por matrícula",
+            description: `
+            Busca um usuário específico pela matrícula informada na URL.
+            
+            **Exemplo de uso:**
+            \`GET /api/usuarios/busca/ADM0001\`
             `,
-      security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          name: "matricula",
-          in: "query",
-          required: true,
-          description: "Matrícula do usuário",
-          schema: { type: "string", example: "12345" },
-        },
-      ],
-      responses: {
-        200: {
-          description: "Usuário encontrado com sucesso",
-          content: {
-            "application/json": {
-              schema: {
-                $ref: "#/components/schemas/UsuarioResponse",
-              },
-            },
-          },
-        },
-        404: {
-          description: "Usuário não encontrado",
-          content: {
-            "application/json": {
-              schema: {
-                $ref: "#/components/schemas/ErrorResponse",
-              },
-            },
-          },
-        },
-        ...commonSchemas.CommonResponses,
-      },
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: "matricula",
+                    in: "path",
+                    required: true,
+                    description: "Matrícula do usuário",
+                    schema: { type: "string", example: "ADM0001" }
+                }
+            ],
+            responses: {
+                200: {
+                    description: "Usuário encontrado com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/UsuarioResponse"
+                            }
+                        }
+                    }
+                },
+                404: {
+                    description: "Usuário não encontrado",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/ErrorResponse"
+                            }
+                        }
+                    }
+                },
+                ...commonSchemas.CommonResponses
+            }
+        }
     },
-  },
-  "/api/usuarios/desativar/{id}": {
-    patch: {
-      tags: ["Usuários"],
-      summary: "Desativar usuário",
-      description: `
-            Desativa um usuário sem removê-lo do sistema.
+    "/api/usuarios/desativar/{matricula}": {
+        patch: {
+            tags: ["Usuários"],
+            summary: "Desativar usuário por matrícula",
+            description: `
+            Desativa um usuário sem removê-lo do sistema usando sua matrícula.
             `,
-      security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          name: "id",
-          in: "path",
-          required: true,
-          description: "ID do usuário",
-          schema: { type: "string", example: "60d5ecb54b24a12a5c8e4f1a" },
-        },
-      ],
-      responses: {
-        200: {
-          description: "Usuário desativado com sucesso",
-          content: {
-            "application/json": {
-              schema: {
-                $ref: "#/components/schemas/UsuarioResponse",
-              },
-            },
-          },
-        },
-        ...commonSchemas.CommonResponses,
-      },
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: "matricula",
+                    in: "path",
+                    required: true,
+                    description: "Matrícula do usuário",
+                    schema: { type: "string", example: "ADM0001" }
+                }
+            ],
+            responses: {
+                200: {
+                    description: "Usuário desativado com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/UsuarioResponse"
+                            }
+                        }
+                    }
+                },
+                ...commonSchemas.CommonResponses
+            }
+        }
     },
-  },
-  "/api/usuarios/reativar/{id}": {
-    patch: {
-      tags: ["Usuários"],
-      summary: "Reativar usuário",
-      description: `
-            Reativa um usuário previamente desativado.
+    "/api/usuarios/reativar/{matricula}": {
+        patch: {
+            tags: ["Usuários"],
+            summary: "Reativar usuário por matrícula",
+            description: `
+            Reativa um usuário previamente desativado usando sua matrícula.
             `,
-      security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          name: "id",
-          in: "path",
-          required: true,
-          description: "ID do usuário",
-          schema: { type: "string", example: "60d5ecb54b24a12a5c8e4f1a" },
-        },
-      ],
-      responses: {
-        200: {
-          description: "Usuário reativado com sucesso",
-          content: {
-            "application/json": {
-              schema: {
-                $ref: "#/components/schemas/UsuarioResponse",
-              },
-            },
-          },
-        },
-        ...commonSchemas.CommonResponses,
-      },
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: "matricula",
+                    in: "path",
+                    required: true,
+                    description: "Matrícula do usuário",
+                    schema: { type: "string", example: "ADM0001" }
+                }
+            ],
+            responses: {
+                200: {
+                    description: "Usuário reativado com sucesso",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                $ref: "#/components/schemas/UsuarioResponse"
+                            }
+                        }
+                    }
+                },
+                ...commonSchemas.CommonResponses
+            }
+        }
     },
   },
   "/api/usuarios/grupos/adicionar": {

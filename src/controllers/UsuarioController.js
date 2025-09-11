@@ -63,196 +63,91 @@ class UsuarioController {
       );
     }
 
-    return CommonResponse.success(res, data);
-  }
 
-  async buscarUsuarioPorID(req, res) {
-    console.log("Estou no buscarUsuarioPorID em UsuarioController");
+    async atualizarUsuario(req, res) {
+        console.log('Estou no atualizarUsuario em UsuarioController');
 
-    const { id } = req.params || {};
+        const { matricula } = req.params;
+        if (!matricula) {
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'validationError',
+                field: 'matricula',
+                details: [],
+                customMessage: 'Matrícula do usuário é obrigatória.'
+            });
+        }
 
-    UsuarioIdSchema.parse(id);
-    const data = await this.service.buscarUsuarioPorID(id);
-    return CommonResponse.success(
-      res,
-      data,
-      200,
-      "Usuário encontrado com sucesso."
-    );
-  }
+        // UsuarioIdSchema.parse(matricula);
 
-  async buscarUsuarioPorMatricula(req, res) {
-    console.log("Estou no buscarUsuarioPorMatricula em UsuarioController");
+        const dadosAtualizacao = req.body;
+        if (Object.keys(dadosAtualizacao).length === 0) {
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'validationError',
+                field: 'body',
+                details: [],
+                customMessage: 'Nenhum dado fornecido para atualização.'
+            });
+        }
 
-    const { matricula } = req.params;
-    if (!matricula) {
-      throw new CustomError({
-        statusCode: HttpStatusCodes.BAD_REQUEST.code,
-        errorType: "validationError",
-        field: "matricula",
-        details: [],
-        customMessage: "A matrícula é obrigatória para esta busca.",
-      });
+        await UsuarioUpdateSchema.parseAsync(dadosAtualizacao);
+        const usuarioAtualizado = await this.service.atualizarUsuario(matricula, dadosAtualizacao);
+        return CommonResponse.success(res, usuarioAtualizado, 200, 'Usuário atualizado com sucesso.');
     }
 
-    const data = await this.service.buscarUsuarioPorMatricula(matricula);
-    return CommonResponse.success(
-      res,
-      data,
-      200,
-      "Usuário encontrado com sucesso."
-    );
-  }
+    async deletarUsuario(req, res) {
+        console.log('Estou no deletarUsuario em UsuarioController');
 
-  async cadastrarUsuario(req, res) {
-    console.log("Estou no cadastrarUsuario em UsuarioController");
+        const { matricula } = req.params; 
+        if (!matricula) {
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'validationError',
+                field: 'matricula',
+                details: [],
+                customMessage: 'Matrícula do usuário é obrigatória.'
+            });
+        }
 
-    const parsedData = UsuarioSchema.parse(req.body);
-
-    // Se não há senha, será criado usuário para definir senha no primeiro login
-    if (!parsedData.senha) {
-      console.log(
-        "Criando usuário sem senha - será enviado código de segurança"
-      );
-
-      // Gerar código de segurança (6 dígitos)
-      const codigoSeguranca = Math.random().toString().slice(2, 8);
-
-      // Definir expiração do código (24 horas)
-      const dataExpiracao = new Date();
-      dataExpiracao.setHours(dataExpiracao.getHours() + 24);
-
-      // Preparar dados do usuário sem senha
-      parsedData.senha = null;
-      parsedData.ativo = false; // Usuário inativo até definir senha
-      parsedData.codigo_recuperacao = codigoSeguranca;
-      parsedData.data_expiracao_codigo = dataExpiracao;
-      parsedData.senha_definida = false;
-
-      const data = await this.service.cadastrarUsuario(parsedData);
-
-      // Tentar enviar email de primeiro acesso
-      const emailResult = await EmailService.enviarCodigoCadastro(
-        data,
-        codigoSeguranca
-      );
-
-      // Registra evento crítico de criação de usuário sem senha
-      LogMiddleware.logCriticalEvent(
-        req.userId,
-        "USUARIO_CRIADO_SEM_SENHA",
-        {
-          usuario_criado: data._id,
-          matricula: data.matricula,
-          perfil: data.perfil,
-          criado_por: req.userMatricula,
-          codigo_gerado: true,
-          email_enviado: emailResult.sentViaEmail,
-        },
-        req
-      );
-
-      // Resposta baseada no resultado do envio do email
-      const responseMessage = emailResult.sentViaEmail
-        ? `Usuário cadastrado com sucesso! Código de acesso enviado para ${data.email}. Código: ${codigoSeguranca}`
-        : `Usuário cadastrado com sucesso. Código de segurança: ${codigoSeguranca}`;
-
-      const responseInstructions = emailResult.sentViaEmail
-        ? `O usuário deve verificar o email ${data.email} para encontrar o código de acesso e a matrícula ${data.matricula}. Código também disponível aqui para referência.`
-        : `O usuário deve usar este código na endpoint '/redefinir-senha/codigo' para definir sua senha. Código válido por 24 horas.`;
-
-      return CommonResponse.created(
-        res,
-        {
-          ...data.toObject(),
-          message: responseMessage,
-          instrucoes: responseInstructions,
-          email_enviado: emailResult.sentViaEmail,
-          motivo_email_nao_enviado: emailResult.sentViaEmail
-            ? null
-            : emailResult.reason,
-        },
-        HttpStatusCodes.CREATED.code,
-        "Usuário cadastrado com sucesso sem senha."
-      );
-    } else {
-      // Cadastro com senha (caso especial do admin)
-      const data = await this.service.cadastrarUsuario(parsedData);
-
-      // Registra evento crítico de criação de usuário
-      LogMiddleware.logCriticalEvent(
-        req.userId,
-        "USUARIO_CRIADO",
-        {
-          usuario_criado: data._id,
-          matricula: data.matricula,
-          perfil: data.perfil,
-          criado_por: req.userMatricula,
-        },
-        req
-      );
-
-      return CommonResponse.created(
-        res,
-        data,
-        HttpStatusCodes.CREATED.code,
-        "Usuário cadastrado com sucesso."
-      );
-    }
-  }
-
-  async atualizarUsuario(req, res) {
-    console.log("Estou no atualizarUsuario em UsuarioController");
-
-    const { id } = req.params;
-    if (!id) {
-      throw new CustomError({
-        statusCode: HttpStatusCodes.BAD_REQUEST.code,
-        errorType: "validationError",
-        field: "id",
-        details: [],
-        customMessage: "ID do usuário é obrigatório.",
-      });
+        const data = await this.service.deletarUsuario(matricula);
+        return CommonResponse.success(res, data, 200, 'Usuário excluído com sucesso.');
     }
 
-    UsuarioIdSchema.parse(id);
+    async desativarUsuario(req, res) {
+        console.log('Estou no desativarUsuario em UsuarioController');
 
-    const dadosAtualizacao = req.body;
-    if (Object.keys(dadosAtualizacao).length === 0) {
-      throw new CustomError({
-        statusCode: HttpStatusCodes.BAD_REQUEST.code,
-        errorType: "validationError",
-        field: "body",
-        details: [],
-        customMessage: "Nenhum dado fornecido para atualização.",
-      });
+        const { matricula } = req.params || {};
+        if (!matricula) {
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'validationError',
+                field: 'matricula',
+                details: [],
+                customMessage: 'Matrícula do usuário é obrigatória.'
+            });
+        }
+
+        const data = await this.service.desativarUsuario(matricula);
+        return CommonResponse.success(res, data, 200, 'Usuario desativado com sucesso.');
     }
 
-    await UsuarioUpdateSchema.parseAsync(dadosAtualizacao);
-    const usuarioAtualizado = await this.service.atualizarUsuario(
-      id,
-      dadosAtualizacao
-    );
-    return CommonResponse.success(
-      res,
-      usuarioAtualizado,
-      200,
-      "Usuário atualizado com sucesso."
-    );
-  }
+    async reativarUsuario(req, res) {
+        console.log('Estou no reativarUsuario em UsuarioController');
 
-  async deletarUsuario(req, res) {
-    console.log("Estou no deletarUsuario em UsuarioController");
+        const { matricula } = req.params || {};
+        if (!matricula) {
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'validationError',
+                field: 'matricula',
+                details: [],
+                customMessage: 'Matrícula do usuário é obrigatória.'
+            });
+        }
 
-    const { matricula } = req.params; // Certifique-se de usar 'matricula'
-    if (!matricula) {
-      throw new CustomError({
-        statusCode: HttpStatusCodes.BAD_REQUEST.code,
-        errorType: "validationError",
-        field: "matricula",
-        details: [],
-        customMessage: "Matrícula do usuário é obrigatória.",
-      });
+        const data = await this.service.reativarUsuario(matricula);
+        return CommonResponse.success(res, data, 200, 'Usuario reativado com sucesso.');
     }
 
     const data = await this.service.deletarUsuario(matricula);

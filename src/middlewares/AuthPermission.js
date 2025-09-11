@@ -4,7 +4,7 @@ import Rota from '../models/Rotas.js';
 import { CustomError, messages } from '../utils/helpers/index.js';
 
 // Certifique-se de que as variáveis de ambiente estejam carregadas
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET_ACCESS_TOKEN;
 
 class AuthPermission {
   constructor() {
