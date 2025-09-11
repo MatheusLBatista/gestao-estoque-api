@@ -20,6 +20,11 @@ const authSchemas = {
         }
     },
 
+    LogoutRequest: {
+        type: 'object',
+        description: 'Não há corpo para esta requisição. O access token deve ser fornecido no header Authorization.'
+    },
+
     RefreshTokenRequest: {
         type: 'object',
         required: ['refreshToken'],
@@ -83,6 +88,18 @@ const authSchemas = {
             }
         }
     },
+
+    RevokeRequest: {
+        type: 'object',
+        required: ['refreshToken'],
+        properties: {
+            refreshToken: {
+                type: 'string',
+                description: 'Token de refresh a ser revogado',
+                example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+            }
+        }
+    },  
 
     // Response schemas
     LoginResponse: {
@@ -203,7 +220,21 @@ const authSchemas = {
                 example: 'Logout realizado com sucesso'
             }
         }
-    }
+    },
+
+    RevokeResponse: {
+        type: 'object',
+        properties: {
+            success: {
+                type: 'boolean',
+                example: true
+            },
+            message: {
+                type: 'string',
+                example: 'Refresh token revogado com sucesso'
+            }
+        }
+    }   
 };
 
 export default authSchemas;
