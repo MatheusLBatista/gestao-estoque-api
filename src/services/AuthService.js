@@ -12,16 +12,10 @@ export class AuthService {
     constructor() {
         this.usuarioRepository = new UsuarioRepository();
         this.tokenUtil = TokenUtil;
-
-        this.ACCESS_TOKEN_SECRET =
-        process.env.JWT_SECRET_ACCESS_TOKEN || process.env.JWT_SECRET_ACCESS_TOKEN || "your_jwt_secret";
-
-        this.REFRESH_TOKEN_SECRET =
-        process.env.JWT_SECRET_REFRESH_TOKEN || process.env.JWT_REFRESH_SECRET || "your_jwt_refresh_secret";
-
-        this.ACCESS_TOKEN_EXPIRY = process.env.JWT_ACCESS_TOKEN_EXPIRATION || '1h';
-        this.REFRESH_TOKEN_EXPIRY = process.env.JWT_REFRESH_TOKEN_EXPIRATION || '7d';
-
+        this.ACCESS_TOKEN_SECRET = process.env.JWT_SECRET_ACCESS_TOKEN || "your_jwt_secret";
+        this.REFRESH_TOKEN_SECRET = process.env.JWT_SECRET_REFRESH_TOKEN || "your_jwt_refresh_secret";
+        this.ACCESS_TOKEN_EXPIRY = '1h';
+        this.REFRESH_TOKEN_EXPIRY = '7d';
     }
 
     async autenticar(matricula, senha) {

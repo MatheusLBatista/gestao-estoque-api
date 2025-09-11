@@ -113,7 +113,7 @@ class UsuarioRepository {
 
         // Verificar se já existe um usuário com a mesma matrícula
         if (dadosUsuario.matricula) {
-            const usuarioExistente = await this.model.findOne({ matricula: dadosUsuario.matricula }); //mexendo aqui
+            const usuarioExistente = await this.model.findOne({ matricula: dadosUsuario.matricula }); 
             if (usuarioExistente) {
                 throw new CustomError({
                     statusCode: 400,
@@ -129,28 +129,40 @@ class UsuarioRepository {
     }
 
     async atualizarUsuario(matricula, dadosAtualizacao) {
-        console.log('Repositório - atualizando usuário:', matricula);
+        console.log('Repositório - atualizando usuário por matrícula:', matricula);
         console.log('Dados de atualização:', JSON.stringify(dadosAtualizacao, null, 2));
 
-        // Verificar se o ID é válido
-        if (!mongoose.Types.ObjectId.isValid(matricula)) {
+        // Verificar se a matrícula foi fornecida
+        if (!matricula || typeof matricula !== 'string') {
             throw new CustomError({
                 statusCode: 400,
                 errorType: 'validationError',
                 field: 'matricula',
                 details: [],
-                customMessage: 'Matricula do usuário inválido'
+                customMessage: 'Matrícula do usuário é obrigatória e deve ser uma string válida'
             });
         }
 
-        // Verificar se a matrícula já existe (se estiver sendo atualizada)
-        if (dadosAtualizacao.matricula) {
-            const usuarioExistente = await this.model.findOne({
+        // Buscar o usuário pela matrícula primeiro para validar que existe
+        const usuarioExistente = await this.model.findOne({ matricula });
+        if (!usuarioExistente) {
+            throw new CustomError({
+                statusCode: 404,
+                errorType: 'resourceNotFound',
+                field: 'matricula',
+                details: [],
+                customMessage: 'Usuário não encontrado com a matrícula informada'
+            });
+        }
+
+        // Verificar se a matrícula está sendo atualizada e se já existe
+        if (dadosAtualizacao.matricula && dadosAtualizacao.matricula !== matricula) {
+            const outroUsuario = await this.model.findOne({
                 matricula: dadosAtualizacao.matricula,
-                _id: { $ne: id }
+                _id: { $ne: usuarioExistente._id }
             });
 
-            if (usuarioExistente) {
+            if (outroUsuario) {
                 throw new CustomError({
                     statusCode: 400,
                     errorType: 'validationError',
@@ -161,9 +173,9 @@ class UsuarioRepository {
             }
         }
 
-        // Garantir que estamos usando as opções corretas
-        const usuario = await this.model.findByIdAndUpdate(
-            matricula,
+        // Atualizar o usuário usando a matrícula como filtro
+        const usuario = await this.model.findOneAndUpdate(
+            { matricula },
             dadosAtualizacao,
             { new: true, runValidators: true }
         );
@@ -210,21 +222,43 @@ class UsuarioRepository {
         return usuario;
     }
     
-    async desativarUsuario(id) { 
-        const usuario = await this.model.findByIdAndUpdate (
-            id,
+    async desativarUsuario(matricula) { 
+        const usuario = await this.model.findOneAndUpdate(
+            { matricula },
             { ativo: false },
             { new: true }
         );
+
+        if (!usuario) {
+            throw new CustomError({
+                statusCode: 404,
+                errorType: 'resourceNotFound',
+                field: 'matricula',
+                details: [],
+                customMessage: 'Usuário não encontrado com a matrícula informada'
+            });
+        }
+
         return usuario;
     }
 
-    async reativarUsuario(id) { 
-        const usuario = await this.model.findByIdAndUpdate (
-            id,
+    async reativarUsuario(matricula) { 
+        const usuario = await this.model.findOneAndUpdate(
+            { matricula },
             { ativo: true },
             { new: true }
         );
+
+        if (!usuario) {
+            throw new CustomError({
+                statusCode: 404,
+                errorType: 'resourceNotFound',
+                field: 'matricula',
+                details: [],
+                customMessage: 'Usuário não encontrado com a matrícula informada'
+            });
+        }
+
         return usuario;
     }
     /**

@@ -167,18 +167,18 @@ class UsuarioController {
     async atualizarUsuario(req, res) {
         console.log('Estou no atualizarUsuario em UsuarioController');
 
-        const { id } = req.params;
-        if (!id) {
+        const { matricula } = req.params;
+        if (!matricula) {
             throw new CustomError({
                 statusCode: HttpStatusCodes.BAD_REQUEST.code,
                 errorType: 'validationError',
-                field: 'id',
+                field: 'matricula',
                 details: [],
-                customMessage: 'ID do usuário é obrigatório.'
+                customMessage: 'Matrícula do usuário é obrigatória.'
             });
         }
 
-        UsuarioIdSchema.parse(id);
+        // UsuarioIdSchema.parse(matricula);
 
         const dadosAtualizacao = req.body;
         if (Object.keys(dadosAtualizacao).length === 0) {
@@ -192,14 +192,14 @@ class UsuarioController {
         }
 
         await UsuarioUpdateSchema.parseAsync(dadosAtualizacao);
-        const usuarioAtualizado = await this.service.atualizarUsuario(id, dadosAtualizacao);
+        const usuarioAtualizado = await this.service.atualizarUsuario(matricula, dadosAtualizacao);
         return CommonResponse.success(res, usuarioAtualizado, 200, 'Usuário atualizado com sucesso.');
     }
 
     async deletarUsuario(req, res) {
         console.log('Estou no deletarUsuario em UsuarioController');
 
-        const { matricula } = req.params; // Certifique-se de usar 'matricula'
+        const { matricula } = req.params; 
         if (!matricula) {
             throw new CustomError({
                 statusCode: HttpStatusCodes.BAD_REQUEST.code,
@@ -215,22 +215,38 @@ class UsuarioController {
     }
 
     async desativarUsuario(req, res) {
-        console.log('Estou no desativarUsusario em UsuarioController');
+        console.log('Estou no desativarUsuario em UsuarioController');
 
-        const { id } = req.params || {};
-        this.validateId(id, 'id', 'desativar');
+        const { matricula } = req.params || {};
+        if (!matricula) {
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'validationError',
+                field: 'matricula',
+                details: [],
+                customMessage: 'Matrícula do usuário é obrigatória.'
+            });
+        }
 
-        const data = await this.service.desativarUsuario(id);
+        const data = await this.service.desativarUsuario(matricula);
         return CommonResponse.success(res, data, 200, 'Usuario desativado com sucesso.');
     }
 
     async reativarUsuario(req, res) {
-        console.log('Estou no reativarUsusario em UsuarioController');
+        console.log('Estou no reativarUsuario em UsuarioController');
 
-        const { id } = req.params || {};
-        this.validateId(id, 'id', 'reativar');
+        const { matricula } = req.params || {};
+        if (!matricula) {
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'validationError',
+                field: 'matricula',
+                details: [],
+                customMessage: 'Matrícula do usuário é obrigatória.'
+            });
+        }
 
-        const data = await this.service.reativarUsuario(id);
+        const data = await this.service.reativarUsuario(matricula);
         return CommonResponse.success(res, data, 200, 'Usuario reativado com sucesso.');
     }
 

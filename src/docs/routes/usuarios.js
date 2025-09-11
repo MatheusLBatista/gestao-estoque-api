@@ -223,19 +223,21 @@ const usuariosRoutes = {
                 },
                 ...commonSchemas.CommonResponses
             }
-        },
-        put: {
+        }
+    },
+    "/api/usuarios/{matricula}": {
+        patch: {
             tags: ["Usuários"],
-            summary: "Atualizar usuário",
-            description: "Atualiza os dados de um usuário existente.",
+            summary: "Atualizar usuário por matrícula",
+            description: "Atualiza os dados de um usuário existente usando sua matrícula.",
             security: [{ bearerAuth: [] }],
             parameters: [
                 {
-                    name: "id",
+                    name: "matricula",
                     in: "path",
                     required: true,
-                    description: "ID do usuário",
-                    schema: { type: "string", example: "60d5ecb54b24a12a5c8e4f1a" }
+                    description: "Matrícula do usuário",
+                    schema: { type: "string", example: "ADM0001" }
                 }
             ],
             requestBody: {
@@ -264,16 +266,16 @@ const usuariosRoutes = {
         },
         delete: {
             tags: ["Usuários"],
-            summary: "Excluir usuário",
-            description: "Remove um usuário do sistema.",
+            summary: "Excluir usuário por matrícula",
+            description: "Remove um usuário do sistema usando sua matrícula.",
             security: [{ bearerAuth: [] }],
             parameters: [
                 {
-                    name: "id",
+                    name: "matricula",
                     in: "path",
                     required: true,
-                    description: "ID do usuário",
-                    schema: { type: "string", example: "60d5ecb54b24a12a5c8e4f1a" }
+                    description: "Matrícula do usuário",
+                    schema: { type: "string", example: "ADM0001" }
                 }
             ],
             responses: {
@@ -301,21 +303,24 @@ const usuariosRoutes = {
             }
         }
     },
-    "/api/usuarios/busca": {
+    "/api/usuarios/busca/{matricula}": {
         get: {
             tags: ["Usuários"],
             summary: "Buscar usuário por matrícula",
             description: `
-            Busca um usuário específico pela matrícula.
+            Busca um usuário específico pela matrícula informada na URL.
+            
+            **Exemplo de uso:**
+            \`GET /api/usuarios/busca/ADM0001\`
             `,
             security: [{ bearerAuth: [] }],
             parameters: [
                 {
                     name: "matricula",
-                    in: "query",
+                    in: "path",
                     required: true,
                     description: "Matrícula do usuário",
-                    schema: { type: "string", example: "12345" }
+                    schema: { type: "string", example: "ADM0001" }
                 }
             ],
             responses: {
@@ -343,21 +348,21 @@ const usuariosRoutes = {
             }
         }
     },
-    "/api/usuarios/desativar/{id}": {
+    "/api/usuarios/desativar/{matricula}": {
         patch: {
             tags: ["Usuários"],
-            summary: "Desativar usuário",
+            summary: "Desativar usuário por matrícula",
             description: `
-            Desativa um usuário sem removê-lo do sistema.
+            Desativa um usuário sem removê-lo do sistema usando sua matrícula.
             `,
             security: [{ bearerAuth: [] }],
             parameters: [
                 {
-                    name: "id",
+                    name: "matricula",
                     in: "path",
                     required: true,
-                    description: "ID do usuário",
-                    schema: { type: "string", example: "60d5ecb54b24a12a5c8e4f1a" }
+                    description: "Matrícula do usuário",
+                    schema: { type: "string", example: "ADM0001" }
                 }
             ],
             responses: {
@@ -375,21 +380,21 @@ const usuariosRoutes = {
             }
         }
     },
-    "/api/usuarios/reativar/{id}": {
+    "/api/usuarios/reativar/{matricula}": {
         patch: {
             tags: ["Usuários"],
-            summary: "Reativar usuário",
+            summary: "Reativar usuário por matrícula",
             description: `
-            Reativa um usuário previamente desativado.
+            Reativa um usuário previamente desativado usando sua matrícula.
             `,
             security: [{ bearerAuth: [] }],
             parameters: [
                 {
-                    name: "id",
+                    name: "matricula",
                     in: "path",
                     required: true,
-                    description: "ID do usuário",
-                    schema: { type: "string", example: "60d5ecb54b24a12a5c8e4f1a" }
+                    description: "Matrícula do usuário",
+                    schema: { type: "string", example: "ADM0001" }
                 }
             ],
             responses: {

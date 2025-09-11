@@ -39,21 +39,21 @@ class UsuarioService {
         return data;
     }
 
-    async atualizarUsuario(id, dadosAtualizacao) {
-        console.log('Atualizando usuário:', id, dadosAtualizacao);
+    async atualizarUsuario(matricula, dadosAtualizacao) {
+        console.log('Atualizando usuário por matrícula:', matricula, dadosAtualizacao);
 
-        if (!mongoose.Types.ObjectId.isValid(id)) {
+        if (!matricula || typeof matricula !== 'string' || matricula.trim() === '') {
             throw new CustomError({
                 statusCode: HttpStatusCodes.BAD_REQUEST.code,
                 errorType: 'validationError',
-                field: 'id',
+                field: 'matricula',
                 details: [],
-                customMessage: 'ID do usuário inválido.'
+                customMessage: 'Matrícula do usuário é obrigatória e deve ser válida.'
             });
         }
 
         dadosAtualizacao.data_ultima_atualizacao = new Date();
-        const usuarioAtualizado = await this.repository.atualizarUsuario(id, dadosAtualizacao);
+        const usuarioAtualizado = await this.repository.atualizarUsuario(matricula, dadosAtualizacao);
         return usuarioAtualizado;
     }
 
@@ -131,17 +131,37 @@ class UsuarioService {
     }
 
 
-    async desativarUsuario(id) {
+    async desativarUsuario(matricula) {
         console.log('Estou no desativarUsuario em UsuarioService');
 
-        const data = await this.repository.desativarUsuario(id);
+        if (!matricula || typeof matricula !== 'string' || matricula.trim() === '') {
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'validationError',
+                field: 'matricula',
+                details: [],
+                customMessage: 'Matrícula do usuário é obrigatória e deve ser válida.'
+            });
+        }
+
+        const data = await this.repository.desativarUsuario(matricula);
         return data;
     }
 
-    async reativarUsuario(id) {
+    async reativarUsuario(matricula) {
         console.log('Estou no reativarUsuario em UsuarioService');
 
-        const data = await this.repository.reativarUsuario(id);
+        if (!matricula || typeof matricula !== 'string' || matricula.trim() === '') {
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'validationError',
+                field: 'matricula',
+                details: [],
+                customMessage: 'Matrícula do usuário é obrigatória e deve ser válida.'
+            });
+        }
+
+        const data = await this.repository.reativarUsuario(matricula);
         return data;
     }
 
