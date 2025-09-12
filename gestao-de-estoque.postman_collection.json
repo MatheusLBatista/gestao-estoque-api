@@ -40,7 +40,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/auth/login",
+							"raw": "{{base_url}}/login",
 							"host": [
 								"{{base_url}}"
 							],
@@ -68,7 +68,7 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/auth/logout",
+							"raw": "{{base_url}}/logout",
 							"host": [
 								"{{base_url}}"
 							],
@@ -86,7 +86,7 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/auth/refresh",
+							"raw": "{{base_url}}/refresh",
 							"host": [
 								"{{base_url}}"
 							],
@@ -123,7 +123,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/auth/revoke/",
+							"raw": "{{base_url}}/revoke/",
 							"host": [
 								"{{base_url}}"
 							],
@@ -151,7 +151,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/auth/recuperar-senha",
+							"raw": "{{base_url}}/recuperar-senha",
 							"host": [
 								"{{base_url}}"
 							],
@@ -178,7 +178,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/auth/redefinir-senha/token?token=",
+							"raw": "{{base_url}}/redefinir-senha/token?token=",
 							"host": [
 								"{{base_url}}"
 							],
@@ -212,7 +212,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/auth/redefinir-senha/codigo",
+							"raw": "{{base_url}}/redefinir-senha/codigo",
 							"host": [
 								"{{base_url}}"
 							],
