@@ -111,7 +111,7 @@ class AuthPermission {
       }
 
       // 7. Verifica se o usuário tem permissão através do sistema de grupos/permissões
-      const hasPermission = await this.permissionService.hasPermission(
+      const hasPermission = this.permissionService.hasPermission(
         userId,
         rotaReq,
         dominioReq,
