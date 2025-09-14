@@ -9,15 +9,8 @@ const ProdutoMovimentacaoSchema = z.object({
   produto_ref: z.string().refine(isValidObjectId, {
     message: "ID do produto inválido",
   }),
-  id_produto: z.number({
-    required_error: "ID do produto é obrigatório",
-    invalid_type_error: "ID do produto deve ser um número",
-  }),
   codigo_produto: z.string({
     required_error: "Código do produto é obrigatório",
-  }),
-  nome_produto: z.string({
-    required_error: "Nome do produto é obrigatório",
   }),
   quantidade_produtos: z
     .number({
@@ -43,8 +36,6 @@ const ProdutoMovimentacaoSchema = z.object({
     .nonnegative({
       message: "Custo não pode ser negativo",
     }),
-  id_fornecedor: z.number().optional(),
-  nome_fornecedor: z.string().optional(),
 });
 
 // Schema completo para criação de movimentação
@@ -61,12 +52,10 @@ export const MovimentacaoSchema = z.object({
       message: "Destino deve ter no mínimo 3 caracteres",
     }),
   data_movimentacao: z.date().optional().default(() => new Date()),
-  id_produto: z.string().refine(isValidObjectId, {
-    message: "ID do produto inválido",
+  id_usuario: z.string().refine(isValidObjectId, {
+    message: "ID do usuário inválido",
   }),
-  nome_usuario: z.string({
-    required_error: "Nome do usuário é obrigatório",
-  }),
+  status: z.boolean().optional().default(true),
   produtos: z
     .array(ProdutoMovimentacaoSchema, {
       required_error: "Produtos são obrigatórios",
@@ -80,31 +69,24 @@ export const MovimentacaoSchema = z.object({
 // Schema para atualização de movimentação (todos os campos são opcionais)
 export const MovimentacaoUpdateSchema = z
   .object({
-    tipo: z
-      .enum(["entrada", "saida"], {
-        invalid_type_error: 'Tipo deve ser "entrada" ou "saida"',
-      })
-      .optional(),
-    destino: z
-      .string()
+    tipo: z.enum(["entrada", "saida"], {
+      invalid_type_error: 'Tipo deve ser "entrada" ou "saida"',
+    }).optional(),
+    destino: z.string()
       .min(3, {
         message: "Destino deve ter no mínimo 3 caracteres",
       })
       .optional(),
-    data_movimentacao: z
-      .date({
-        invalid_type_error: "Data da movimentação deve ser uma data válida",
-      })
-      .optional(),
-    id_usuario: z
-      .string()
+    data_movimentacao: z.date({
+      invalid_type_error: "Data da movimentação deve ser uma data válida",
+    }).optional(),
+    id_usuario: z.string()
       .refine(isValidObjectId, {
         message: "ID do usuário inválido",
       })
       .optional(),
-    nome_usuario: z.string().optional(),
-    produtos: z
-      .array(ProdutoMovimentacaoSchema)
+    status: z.boolean().optional(),
+    produtos: z.array(ProdutoMovimentacaoSchema)
       .min(1, {
         message: "A movimentação deve ter pelo menos um produto",
       })

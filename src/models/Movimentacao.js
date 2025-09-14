@@ -4,16 +4,17 @@ import mongoosePaginate from 'mongoose-paginate-v2';
 
 class Movimentacao {
     constructor() {
+        //TODO: revisar comentários
         const produtoMovimentacaoSchema = new mongoose.Schema({
             produto_ref: { type: mongoose.Schema.Types.ObjectId, ref: 'produtos' },
-            id_produto: { type: Number, required: true },
+            // id_produto: { type: Number, required: true },
             codigo_produto: { type: String, required: true },
-            nome_produto: { type: String, required: true },
+            // nome_produto: { type: String, required: true },
             quantidade_produtos: { type: Number, required: true },
             preco: { type: Number, required: true },
             custo: { type: Number, required: true },
-            id_fornecedor: { type: Number },
-            nome_fornecedor: { type: String }
+            // id_fornecedor: { type: Number },
+            // nome_fornecedor: { type: String }
         });
 
         const movimentacaoSchema = new mongoose.Schema(
@@ -22,7 +23,7 @@ class Movimentacao {
                 destino: { type: String, required: true },
                 data_movimentacao: { type: Date, default: Date.now },
                 id_usuario: { type: mongoose.Schema.Types.ObjectId, ref: 'usuarios' },
-                nome_usuario: { type: String, required: true },
+                // nome_usuario: { type: String, required: true },
                 status: {type: Boolean, default: true},
                 produtos: [produtoMovimentacaoSchema]
             },
