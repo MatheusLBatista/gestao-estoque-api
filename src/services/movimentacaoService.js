@@ -80,19 +80,18 @@ class MovimentacaoService {
           produtoMov.produto_ref
         );
 
-        if (produto.quantidade_estoque < produtoMov.quantidade_produtos) {
+        if (produto.estoque < produtoMov.quantidade_produtos) {
           throw new CustomError({
             statusCode: HttpStatusCodes.BAD_REQUEST.code,
             errorType: "businessRuleViolation",
             field: "quantidade_produtos",
             details: [],
-            customMessage: `Estoque insuficiente para o produto ${produto.nome_produto}. Disponível: ${produto.quantidade_estoque}.`,
+            customMessage: `Estoque insuficiente para o produto ${produto.nome_produto}. Disponível: ${produto.estoque}.`,
           });
         }
 
         await this.produtoService.atualizarProduto(produto._id, {
-          quantidade_estoque:
-            produto.quantidade_estoque - produtoMov.quantidade_produtos,
+          estoque: produto.estoque - produtoMov.quantidade_produtos,
         });
       }
     } else if (dadosMovimentacao.tipo === "entrada") {
@@ -102,8 +101,7 @@ class MovimentacaoService {
         );
 
         await this.produtoService.atualizarProduto(produto._id, {
-          quantidade_estoque:
-            produto.quantidade_estoque + produtoMov.quantidade_produtos,
+          estoque: produto.estoque + produtoMov.quantidade_produtos,
           data_ultima_entrada: new Date(),
         });
       }
@@ -165,8 +163,7 @@ class MovimentacaoService {
         );
 
         await this.produtoService.atualizarProduto(produto._id, {
-          quantidade_estoque:
-            produto.quantidade_estoque + produtoMov.quantidade_produtos,
+          estoque: produto.estoque + produtoMov.quantidade_produtos,
         });
       }
 
@@ -175,19 +172,18 @@ class MovimentacaoService {
           produtoMov.produto_ref
         );
 
-        if (produto.quantidade_estoque < produtoMov.quantidade_produtos) {
+        if (produto.estoque < produtoMov.quantidade_produtos) {
           throw new CustomError({
             statusCode: HttpStatusCodes.BAD_REQUEST.code,
             errorType: "businessRuleViolation",
             field: "quantidade_produtos",
             details: [],
-            customMessage: `Estoque insuficiente para o produto ${produto.nome_produto}. Disponível: ${produto.quantidade_estoque}.`,
+            customMessage: `Estoque insuficiente para o produto ${produto.nome_produto}. Disponível: ${produto.estoque}.`,
           });
         }
 
         await this.produtoService.atualizarProduto(produto._id, {
-          quantidade_estoque:
-            produto.quantidade_estoque - produtoMov.quantidade_produtos,
+          estoque: produto.estoque - produtoMov.quantidade_produtos,
         });
       }
     }
@@ -250,8 +246,7 @@ class MovimentacaoService {
         );
 
         await this.produtoService.atualizarProduto(produto._id, {
-          quantidade_estoque:
-            produto.quantidade_estoque + produtoMov.quantidade_produtos,
+          estoque: produto.estoque + produtoMov.quantidade_produtos,
         });
       }
     } else if (movimentacao.tipo === "entrada") {
@@ -261,9 +256,9 @@ class MovimentacaoService {
         );
 
         await this.produtoService.atualizarProduto(produto._id, {
-          quantidade_estoque: Math.max(
+          estoque: Math.max(
             0,
-            produto.quantidade_estoque - produtoMov.quantidade_produtos
+            produto.estoque - produtoMov.quantidade_produtos
           ),
         });
       }

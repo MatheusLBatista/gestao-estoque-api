@@ -168,6 +168,25 @@ class MovimentacaoRepository {
     try {
       const movimentacao = new this.model(dadosMovimentacao);
       const resultado = await movimentacao.save();
+
+      // Verificar se o estoque foi atualizado corretamente
+      for (const produto of dadosMovimentacao.produtos) {
+        const produtoAtualizado = await mongoose
+          .model("produtos")
+          .findById(produto.produto_ref);
+
+        // Garantir que a quantidade de estoque não seja NaN
+        if (!isNaN(produtoAtualizado.estoque)) {
+          console.log(
+            `Produto: ${produtoAtualizado.nome_produto}, Estoque Atual: ${produtoAtualizado.estoque}`
+          );
+        } else {
+          console.error(
+            `Erro: Estoque do produto ${produtoAtualizado.nome_produto} é inválido.`
+          );
+        }
+      }
+
       console.log("Movimentação cadastrada com sucesso");
       return resultado;
     } catch (error) {
