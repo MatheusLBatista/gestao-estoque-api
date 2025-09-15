@@ -114,7 +114,7 @@ class MovimentacaoRepository {
         { path: "id_usuario", select: "nome_usuario email" },
         {
           path: "produtos.produto_ref",
-          select: "nome_produto codigo_produto estoque id_fornecedor",
+          select: "nome_produto estoque",
         },
       ],
     };
@@ -146,7 +146,7 @@ class MovimentacaoRepository {
       .populate("id_usuario", "nome_usuario email")
       .populate(
         "produtos.produto_ref",
-        "nome_produto codigo_produto estoque id_fornecedor"
+        "nome_produto estoque"
       );
 
     if (!movimentacao) {

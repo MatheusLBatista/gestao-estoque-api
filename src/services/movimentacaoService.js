@@ -54,8 +54,12 @@ class MovimentacaoService {
     return data;
   }
 
-  async cadastrarMovimentacao(dadosMovimentacao) {
+  async cadastrarMovimentacao(dadosMovimentacao, req) {
     console.log("Estou no cadastrarMovimentacao em MovimentacaoService");
+
+    if (!dadosMovimentacao.id_usuario && req && req.userId) {
+      dadosMovimentacao.id_usuario = req.userId;
+    }
 
     if (!dadosMovimentacao.data_movimentacao) {
       dadosMovimentacao.data_movimentacao = new Date();

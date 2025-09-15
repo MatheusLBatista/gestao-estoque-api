@@ -172,7 +172,7 @@ class MovimentacoesController {
     };
 
     const parsedData = await MovimentacaoSchema.parseAsync(input);
-    const data = await this.service.cadastrarMovimentacao(parsedData);
+    const data = await this.service.cadastrarMovimentacao(parsedData, req);
 
     return CommonResponse.created(
       res,
