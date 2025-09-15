@@ -1,8 +1,18 @@
 import mongoose from 'mongoose';
+import Usuario from '../../models/Usuario.js';
+import Produto from '../../models/Produto.js';
+
+import usuarioRepository from '../UsuarioRepository.js';
+import produtoRepository from '../ProdutoRepository.js';
 
 class MovimentacaoFilterBuilder {
     constructor() {
         this.filtros = {};
+        this.usuarioModel = new Usuario();
+        this.produtoModel = new Produto();
+
+        this.usuarioRepository = new usuarioRepository();
+        this.produtoRepository = new produtoRepository();
     }
 
     /**
@@ -18,10 +28,9 @@ class MovimentacaoFilterBuilder {
     /**
      * Filtra movimentações por destino
      */
-    //todo: rever
-    comDestino(destino) { 
+    comDestino(destino) {
         if (destino && destino.trim() !== '') {
-            this.filtros.destino = { $regex: this.escapeRegex(destino), $options: 'i' };
+        this.filtros.destino = { $regex: this.escapeRegex(destino), $options: 'i' };
         }
         return this;
     }
@@ -49,9 +58,10 @@ class MovimentacaoFilterBuilder {
      * Filtra movimentações por ID de usuário
      */
     //todo: rever porque ele lista mesmo sem o user existir(lista tudo)
-    comUsuarioId(usuario_id) {
-        if (usuario_id) {
-            if (mongoose.Types.ObjectId.isValid(usuario_id)) {
+    async comUsuarioId(usuario_id) {
+        if (usuario_id && mongoose.Types.ObjectId.isValid(usuario_id)) {
+            const usuarioExiste = await this.usuarioRepository.buscarPorId(usuario_id);
+            if (usuarioExiste) {
                 this.filtros.id_usuario = usuario_id;
             } else {
                 // Filtro impossível, nunca retorna nada
@@ -76,10 +86,18 @@ class MovimentacaoFilterBuilder {
 
     /**
      * Filtra movimentações por ID do produto
+     * Agora verifica se o produto existe antes de aplicar o filtro.
      */
-    comProdutoId(produto_id) {
+    async comProdutoId(produto_id) {
         if (produto_id && mongoose.Types.ObjectId.isValid(produto_id)) {
-            this.filtros['produtos.produto_ref'] = produto_id;
+            const produtoExiste = await this.produtoRepository.buscarProdutoPorID(produto_id);
+
+            if (produtoExiste) {
+                this.filtros['produtos.produto_ref'] = new mongoose.Types.ObjectId(produto_id);
+            } else {
+                // Filtro impossível: nunca retorna nada
+                this.filtros._id = { $exists: false };
+            }
         }
         return this;
     }

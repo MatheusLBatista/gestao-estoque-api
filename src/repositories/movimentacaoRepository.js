@@ -63,6 +63,7 @@ class MovimentacaoRepository {
 
     const {
       tipo,
+      destino,
       data_inicio,
       data_fim,
       produto,
@@ -77,6 +78,10 @@ class MovimentacaoRepository {
     // Aplicar filtros novos
     if (tipo) {
       filtros.tipo = tipo;
+    }
+
+    if (destino) {
+      filtros.destino = destino;
     }
 
     if (data_inicio && data_fim) {
@@ -320,13 +325,11 @@ class MovimentacaoRepository {
   }
 
   async filtrarMovimentacoesAvancado(opcoesFiltro = {}, opcoesPaginacao = {}) {
-    console.log(
-      "Estou no filtrarMovimentacoesAvancado em MovimentacaoRepository"
-    );
+    console.log("Estou no filtrarMovimentacoesAvancado em MovimentacaoRepository");
 
     const builder = new MovimentacaoFilterBuilder();
 
-    // Aplicar filtros básicos
+    // Filtros básicos
     if (opcoesFiltro.tipo) builder.comTipo(opcoesFiltro.tipo);
     if (opcoesFiltro.destino) builder.comDestino(opcoesFiltro.destino);
 
@@ -340,33 +343,27 @@ class MovimentacaoRepository {
       if (opcoesFiltro.dataFim) builder.comDataAntes(opcoesFiltro.dataFim);
     }
 
-    // Filtros de usuário
-    if (opcoesFiltro.idUsuario) builder.comUsuarioId(opcoesFiltro.idUsuario);
-    if (opcoesFiltro.nomeUsuario)
-      builder.comUsuarioNome(opcoesFiltro.nomeUsuario);
+    // Filtros de usuário (async)
+    if (opcoesFiltro.idUsuario) await builder.comUsuarioId(opcoesFiltro.idUsuario);
+    if (opcoesFiltro.nomeUsuario) builder.comUsuarioNome(opcoesFiltro.nomeUsuario);
 
-    // Filtros de produto
-    if (opcoesFiltro.idProduto) builder.comProdutoId(opcoesFiltro.idProduto);
-    if (opcoesFiltro.codigoProduto)
-      builder.comProdutoCodigo(opcoesFiltro.codigoProduto);
-    if (opcoesFiltro.nomeProduto)
-      builder.comProdutoNome(opcoesFiltro.nomeProduto);
-
-    // Filtros de fornecedor
-    if (opcoesFiltro.idFornecedor)
-      builder.comFornecedorId(opcoesFiltro.idFornecedor);
-    if (opcoesFiltro.nomeFornecedor)
-      builder.comFornecedorNome(opcoesFiltro.nomeFornecedor);
+    // Filtros de produto (async)
+    if (opcoesFiltro.idProduto) await builder.comProdutoId(opcoesFiltro.idProduto);
+    if (opcoesFiltro.codigoProduto) builder.comProdutoCodigo(opcoesFiltro.codigoProduto);
+    if (opcoesFiltro.nomeProduto) builder.comProdutoNome(opcoesFiltro.nomeProduto); // se implementar async
 
     // Filtros de quantidade
-    if (opcoesFiltro.quantidadeMin !== undefined)
-      builder.comQuantidadeMinima(opcoesFiltro.quantidadeMin);
-    if (opcoesFiltro.quantidadeMax !== undefined)
-      builder.comQuantidadeMaxima(opcoesFiltro.quantidadeMax);
+    if (opcoesFiltro.quantidadeMin !== undefined) builder.comQuantidadeMinima(opcoesFiltro.quantidadeMin);
+    if (opcoesFiltro.quantidadeMax !== undefined) builder.comQuantidadeMaxima(opcoesFiltro.quantidadeMax);
 
+    // Filtro de status
+    if (opcoesFiltro.status !== undefined) builder.comStatus(opcoesFiltro.status);
+
+    // Constrói filtros finais
     const filtros = builder.build();
     console.log("Filtros aplicados:", JSON.stringify(filtros, null, 2));
 
+    // Paginação
     const { page = 1, limite = 10 } = opcoesPaginacao;
     const options = {
       page: parseInt(page, 10),
@@ -374,11 +371,8 @@ class MovimentacaoRepository {
       sort: { data_movimentacao: -1 },
       populate: [
         { path: "id_usuario", select: "nome_usuario email" },
-        {
-          path: "produtos.produto_ref",
-          select: "nome_produto codigo_produto estoque id_fornecedor",
-        },
-      ],
+        { path: "produtos.produto_ref", select: "nome_produto estoque" }
+      ]
     };
 
     const resultado = await this.model.paginate(filtros, options);
