@@ -162,8 +162,13 @@ class MovimentacaoRepository {
     return movimentacao;
   }
 
-  async cadastrarMovimentacao(dadosMovimentacao) {
+  async cadastrarMovimentacao(dadosMovimentacao, req) {
     console.log("Estou no cadastrarMovimentacao em MovimentacaoRepository");
+
+    // Atribuir automaticamente o usuário logado ao campo id_usuario
+    if (req && req.user && req.user._id) {
+      dadosMovimentacao.id_usuario = req.user._id;
+    }
 
     try {
       const movimentacao = new this.model(dadosMovimentacao);

@@ -54,7 +54,7 @@ export const MovimentacaoSchema = z.object({
   data_movimentacao: z.date().optional().default(() => new Date()),
   id_usuario: z.string().refine(isValidObjectId, {
     message: "ID do usuário inválido",
-  }),
+  }).optional(),
   status: z.boolean().optional().default(true),
   produtos: z
     .array(ProdutoMovimentacaoSchema, {

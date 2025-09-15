@@ -18,7 +18,8 @@ class MovimentacaoFilterBuilder {
     /**
      * Filtra movimentações por destino
      */
-    comDestino(destino) {
+    //todo: rever
+    comDestino(destino) { 
         if (destino && destino.trim() !== '') {
             this.filtros.destino = { $regex: this.escapeRegex(destino), $options: 'i' };
         }
@@ -28,15 +29,16 @@ class MovimentacaoFilterBuilder {
     /**
      * Filtra movimentações por período
      */
-    comPeriodo(dataInicio, dataFim) {
-        if (dataInicio && dataFim) {
-            const dataInicioObj = new Date(dataInicio);
-            const dataFimObj = new Date(dataFim);
+    //todo: rever formato da data e colocar data fim como opcional
+    comPeriodo(data_inicio, data_fim) {
+        if (data_inicio && data_fim) {
+            const data_inicioObj = new Date(data_inicio);
+            const data_fimObj = new Date(data_fim);
 
-            if (!isNaN(dataInicioObj) && !isNaN(dataFimObj)) {
+            if (!isNaN(data_inicioObj) && !isNaN(data_fimObj)) {
                 this.filtros.data_movimentacao = {
-                    $gte: dataInicioObj,
-                    $lte: new Date(dataFimObj.setHours(23, 59, 59, 999))
+                    $gte: data_inicioObj,
+                    $lte: new Date(data_fimObj.setHours(23, 59, 59, 999))
                 };
             }
         }
@@ -46,9 +48,15 @@ class MovimentacaoFilterBuilder {
     /**
      * Filtra movimentações por ID de usuário
      */
-    comUsuarioId(idUsuario) {
-        if (idUsuario && mongoose.Types.ObjectId.isValid(idUsuario)) {
-            this.filtros.id_usuario = idUsuario;
+    //todo: rever porque ele lista mesmo sem o user existir(lista tudo)
+    comUsuarioId(usuario_id) {
+        if (usuario_id) {
+            if (mongoose.Types.ObjectId.isValid(usuario_id)) {
+                this.filtros.id_usuario = usuario_id;
+            } else {
+                // Filtro impossível, nunca retorna nada
+                this.filtros.id_usuario = null;
+            }
         }
         return this;
     }
@@ -56,9 +64,12 @@ class MovimentacaoFilterBuilder {
     /**
      * Filtra movimentações por nome de usuário
      */
-    comUsuarioNome(nomeUsuario) {
-        if (nomeUsuario && nomeUsuario.trim() !== '') {
-            this.filtros.nome_usuario = { $regex: this.escapeRegex(nomeUsuario), $options: 'i' };
+    comUsuarioNome(nome_usuario) {
+        if (nome_usuario && nome_usuario.trim() !== '') {
+            this.filtros['id_usuario.nome_usuario'] = { 
+                $regex: this.escapeRegex(nome_usuario), 
+                $options: 'i' 
+            };
         }
         return this;
     }
@@ -66,9 +77,9 @@ class MovimentacaoFilterBuilder {
     /**
      * Filtra movimentações por ID do produto
      */
-    comProdutoId(produtoId) {
-        if (produtoId && mongoose.Types.ObjectId.isValid(produtoId)) {
-            this.filtros['produtos.produto_ref'] = produtoId;
+    comProdutoId(produto_id) {
+        if (produto_id && mongoose.Types.ObjectId.isValid(produto_id)) {
+            this.filtros['produtos.produto_ref'] = produto_id;
         }
         return this;
     }
@@ -76,10 +87,10 @@ class MovimentacaoFilterBuilder {
     /**
      * Filtra movimentações por código de produto
      */
-    comProdutoCodigo(codigoProduto) {
-        if (codigoProduto && codigoProduto.trim() !== '') {
+    comProdutoCodigo(codigo_produto) {
+        if (codigo_produto && codigo_produto.trim() !== '') {
             this.filtros['produtos.codigo_produto'] = { 
-                $regex: this.escapeRegex(codigoProduto), 
+                $regex: this.escapeRegex(codigo_produto), 
                 $options: 'i' 
             };
         }
@@ -89,8 +100,8 @@ class MovimentacaoFilterBuilder {
     /**
      * Filtra movimentações por quantidade mínima de produtos
      */
-    comQuantidadeMinima(quantidadeMin) {
-        const quantidade = Number(quantidadeMin);
+    comQuantidadeMinima(quantidade_min) {
+        const quantidade = Number(quantidade_min);
         if (!isNaN(quantidade)) {
             this.filtros['produtos.quantidade_produtos'] = { 
                 ...(this.filtros['produtos.quantidade_produtos'] || {}),
@@ -103,8 +114,8 @@ class MovimentacaoFilterBuilder {
     /**
      * Filtra movimentações por quantidade máxima de produtos
      */
-    comQuantidadeMaxima(quantidadeMax) {
-        const quantidade = Number(quantidadeMax);
+    comQuantidadeMaxima(quantidade_max) {
+        const quantidade = Number(quantidade_max);
         if (!isNaN(quantidade)) {
             this.filtros['produtos.quantidade_produtos'] = { 
                 ...(this.filtros['produtos.quantidade_produtos'] || {}),
