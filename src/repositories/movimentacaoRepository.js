@@ -334,61 +334,62 @@ class MovimentacaoRepository {
     return movimentacao;
   }
 
-  async filtrarMovimentacoesAvancado(opcoesFiltro = {}, opcoesPaginacao = {}) {
-    console.log("Estou no filtrarMovimentacoesAvancado em MovimentacaoRepository");
+  //TODO: verificar veracidade dessa funcao de filtros
+  // async filtrarMovimentacoesAvancado(opcoesFiltro = {}, opcoesPaginacao = {}) {
+  //   console.log("Estou no filtrarMovimentacoesAvancado em MovimentacaoRepository");
 
-    const builder = new MovimentacaoFilterBuilder();
+  //   const builder = new MovimentacaoFilterBuilder();
 
-    // Filtros básicos
-    if (opcoesFiltro.tipo) builder.comTipo(opcoesFiltro.tipo);
-    if (opcoesFiltro.destino) builder.comDestino(opcoesFiltro.destino);
+  //   // Filtros básicos
+  //   if (opcoesFiltro.tipo) builder.comTipo(opcoesFiltro.tipo);
+  //   if (opcoesFiltro.destino) builder.comDestino(opcoesFiltro.destino);
 
-    // Filtros de data
-    if (opcoesFiltro.data) {
-      builder.comData(opcoesFiltro.data);
-    } else if (opcoesFiltro.dataInicio && opcoesFiltro.dataFim) {
-      builder.comPeriodo(opcoesFiltro.dataInicio, opcoesFiltro.dataFim);
-    } else {
-      if (opcoesFiltro.dataInicio) builder.comDataApos(opcoesFiltro.dataInicio);
-      if (opcoesFiltro.dataFim) builder.comDataAntes(opcoesFiltro.dataFim);
-    }
+  //   // Filtros de data
+  //   if (opcoesFiltro.data) {
+  //     builder.comData(opcoesFiltro.data);
+  //   } else if (opcoesFiltro.dataInicio && opcoesFiltro.dataFim) {
+  //     builder.comPeriodo(opcoesFiltro.dataInicio, opcoesFiltro.dataFim);
+  //   } else {
+  //     if (opcoesFiltro.dataInicio) builder.comDataApos(opcoesFiltro.dataInicio);
+  //     if (opcoesFiltro.dataFim) builder.comDataAntes(opcoesFiltro.dataFim);
+  //   }
 
-    // Filtros de usuário (async)
-    if (opcoesFiltro.idUsuario) await builder.comUsuarioId(opcoesFiltro.idUsuario);
-    if (opcoesFiltro.nomeUsuario) await builder.comUsuarioNome(opcoesFiltro.nomeUsuario);
+  //   // Filtros de usuário (async)
+  //   if (opcoesFiltro.idUsuario) await builder.comUsuarioId(opcoesFiltro.idUsuario);
+  //   if (opcoesFiltro.nomeUsuario) await builder.comUsuarioNome(opcoesFiltro.nomeUsuario);
 
-    // Filtros de produto (async)
-    if (opcoesFiltro.idProduto) await builder.comProdutoId(opcoesFiltro.idProduto);
-    // if (opcoesFiltro.codigoProduto) await builder.comProdutoCodigo(opcoesFiltro.codigoProduto);
-    if (opcoesFiltro.nomeProduto) await builder.comProdutoNome(opcoesFiltro.nomeProduto);
+  //   // Filtros de produto (async)
+  //   if (opcoesFiltro.idProduto) await builder.comProdutoId(opcoesFiltro.idProduto);
+  //   // if (opcoesFiltro.codigoProduto) await builder.comProdutoCodigo(opcoesFiltro.codigoProduto);
+  //   if (opcoesFiltro.nomeProduto) await builder.comProdutoNome(opcoesFiltro.nomeProduto);
 
-    // Filtros de quantidade
-    if (opcoesFiltro.quantidadeMin !== undefined) builder.comQuantidadeMinima(opcoesFiltro.quantidadeMin);
-    if (opcoesFiltro.quantidadeMax !== undefined) builder.comQuantidadeMaxima(opcoesFiltro.quantidadeMax);
+  //   // Filtros de quantidade
+  //   if (opcoesFiltro.quantidadeMin !== undefined) builder.comQuantidadeMinima(opcoesFiltro.quantidadeMin);
+  //   if (opcoesFiltro.quantidadeMax !== undefined) builder.comQuantidadeMaxima(opcoesFiltro.quantidadeMax);
 
-    // Filtro de status
-    if (opcoesFiltro.status !== undefined) builder.comStatus(opcoesFiltro.status);
+  //   // Filtro de status
+  //   if (opcoesFiltro.status !== undefined) builder.comStatus(opcoesFiltro.status);
 
-    // Constrói filtros finais
-    const filtros = builder.build();
-    console.log("Filtros aplicados:", JSON.stringify(filtros, null, 2));
+  //   // Constrói filtros finais
+  //   const filtros = builder.build();
+  //   console.log("Filtros aplicados:", JSON.stringify(filtros, null, 2));
 
-    // Paginação
-    const { page = 1, limite = 10 } = opcoesPaginacao;
-    const options = {
-      page: parseInt(page, 10),
-      limit: Math.min(parseInt(limite, 10), 100),
-      sort: { data_movimentacao: -1 },
-      populate: [
-        { path: "id_usuario", select: "nome_usuario email" },
-        { path: "produtos.produto_ref", select: "nome_produto estoque" }
-      ]
-    };
+  //   // Paginação
+  //   const { page = 1, limite = 10 } = opcoesPaginacao;
+  //   const options = {
+  //     page: parseInt(page, 10),
+  //     limit: Math.min(parseInt(limite, 10), 100),
+  //     sort: { data_movimentacao: -1 },
+  //     populate: [
+  //       { path: "id_usuario", select: "nome_usuario email" },
+  //       { path: "produtos.produto_ref", select: "nome_produto estoque" }
+  //     ]
+  //   };
 
-    const resultado = await this.model.paginate(filtros, options);
-    console.log(`Encontradas ${resultado.docs?.length || 0} movimentações`);
-    return resultado;
-  }
+  //   const resultado = await this.model.paginate(filtros, options);
+  //   console.log(`Encontradas ${resultado.docs?.length || 0} movimentações`);
+  //   return resultado;
+  // }
 
   async desativarMovimentacao(id) {
     const movimentacao = await this.model.findByIdAndUpdate(

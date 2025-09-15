@@ -74,13 +74,27 @@ class MovimentacaoFilterBuilder {
     /**
      * Filtra movimentações por nome de usuário
      */
-    comUsuarioNome(nome_usuario) {
+    // comUsuarioNome(nome_usuario) {
+    //     if (nome_usuario && nome_usuario.trim() !== '') {
+    //         this.filtros['id_usuario.nome_usuario'] = { 
+    //             $regex: this.escapeRegex(nome_usuario), 
+    //             $options: 'i' 
+    //         };
+    //     }
+    //     return this;
+    // }
+
+    async comUsuarioNome(nome_usuario) {
         if (nome_usuario && nome_usuario.trim() !== '') {
-            this.filtros['id_usuario.nome_usuario'] = { 
-                $regex: this.escapeRegex(nome_usuario), 
-                $options: 'i' 
-            };
+            const usuarios = await this.usuarioRepository.buscarPorNome(nome_usuario);
+            const ids = usuarios.map(u => u._id);
+            if (ids.length > 0) {
+                this.filtros.id_usuario = { $in: ids };
+            } else {
+                this.filtros._id = { $exists: false }; // retorno vazio
+            }
         }
+        console.log(`Filtros após comUsuarioNome: ${JSON.stringify(this.filtros)}`);
         return this;
     }
 

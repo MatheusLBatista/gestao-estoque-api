@@ -374,6 +374,28 @@ class UsuarioRepository {
         return user;
     }
 
+    async buscarPorNome(nome_usuario, incluirSenha = false) {
+        let query = this.model.find({ nome_usuario });
+
+        if (incluirSenha) {
+            query = query.select('+senha');
+        }
+
+        const user = await query;
+
+        if (!user) {
+            throw new CustomError({
+                statusCode: 404,
+                errorType: 'resourceNotFound',
+                field: 'Usuário',
+                details: [],
+                customMessage: messages.error.resourceNotFound('Usuário')
+            });
+        }
+
+        return user;
+    }
+
     async buscarPorCodigoRecuperacao(codigo) {
         let query = this.model.findOne({ codigo_recuperacao: codigo })
             .select('+senha +token_recuperacao +codigo_recuperacao +token_recuperacao_expira');

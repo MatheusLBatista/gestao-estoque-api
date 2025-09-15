@@ -21,17 +21,19 @@ router
     )
     
     // Rotas com query strings (busca e filtro)
-    .get(
-        '/busca',
-        LogMiddleware.log('BUSCA_MOVIMENTACOES'),
-        asyncWrapper(movimentacoesController.buscarMovimentacoes.bind(movimentacoesController))
-    )
+    //TODO: verificar veracidade dessa rota de busca
+    // .get(
+    //     '/busca',
+    //     LogMiddleware.log('BUSCA_MOVIMENTACOES'),
+    //     asyncWrapper(movimentacoesController.buscarMovimentacoes.bind(movimentacoesController))
+    // )
     
-    .get(
-        '/filtro',
-        LogMiddleware.log('FILTRO_MOVIMENTACOES'),
-        asyncWrapper(movimentacoesController.filtrarMovimentacoesAvancado.bind(movimentacoesController))
-    )
+    //TODO: verificar veracidade dessa rota de filtro
+    // .get(
+    //     '/filtro',
+    //     LogMiddleware.log('FILTRO_MOVIMENTACOES'),
+    //     asyncWrapper(movimentacoesController.filtrarMovimentacoesAvancado.bind(movimentacoesController))
+    // )
     
     // Rotas com parâmetros de rota por último
     .get(
