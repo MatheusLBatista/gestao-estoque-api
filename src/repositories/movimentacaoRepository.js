@@ -67,6 +67,8 @@ class MovimentacaoRepository {
       data_inicio,
       data_fim,
       produto,
+      nome_produto,
+      nome_usuario,
       usuario,
       page = 1,
     } = req.query || {};
@@ -95,8 +97,16 @@ class MovimentacaoRepository {
       filtros["produtos.produto_ref"] = produto;
     }
 
+    if (nome_produto) {
+      filtros["produtos.nome_produto"] = nome_produto;
+    }
+
     if (usuario) {
       filtros.id_usuario = usuario;
+    }
+
+    if (nome_usuario) {
+      filtros.nome_usuario = nome_usuario;
     }
 
     // Filtros adicionais
@@ -345,12 +355,12 @@ class MovimentacaoRepository {
 
     // Filtros de usuário (async)
     if (opcoesFiltro.idUsuario) await builder.comUsuarioId(opcoesFiltro.idUsuario);
-    if (opcoesFiltro.nomeUsuario) builder.comUsuarioNome(opcoesFiltro.nomeUsuario);
+    if (opcoesFiltro.nomeUsuario) await builder.comUsuarioNome(opcoesFiltro.nomeUsuario);
 
     // Filtros de produto (async)
     if (opcoesFiltro.idProduto) await builder.comProdutoId(opcoesFiltro.idProduto);
-    if (opcoesFiltro.codigoProduto) builder.comProdutoCodigo(opcoesFiltro.codigoProduto);
-    if (opcoesFiltro.nomeProduto) builder.comProdutoNome(opcoesFiltro.nomeProduto); // se implementar async
+    // if (opcoesFiltro.codigoProduto) await builder.comProdutoCodigo(opcoesFiltro.codigoProduto);
+    if (opcoesFiltro.nomeProduto) await builder.comProdutoNome(opcoesFiltro.nomeProduto);
 
     // Filtros de quantidade
     if (opcoesFiltro.quantidadeMin !== undefined) builder.comQuantidadeMinima(opcoesFiltro.quantidadeMin);
