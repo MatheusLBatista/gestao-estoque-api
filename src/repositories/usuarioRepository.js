@@ -374,15 +374,26 @@ class UsuarioRepository {
         return user;
     }
 
-    async buscarPorNome(nome, idIgnorado = null) {
-        const filtro = { nome };
+    async buscarPorNome(nome, includeTokens = false) {
+        let query = this.model.find({ nome });
 
-        if (idIgnorado) {
-            filtro._id = { $ne: idIgnorado }; 
+        if (includeTokens) {
+            query = query.select('+refreshtoken +accesstoken');
         }
-        const documento = await this.model.findOne(filtro);
 
-        return documento;
+        const user = await query;
+        
+        if (!user) {
+            throw new CustomError({
+                statusCode: 404,
+                errorType: 'resourceNotFound',
+                field: 'Usuário',
+                details: [],
+                customMessage: messages.error.resourceNotFound('Usuário')
+            });
+        }
+
+        return user;
     }
 
     async buscarPorCodigoRecuperacao(codigo) {

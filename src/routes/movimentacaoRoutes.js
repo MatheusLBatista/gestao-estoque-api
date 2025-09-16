@@ -20,21 +20,6 @@ router
         asyncWrapper(movimentacoesController.cadastrarMovimentacao.bind(movimentacoesController))
     )
     
-    // Rotas com query strings (busca e filtro)
-    //TODO: verificar veracidade dessa rota de busca
-    // .get(
-    //     '/busca',
-    //     LogMiddleware.log('BUSCA_MOVIMENTACOES'),
-    //     asyncWrapper(movimentacoesController.buscarMovimentacoes.bind(movimentacoesController))
-    // )
-    
-    //TODO: verificar veracidade dessa rota de filtro
-    // .get(
-    //     '/filtro',
-    //     LogMiddleware.log('FILTRO_MOVIMENTACOES'),
-    //     asyncWrapper(movimentacoesController.filtrarMovimentacoesAvancado.bind(movimentacoesController))
-    // )
-    
     // Rotas com parâmetros de rota por último
     .get(
         '/:id',

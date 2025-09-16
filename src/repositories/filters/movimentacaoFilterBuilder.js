@@ -38,7 +38,7 @@ class MovimentacaoFilterBuilder {
     /**
      * Filtra movimentações por período
      */
-    //todo: rever formato da data e colocar data fim como opcional
+    //TODO: rever formato da data e colocar data fim como opcional
     comPeriodo(data_inicio, data_fim) {
         if (data_inicio && data_fim) {
             const data_inicioObj = new Date(data_inicio);
@@ -57,7 +57,6 @@ class MovimentacaoFilterBuilder {
     /**
      * Filtra movimentações por ID de usuário
      */
-    //todo: rever porque ele lista mesmo sem o user existir(lista tudo)
     async comUsuarioId(usuario_id) {
         if (usuario_id && mongoose.Types.ObjectId.isValid(usuario_id)) {
             const usuarioExiste = await this.usuarioRepository.buscarPorId(usuario_id);
@@ -71,47 +70,21 @@ class MovimentacaoFilterBuilder {
         return this;
     }
 
-    /**
-     * Filtra movimentações por nome de usuário
-     */
-    // comUsuarioNome(nome_usuario) {
-    //     if (nome_usuario && nome_usuario.trim() !== '') {
-    //         this.filtros['id_usuario.nome_usuario'] = { 
-    //             $regex: this.escapeRegex(nome_usuario), 
-    //             $options: 'i' 
-    //         };
-    //     }
-    //     return this;
-    // }
-
-    // async comUsuarioNome(nome_usuario) {
-    //     if (nome_usuario && nome_usuario.trim() !== '') {
-    //         const usuarios = await this.usuarioRepository.buscarPorNome(nome_usuario);
-    //         const ids = usuarios.map(u => u._id);
-    //         if (ids.length > 0) {
-    //             this.filtros.id_usuario = { $in: ids };
-    //         } else {
-    //             this.filtros._id = { $exists: false }; // retorno vazio
-    //         }
-    //     }
-    //     console.log(`Filtros após comUsuarioNome: ${JSON.stringify(this.filtros)}`);
-    //     return this;
-    // }
-
     async comUsuarioNome(nome_usuario) {
-        if (nome_usuario) {
-            const usuarioEncontrado =
-                await this.usuarioRepository.buscarPorNome(nome_usuario);
+        if (nome_usuario && nome_usuario.trim() !== '') {
+            const usuarioEncontrado = await this.usuarioRepository.buscarPorNome(nome_usuario.trim());
 
-            const usuariosIDs = usuarioEncontrado
-                ? Array.isArray(usuarioEncontrado)
-                    ? usuarioEncontrado.map((g) => g._id)
-                    : [usuarioEncontrado._id]
-                : [];
+            const usuariosIDs = Array.isArray(usuarioEncontrado)
+                ? usuarioEncontrado.map((g) => g._id)
+                : usuarioEncontrado ? [usuarioEncontrado._id] : [];
 
-            this.filtros.id_usuario = { $in: usuariosIDs };
+            if (usuariosIDs.length > 0) {
+                this.filtros.id_usuario = { $in: usuariosIDs };
+            } else {
+                // Se nenhum usuário for encontrado, garante que o filtro não retorne resultados
+                this.filtros.id_usuario = { $exists: false };
+            }
         }
-
         return this;
     }
 
