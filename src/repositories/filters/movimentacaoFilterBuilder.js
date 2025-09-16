@@ -106,6 +106,25 @@ class MovimentacaoFilterBuilder {
         return this;
     }
 
+    async comProdutoNome(nome_produto) {
+        if (nome_produto && nome_produto.trim() !== '') {
+            const produtoEncontrado = await this.produtoRepository.buscarPorNome(nome_produto.trim());
+
+            const produtosIDs = Array.isArray(produtoEncontrado)
+                ? produtoEncontrado.map((g) => g._id)
+                : produtoEncontrado ? [produtoEncontrado._id] : [];
+
+            console.log('IDs dos produtos encontrados:', produtosIDs);
+
+            if (produtosIDs.length > 0) {
+                this.filtros['produtos.produto_ref'] = { $in: produtosIDs };
+            } else {
+                this.filtros._id = { $exists: false };
+            }
+        }
+        return this;
+    }
+
     /**
      * Filtra movimentações por código de produto
      */

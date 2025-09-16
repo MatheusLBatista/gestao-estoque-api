@@ -80,10 +80,12 @@ class MovimentacaoRepository {
         .comDestino(destino || '')
         .comPeriodo(data_inicio || '', data_fim || '')
         
-        await filterBuilder.comProdutoId(produto || '')
-        // await filtros.comProdutoNome(nome_produto || '')
-        await filterBuilder.comUsuarioId(usuario || '')
-        await filterBuilder.comUsuarioNome(nome_usuario || '')
+        await Promise.all([
+            filterBuilder.comProdutoId(produto || ''),
+            filterBuilder.comProdutoNome(nome_produto || ''),
+            filterBuilder.comUsuarioId(usuario || ''),
+            filterBuilder.comUsuarioNome(nome_usuario || '')
+        ]);
 
     console.log("Filtros aplicados:", JSON.stringify(filterBuilder, null, 2));
 
