@@ -375,7 +375,7 @@ class UsuarioRepository {
     }
 
     async buscarPorNome(nome, includeTokens = false) {
-        let query = this.model.find({ nome });
+        let query = this.model.find({ nome_usuario: { $regex: nome, $options: 'i' } });
 
         if (includeTokens) {
             query = query.select('+refreshtoken +accesstoken');

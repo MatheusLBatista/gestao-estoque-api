@@ -38,16 +38,21 @@ class MovimentacaoFilterBuilder {
     /**
      * Filtra movimentações por período
      */
-    //TODO: rever formato da data e colocar data fim como opcional
     comPeriodo(data_inicio, data_fim) {
         if (data_inicio && data_fim) {
-            const data_inicioObj = new Date(data_inicio);
-            const data_fimObj = new Date(data_fim);
+            // Função auxiliar para converter "DD-MM-YYYY" em Date
+            const parseDate = (dateStr) => {
+                const [dia, mes, ano] = dateStr.split('-').map(Number);
+                return new Date(ano, mes - 1, dia); // mês começa em 0 no JS
+            };
+
+            const data_inicioObj = parseDate(data_inicio);
+            const data_fimObj = parseDate(data_fim);
 
             if (!isNaN(data_inicioObj) && !isNaN(data_fimObj)) {
                 this.filtros.data_movimentacao = {
                     $gte: data_inicioObj,
-                    $lte: new Date(data_fimObj.setHours(23, 59, 59, 999))
+                    $lte: new Date(data_fimObj.setHours(23, 59, 59, 999)) // fim do dia
                 };
             }
         }

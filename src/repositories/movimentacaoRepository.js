@@ -69,6 +69,7 @@ class MovimentacaoRepository {
       produto,
       nome_produto,
       nome_usuario,
+      codigo_produto,
       usuario,
       page = 1,
     } = req.query || {};
@@ -84,7 +85,8 @@ class MovimentacaoRepository {
             filterBuilder.comProdutoId(produto || ''),
             filterBuilder.comProdutoNome(nome_produto || ''),
             filterBuilder.comUsuarioId(usuario || ''),
-            filterBuilder.comUsuarioNome(nome_usuario || '')
+            filterBuilder.comUsuarioNome(nome_usuario || ''),
+            filterBuilder.comProdutoCodigo(codigo_produto || '')
         ]);
 
     console.log("Filtros aplicados:", JSON.stringify(filterBuilder, null, 2));
