@@ -21,31 +21,17 @@ async function seedMovimentacao(usuarios = [], produtos = [], fornecedores = [])
         const produto1 = produtos[0];
         const produto2 = produtos[1] || produtos[0];
 
-        // Encontrar fornecedor correspondente ao produto
-        const fornecedorId1 = produto1.id_fornecedor;
-        const fornecedorId2 = produto2.id_fornecedor;
-        
-        let nomeFornecedor1 = 'Distribuidora Central Ltda';
-        let nomeFornecedor2 = 'Mercado Atacado Brasil';
-
         // Movimentação de entrada fixa
         const movEntrada = {
             tipo: 'entrada',
             destino: 'Estoque',
-            data_movimentacao: new Date(),
-            id_produto: produto1._id.toString(),
-            id_usuario: adminUser._id,
-            nome_usuario: adminUser.nome_usuario,
+            id_usuario: adminUser._id.toString(),
             produtos: [{
                 produto_ref: produto1._id.toString(),
-                id_produto: produto1.id_fornecedor * 10 + 1,
                 codigo_produto: produto1.codigo_produto || 'COD-001',
-                nome_produto: produto1.nome_produto,
                 quantidade_produtos: 50,
                 preco: produto1.preco,
-                custo: produto1.custo || (produto1.preco * 0.7),
-                id_fornecedor: fornecedorId1,
-                nome_fornecedor: nomeFornecedor1
+                custo: produto1.custo || (produto1.preco * 0.7)
             }]
         };
 
@@ -53,20 +39,13 @@ async function seedMovimentacao(usuarios = [], produtos = [], fornecedores = [])
         const movSaida = {
             tipo: 'saida',
             destino: 'Venda',
-            data_movimentacao: new Date(),
-            id_produto: produto2._id.toString(),
-            id_usuario: adminUser._id,
-            nome_usuario: adminUser.nome_usuario,
+            id_usuario: adminUser._id.toString(),
             produtos: [{
                 produto_ref: produto2._id.toString(),
-                id_produto: produto2.id_fornecedor * 10 + 2,
                 codigo_produto: produto2.codigo_produto || 'COD-002',
-                nome_produto: produto2.nome_produto,
                 quantidade_produtos: 10,
                 preco: produto2.preco,
-                custo: produto2.custo || (produto2.preco * 0.7),
-                id_fornecedor: fornecedorId2,
-                nome_fornecedor: nomeFornecedor2
+                custo: produto2.custo || (produto2.preco * 0.7)
             }]
         };
 
@@ -88,28 +67,11 @@ async function seedMovimentacao(usuarios = [], produtos = [], fornecedores = [])
         }
         
         // Criar movimentações aleatórias adicionais (30-40 registros)
-        for (let i = 0; i < 40; i++) {
+        for (let i = 0; i < 20; i++) {
             const tipo = tipos[Math.floor(Math.random() * tipos.length)];
             const usuario = usuarios[Math.floor(Math.random() * usuarios.length)];
             const produto = produtos[Math.floor(Math.random() * produtos.length)];
-            
-            // Encontrar dados do fornecedor
-            const fornecedorId = produto.id_fornecedor;
-            let nomeFornecedor = 'Fornecedor';
-            
-            // Buscar nome do fornecedor baseado no id
-            for (const fornecedor of fornecedores) {
-                // Extrair parte do ID do fornecedor para comparar
-                if (fornecedor._id && typeof fornecedor._id.toString === 'function') {
-                    const tempId = fornecedor._id.toString().substring(0, 8);
-                    const tempNumeric = parseInt(tempId, 16) % 1000;
-                    if (tempNumeric === fornecedorId) {
-                        nomeFornecedor = fornecedor.nome_fornecedor;
-                        break;
-                    }
-                }
-            }
-            
+        
             // Não gerar quantidade muito alta para não esgotar estoque nas saídas
             const quantidade = Math.floor(Math.random() * 5) + 1;
             
@@ -117,8 +79,6 @@ async function seedMovimentacao(usuarios = [], produtos = [], fornecedores = [])
             let tentativa = 0;
             let movimentacaoFake;
             
-            // Tentativas para criar movimentação válida
-            while (!movimentacaoValida && tentativa < 3) {
                 try {
                     const dataMovimentacao = new Date();
                     dataMovimentacao.setDate(dataMovimentacao.getDate() - Math.floor(Math.random() * 30)); // Data aleatória nos últimos 30 dias
@@ -127,34 +87,24 @@ async function seedMovimentacao(usuarios = [], produtos = [], fornecedores = [])
                         tipo: tipo,
                         destino: tipo === 'entrada' ? 'Estoque' : 'Venda',
                         data_movimentacao: dataMovimentacao,
-                        id_produto: produto._id.toString(),
-                        id_usuario: usuario._id,
-                        nome_usuario: usuario.nome_usuario,
+                        id_usuario: usuario._id.toString(),
                         produtos: [{
                             produto_ref: produto._id.toString(),
-                            id_produto: produto.id_fornecedor * 100 + i,
                             codigo_produto: produto.codigo_produto || `PROD-${i}`,
-                            nome_produto: produto.nome_produto,
                             quantidade_produtos: quantidade,
                             preco: produto.preco,
-                            custo: produto.custo || (produto.preco * 0.7),
-                            id_fornecedor: produto.id_fornecedor,
-                            nome_fornecedor: nomeFornecedor
+                            custo: produto.custo || (produto.preco * 0.7)
                         }]
                     };
                     
                     // Validar com Zod
                     MovimentacaoSchema.parse(movimentacaoFake);
                     movimentacaoValida = true;
+                    movimentacoes.push(movimentacaoFake);
                 } catch (error) {
                     tentativa++;
                     console.warn(`Tentativa ${tentativa}: Movimentação inválida: ${error.message}`);
                 }
-            }
-            
-            if (movimentacaoValida) {
-                movimentacoes.push(movimentacaoFake);
-            }
         }
         
         console.log(`Tentando inserir ${movimentacoes.length} movimentações...`);

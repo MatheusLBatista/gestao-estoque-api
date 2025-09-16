@@ -4,7 +4,6 @@ import mongoosePaginate from 'mongoose-paginate-v2';
 
 class Movimentacao {
     constructor() {
-        //TODO: revisar comentários
         const produtoMovimentacaoSchema = new mongoose.Schema({
             produto_ref: { type: mongoose.Schema.Types.ObjectId, ref: 'produtos' },
             codigo_produto: { type: String, required: true },
