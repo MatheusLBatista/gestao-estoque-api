@@ -75,51 +75,19 @@ class MovimentacaoRepository {
 
     const limite = Math.min(parseInt(req.query?.limite, 10) || 10, 100);
 
-    const filtros = {};
+    const filterBuilder = new MovimentacaoFilterBuilder()
+        .comTipo(tipo || '')
+        .comDestino(destino || '')
+        .comPeriodo(data_inicio || '', data_fim || '')
+        
+        await filterBuilder.comProdutoId(produto || '')
+        // await filtros.comProdutoNome(nome_produto || '')
+        await filterBuilder.comUsuarioId(usuario || '')
+        await filterBuilder.comUsuarioNome(nome_usuario || '')
 
-    // Aplicar filtros novos
-    if (tipo) {
-      filtros.tipo = tipo;
-    }
+    console.log("Filtros aplicados:", JSON.stringify(filterBuilder, null, 2));
 
-    if (destino) {
-      filtros.destino = destino;
-    }
-
-    if (data_inicio && data_fim) {
-      filtros.data_movimentacao = {
-        $gte: new Date(data_inicio),
-        $lte: new Date(data_fim),
-      };
-    }
-
-    if (produto) {
-      filtros["produtos.produto_ref"] = produto;
-    }
-
-    if (nome_produto) {
-      filtros["produtos.nome_produto"] = nome_produto;
-    }
-
-    if (usuario) {
-      filtros.id_usuario = usuario;
-    }
-
-    if (nome_usuario) {
-      filtros.nome_usuario = nome_usuario;
-    }
-
-    // Filtros adicionais
-    const { quantidadeMin, quantidadeMax } = req.query || {};
-    if (quantidadeMin !== undefined) {
-      filtros.quantidade = { $gte: quantidadeMin };
-    }
-    if (quantidadeMax !== undefined) {
-      filtros.quantidade = {
-        ...filtros.quantidade,
-        $lte: quantidadeMax,
-      };
-    }
+    const filtros = filterBuilder.build();
 
     const options = {
       page: parseInt(page, 10),

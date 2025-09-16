@@ -374,26 +374,15 @@ class UsuarioRepository {
         return user;
     }
 
-    async buscarPorNome(nome_usuario, incluirSenha = false) {
-        let query = this.model.find({ nome_usuario });
+    async buscarPorNome(nome, idIgnorado = null) {
+        const filtro = { nome };
 
-        if (incluirSenha) {
-            query = query.select('+senha');
+        if (idIgnorado) {
+            filtro._id = { $ne: idIgnorado }; 
         }
+        const documento = await this.model.findOne(filtro);
 
-        const user = await query;
-
-        if (!user) {
-            throw new CustomError({
-                statusCode: 404,
-                errorType: 'resourceNotFound',
-                field: 'Usuário',
-                details: [],
-                customMessage: messages.error.resourceNotFound('Usuário')
-            });
-        }
-
-        return user;
+        return documento;
     }
 
     async buscarPorCodigoRecuperacao(codigo) {

@@ -84,17 +84,34 @@ class MovimentacaoFilterBuilder {
     //     return this;
     // }
 
+    // async comUsuarioNome(nome_usuario) {
+    //     if (nome_usuario && nome_usuario.trim() !== '') {
+    //         const usuarios = await this.usuarioRepository.buscarPorNome(nome_usuario);
+    //         const ids = usuarios.map(u => u._id);
+    //         if (ids.length > 0) {
+    //             this.filtros.id_usuario = { $in: ids };
+    //         } else {
+    //             this.filtros._id = { $exists: false }; // retorno vazio
+    //         }
+    //     }
+    //     console.log(`Filtros após comUsuarioNome: ${JSON.stringify(this.filtros)}`);
+    //     return this;
+    // }
+
     async comUsuarioNome(nome_usuario) {
-        if (nome_usuario && nome_usuario.trim() !== '') {
-            const usuarios = await this.usuarioRepository.buscarPorNome(nome_usuario);
-            const ids = usuarios.map(u => u._id);
-            if (ids.length > 0) {
-                this.filtros.id_usuario = { $in: ids };
-            } else {
-                this.filtros._id = { $exists: false }; // retorno vazio
-            }
+        if (nome_usuario) {
+            const usuarioEncontrado =
+                await this.usuarioRepository.buscarPorNome(nome_usuario);
+
+            const usuariosIDs = usuarioEncontrado
+                ? Array.isArray(usuarioEncontrado)
+                    ? usuarioEncontrado.map((g) => g._id)
+                    : [usuarioEncontrado._id]
+                : [];
+
+            this.filtros.id_usuario = { $in: usuariosIDs };
         }
-        console.log(`Filtros após comUsuarioNome: ${JSON.stringify(this.filtros)}`);
+
         return this;
     }
 
