@@ -128,9 +128,7 @@ class MovimentacaoService {
       });
     }
 
-    const movimentacaoOriginal = await this.repository.buscarMovimentacaoPorID(
-      id
-    );
+    const movimentacaoOriginal = await this.repository.buscarMovimentacaoPorID(id);
 
     if (!movimentacaoOriginal) {
       throw new CustomError({
@@ -160,8 +158,108 @@ class MovimentacaoService {
       });
     }
 
-    if (dadosAtualizacao.produtos && movimentacaoOriginal.tipo === "saida") {
+    // Se produtos ou tipo foram alterados, refazer estoque
+    if (dadosAtualizacao.produtos || dadosAtualizacao.tipo) {
+      const novoTipo = dadosAtualizacao.tipo || movimentacaoOriginal.tipo;
+      const novosProdutos = dadosAtualizacao.produtos || movimentacaoOriginal.produtos;
+
+      // 1. Estorna movimentação original
       for (const produtoMov of movimentacaoOriginal.produtos) {
+        const produto = await this.produtoService.buscarProdutoPorID(
+          produtoMov.produto_ref
+        );
+
+        if (movimentacaoOriginal.tipo === "entrada") {
+          await this.produtoService.atualizarProduto(produto._id, {
+            estoque: Math.max(0, produto.estoque - produtoMov.quantidade_produtos),
+          });
+        } else if (movimentacaoOriginal.tipo === "saida") {
+          await this.produtoService.atualizarProduto(produto._id, {
+            estoque: produto.estoque + produtoMov.quantidade_produtos,
+          });
+        }
+      }
+
+      // 2. Aplica movimentação atualizada
+      for (const produtoMov of novosProdutos) {
+        const produto = await this.produtoService.buscarProdutoPorID(
+          produtoMov.produto_ref
+        );
+
+        if (novoTipo === "entrada") {
+          await this.produtoService.atualizarProduto(produto._id, {
+            estoque: produto.estoque + produtoMov.quantidade_produtos,
+          });
+        } else if (novoTipo === "saida") {
+          if (produto.estoque < produtoMov.quantidade_produtos) {
+            throw new CustomError({
+              statusCode: HttpStatusCodes.BAD_REQUEST.code,
+              errorType: "businessRuleViolation",
+              field: "quantidade_produtos",
+              details: [],
+              customMessage: `Estoque insuficiente para o produto ${produto.nome_produto}. Disponível: ${produto.estoque}.`,
+            });
+          }
+
+          await this.produtoService.atualizarProduto(produto._id, {
+            estoque: produto.estoque - produtoMov.quantidade_produtos,
+          });
+        }
+      }
+    }
+
+    dadosAtualizacao.data_ultima_atualizacao = new Date();
+
+    delete dadosAtualizacao.id_usuario;
+    delete dadosAtualizacao.data_movimentacao;
+    delete dadosAtualizacao.status;
+    delete dadosAtualizacao._id;
+    delete dadosAtualizacao.data_cadastro;
+
+    const movimentacaoAtualizada = await this.repository.atualizarMovimentacao(
+      id,
+      dadosAtualizacao
+    );
+    return movimentacaoAtualizada;
+  }
+
+  async desativarMovimentacao(id) {
+    console.log("Estou no desativarMovimentacao em MovimentacaoService");
+
+    const movimentacao = await this.repository.buscarMovimentacaoPorID(id);
+    if (!movimentacao) {
+      throw new CustomError({
+        statusCode: HttpStatusCodes.NOT_FOUND.code,
+        errorType: "resourceNotFound",
+        field: "id",
+        details: [],
+        customMessage: "Movimentação não encontrada.",
+      });
+    }
+
+    if (movimentacao.status === false) {
+      throw new CustomError({
+        statusCode: HttpStatusCodes.CONFLICT.code,
+        errorType: "businessRuleViolation",
+        field: "status",
+        details: [],
+        customMessage: "Movimentação já está desativada.",
+      });
+    }
+
+    // Estorno do estoque
+    if (movimentacao.tipo === "entrada") {
+      for (const produtoMov of movimentacao.produtos) {
+        const produto = await this.produtoService.buscarProdutoPorID(
+          produtoMov.produto_ref
+        );
+
+        await this.produtoService.atualizarProduto(produto._id, {
+          estoque: Math.max(0, produto.estoque - produtoMov.quantidade_produtos),
+        });
+      }
+    } else if (movimentacao.tipo === "saida") {
+      for (const produtoMov of movimentacao.produtos) {
         const produto = await this.produtoService.buscarProdutoPorID(
           produtoMov.produto_ref
         );
@@ -170,19 +268,61 @@ class MovimentacaoService {
           estoque: produto.estoque + produtoMov.quantidade_produtos,
         });
       }
+    }
 
-      for (const produtoMov of dadosAtualizacao.produtos) {
+    const data = await this.repository.atualizarMovimentacao(id, { status: false });
+    return data;
+  }
+
+  async reativarMovimentacao(id) {
+    console.log("Estou no reativarMovimentacao em MovimentacaoService");
+
+    const movimentacao = await this.repository.buscarMovimentacaoPorID(id);
+    if (!movimentacao) {
+      throw new CustomError({
+        statusCode: HttpStatusCodes.NOT_FOUND.code,
+        errorType: "resourceNotFound",
+        field: "id",
+        details: [],
+        customMessage: "Movimentação não encontrada.",
+      });
+    }
+
+    if (movimentacao.status === true) {
+      throw new CustomError({
+        statusCode: HttpStatusCodes.CONFLICT.code,
+        errorType: "businessRuleViolation",
+        field: "status",
+        details: [],
+        customMessage: "Movimentação já está ativa.",
+      });
+    }
+
+    // Reaplicar movimentação no estoque
+    if (movimentacao.tipo === "entrada") {
+      for (const produtoMov of movimentacao.produtos) {
         const produto = await this.produtoService.buscarProdutoPorID(
           produtoMov.produto_ref
         );
 
+        await this.produtoService.atualizarProduto(produto._id, {
+          estoque: produto.estoque + produtoMov.quantidade_produtos,
+        });
+      }
+    } else if (movimentacao.tipo === "saida") {
+      for (const produtoMov of movimentacao.produtos) {
+        const produto = await this.produtoService.buscarProdutoPorID(
+          produtoMov.produto_ref
+        );
+
+        // Aqui pode dar erro se o estoque não for suficiente
         if (produto.estoque < produtoMov.quantidade_produtos) {
           throw new CustomError({
-            statusCode: HttpStatusCodes.BAD_REQUEST.code,
+            statusCode: HttpStatusCodes.CONFLICT.code,
             errorType: "businessRuleViolation",
-            field: "quantidade_produtos",
+            field: "estoque",
             details: [],
-            customMessage: `Estoque insuficiente para o produto ${produto.nome_produto}. Disponível: ${produto.estoque}.`,
+            customMessage: `Não há estoque suficiente para reativar a movimentação do produto ${produto.nome_produto}.`,
           });
         }
 
@@ -192,13 +332,8 @@ class MovimentacaoService {
       }
     }
 
-    dadosAtualizacao.data_ultima_atualizacao = new Date();
-
-    const movimentacaoAtualizada = await this.repository.atualizarMovimentacao(
-      id,
-      dadosAtualizacao
-    );
-    return movimentacaoAtualizada;
+    const data = await this.repository.atualizarMovimentacao(id, { status: true });
+    return data;
   }
 
   async deletarMovimentacao(id) {
