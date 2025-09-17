@@ -183,135 +183,66 @@ const movimentacaoSchemas = {
   // Schema para criação de movimentação
   MovimentacaoCreateRequest: {
     type: "object",
-    required: ["tipo", "destino", "nome_usuario", "produtos"],
     properties: {
       tipo: {
         type: "string",
         enum: ["entrada", "saida"],
         description: "Tipo da movimentação",
+        example: "saida",
       },
       destino: {
         type: "string",
         description: "Destino da movimentação",
-        minLength: 3,
-      },
-      data_movimentacao: {
-        type: "string",
-        format: "date-time",
-        description: "Data e hora da movimentação (opcional, padrão: agora)",
-      },
-      id_produto: {
-        type: "string",
-        description: "ID de referência do produto principal",
-      },
-      nome_usuario: {
-        type: "string",
-        description: "Nome do usuário responsável",
+        example: "Venda",
       },
       produtos: {
         type: "array",
         description: "Lista de produtos da movimentação",
-        minItems: 1,
         items: {
           type: "object",
-          required: [
-            "produto_ref",
-            "id_produto",
-            "codigo_produto",
-            "nome_produto",
-            "quantidade_produtos",
-            "preco",
-            "custo",
-            "id_fornecedor",
-            "nome_fornecedor",
-          ],
           properties: {
-            produto_ref: {
-              type: "string",
-              description: "Referência ObjectId do produto",
-            },
-            id_produto: {
-              type: "number",
-              description: "ID numérico do produto",
-            },
-            codigo_produto: {
-              type: "string",
-              description: "Código do produto",
-            },
-            nome_produto: {
-              type: "string",
-              description: "Nome do produto",
-            },
-            quantidade_produtos: {
-              type: "number",
-              description: "Quantidade movimentada",
-              minimum: 1,
-            },
-            preco: {
-              type: "number",
-              description: "Preço unitário do produto",
-              minimum: 0,
-            },
-            custo: {
-              type: "number",
-              description: "Custo unitário do produto",
-              minimum: 0,
-            },
-            id_fornecedor: {
-              type: "number",
-              description: "ID do fornecedor",
-            },
-            nome_fornecedor: {
-              type: "string",
-              description: "Nome do fornecedor",
+                produto_ref: {
+                type: "object",
+                description: "Produto referenciado",
+                example: "68c9f7a4db05196e99002155",
+                },
+                codigo_produto: {
+                type: "string",
+                description: "Código do produto",
+                example: "DIS-6410 1",
+                },
+                quantidade_produtos: {
+                type: "integer",
+                description: "Quantidade movimentada",
+                example: 10,
+                },
+                preco: {
+                type: "number",
+                format: "double",
+                description: "Preço unitário do produto",
+                example: 8989.49,
+                },
+                custo: {
+                type: "number",
+                format: "double",
+                description: "Custo total do produto",
+                example: 6292.64,
+              }
             },
           },
         },
       },
     },
-    example: {
-      tipo: "entrada",
-      destino: "Depósito Central",
-      data_movimentacao: "2025-06-14T01:23:07.364Z",
-      id_produto: "64b6f9e5a4b7c2d1f8a12345",
-      nome_usuario: "João da Silva",
-      produtos: [
-        {
-          produto_ref: "6872773c8c0ec82fae6bf6da",
-          id_produto: 1,
-          codigo_produto: "DIS-6267",
-          nome_produto: "Ergonômico Algodão Cadeira",
-          quantidade_produtos: 10,
-          preco: 5499.99,
-          custo: 3849.993,
-          id_fornecedor: 187,
-          nome_fornecedor: "Distribuidora Central Ltda",
-        },
-      ],
-    },
-  },
 
   // Schema para atualização de movimentação
   MovimentacaoUpdateRequest: {
     type: "object",
     properties: {
-      tipo: {
-        type: "string",
-        enum: ["entrada", "saida"],
-        description: "Tipo da movimentação",
-        example: "entrada",
-      },
       destino: {
         type: "string",
         description: "Destino da movimentação",
         example: "Estoque Principal",
         minLength: 3,
-      },
-      data_movimentacao: {
-        type: "string",
-        format: "date-time",
-        description: "Data e hora da movimentação",
-        example: "2024-01-15T10:30:00.000Z",
       },
       produtos: {
         type: "array",

@@ -215,6 +215,12 @@ class MovimentacaoService {
     delete dadosAtualizacao.status;
     delete dadosAtualizacao._id;
     delete dadosAtualizacao.data_cadastro;
+    delete dadosAtualizacao.__v;
+    delete dadosAtualizacao.tipo;
+    delete dadosAtualizacao.usuario;
+    delete dadosAtualizacao.data_ultima_atualizacao;
+    delete dadosAtualizacao.produtos;
+
 
     const movimentacaoAtualizada = await this.repository.atualizarMovimentacao(
       id,
