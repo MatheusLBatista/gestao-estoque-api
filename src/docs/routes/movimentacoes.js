@@ -1,7 +1,7 @@
 import commonSchemas from "../schemas/common.js";
 
 const movimentacoesRoutes = {
-    "/api/movimentacoes": {
+    "/movimentacoes": {
         get: {
             tags: ["Movimentações"],
             summary: "Lista todas as movimentações",
@@ -30,63 +30,7 @@ const movimentacoesRoutes = {
                     schema: { 
                         type: "string", 
                         enum: ["entrada", "saida"],
-                        example: "entrada"
-                    }
-                },
-                {
-                    name: "produto_id",
-                    in: "query",
-                    description: "Filtrar por ID do produto (ObjectId)",
-                    schema: { 
-                        type: "string", 
-                        example: "60d5ecb54b24a12a5c8e4f1a"
-                    }
-                },
-                {
-                    name: "codigo_produto",
-                    in: "query",
-                    description: "Filtrar por código do produto",
-                    schema: { 
-                        type: "string", 
-                        example: "PF001"
-                    }
-                },
-                {
-                    name: "usuario_id",
-                    in: "query",
-                    description: "Filtrar por ID do usuário responsável",
-                    schema: { 
-                        type: "string", 
-                        example: "60d5ecb54b24a12a5c8e4f1d"
-                    }
-                },
-                {
-                    name: "nome_usuario",
-                    in: "query",
-                    description: "Filtrar por nome do usuário",
-                    schema: { 
-                        type: "string", 
-                        example: "João Silva"
-                    }
-                },
-                {
-                    name: "data_inicio",
-                    in: "query",
-                    description: "Data de início do período (YYYY-MM-DD)",
-                    schema: { 
-                        type: "string", 
-                        format: "date", 
-                        example: "2024-01-01"
-                    }
-                },
-                {
-                    name: "data_fim",
-                    in: "query",
-                    description: "Data de fim do período (YYYY-MM-DD)",
-                    schema: { 
-                        type: "string", 
-                        format: "date", 
-                        example: "2024-01-31"
+                        // example: "entrada"
                     }
                 },
                 {
@@ -95,27 +39,74 @@ const movimentacoesRoutes = {
                     description: "Filtrar por destino da movimentação",
                     schema: { 
                         type: "string", 
-                        example: "Estoque Principal"
+                        // example: "Estoque Principal"
                     }
                 },
                 {
-                    name: "valor_min",
+                    name: "codigo_produto",
                     in: "query",
-                    description: "Valor total mínimo da movimentação",
+                    description: "Filtrar por código do produto",
                     schema: { 
-                        type: "number", 
-                        example: 100.00
+                        type: "string", 
+                        // example: "PF001"
                     }
                 },
                 {
-                    name: "valor_max",
+                    name: "produto_id",
                     in: "query",
-                    description: "Valor total máximo da movimentação",
+                    description: "Filtrar por ID do produto (ObjectId)",
                     schema: { 
-                        type: "number", 
-                        example: 1000.00
+                        type: "string", 
+                        // example: "60d5ecb54b24a12a5c8e4f1a"
                     }
-                }
+                },
+                {
+                    name: "nome_produto",
+                    in: "query",
+                    description: "Filtrar por nome do produto",
+                    schema: { 
+                        type: "string", 
+                        // example: "Produto Exemplo"
+                    }
+                },
+                {
+                    name: "usuario_id",
+                    in: "query",
+                    description: "Filtrar por ID do usuário responsável",
+                    schema: { 
+                        type: "string", 
+                        // example: "60d5ecb54b24a12a5c8e4f1d"
+                    }
+                },
+                {
+                    name: "nome_usuario",
+                    in: "query",
+                    description: "Filtrar por nome do usuário",
+                    schema: { 
+                        type: "string", 
+                        // example: "João Silva"
+                    }
+                },
+                {
+                    name: "data_inicio",
+                    in: "query",
+                    description: "Data de início do período (DD-MM-YYYY)",
+                    schema: { 
+                        type: "string", 
+                        format: "date", 
+                        // example: "01-01-2024"
+                    }
+                },
+                {
+                    name: "data_fim",
+                    in: "query",
+                    description: "Data de fim do período (DD-MM-YYYY)",
+                    schema: {
+                        type: "string",
+                        format: "date",
+                        // example: "31-01-2024"
+                    }
+                },
             ],
             responses: {
                 200: {

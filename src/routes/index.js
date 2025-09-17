@@ -32,7 +32,7 @@ const routes = (app) => {
   app.use("/api/fornecedores", express.json(), authMiddleware, authPermission, rotasFornecedores);
   app.use("/api/usuarios", express.json(), authMiddleware, authPermission, rotasUsuarios);
   app.use("/api/grupos", express.json(), authMiddleware, authPermission, rotasGrupos);
-  app.use("/api/movimentacoes", express.json(), authMiddleware, authPermission, rotasMovimentacoes);
+  app.use("/movimentacoes", express.json(), authMiddleware, authPermission, rotasMovimentacoes);
   app.use("/api/logs", express.json(), rotasLogs); // Logs já têm authMiddleware internamente
 
   // Se não é nenhuma rota válida, produz 404
