@@ -20,6 +20,7 @@ router
         asyncWrapper(produtoController.cadastrarProduto.bind(produtoController))
     )
     
+    //TODO: substituir por busca com filtros
     // Rotas específicas antes das rotas com parâmetros
     .get(
         "/estoque-baixo",
@@ -27,6 +28,7 @@ router
         asyncWrapper(produtoController.listarEstoqueBaixo.bind(produtoController))
     )
     
+    //TODO: substituir por busca com filtros
     .get(
         "/busca",
         LogMiddleware.log('BUSCA_PRODUTOS'),

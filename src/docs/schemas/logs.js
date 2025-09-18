@@ -289,7 +289,7 @@ const logsSchemas = {
       rota: {
         type: "string",
         description: "Filtrar por rota acessada",
-        example: "/api/produtos",
+        example: "/produtos",
       },
       metodo: {
         type: "string",

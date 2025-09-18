@@ -16,12 +16,6 @@ export const ProdutoQuerySchema = z.object({
     status: z.string().optional(),
     page: z.string().optional(),
     limite: z.string().optional()
-}).refine(data => {
-    // Pelo menos um dos parâmetros de busca deve estar presente
-    return data.nome_produto || data.categoria || data.codigo_produto || data.id_fornecedor || data.nome_fornecedor;
-}, {
-    message: 'Ao menos um parâmetro de busca deve ser fornecido: nome_produto, categoria, codigo_produto, id_fornecedor ou nome_fornecedor',
-    path: ['query']
 });
 
 export const ProdutoIdSchema = z.string().refine(id => {

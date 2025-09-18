@@ -386,9 +386,9 @@ Este plano de testes tem como objetivo validar todas as funcionalidades do Siste
 **Objetivo**: Verificar filtros de busca
 **Parâmetros**:
 
-- `/api/produtos?categoria=Freios`
-- `/api/produtos?marca=Bosch`
-- `/api/produtos?preco_min=100&preco_max=500`
+- `/produtos?categoria=Freios`
+- `/produtos?marca=Bosch`
+- `/produtos?preco_min=100&preco_max=500`
 
 **Resultado Esperado**:
 
@@ -407,7 +407,7 @@ Este plano de testes tem como objetivo validar todas as funcionalidades do Siste
 ### CT-PROD-009: Produtos com Estoque Baixo
 
 **Objetivo**: Verificar alert de estoque crítico
-**Endpoint**: `/api/produtos/estoque-baixo`
+**Endpoint**: `/produtos/estoque-baixo`
 **Resultado Esperado**:
 
 - Produtos onde `estoque <= estoque_min`
@@ -755,7 +755,7 @@ Este plano de testes tem como objetivo validar todas as funcionalidades do Siste
   "nome_grupo": "Vendedores",
   "descricao": "Acesso para vendas",
   "permissoes": [
-    { "rota": "/api/produtos", "metodos": ["GET"] },
+    { "rota": "/produtos", "metodos": ["GET"] },
     { "rota": "/api/movimentacoes", "metodos": ["POST"] }
   ]
 }
@@ -882,14 +882,14 @@ Este plano de testes tem como objetivo validar todas as funcionalidades do Siste
 **TP-001: Consulta de Produtos (Carga Normal)**
 
 - **Usuários Simultâneos**: 10
-- **Operação**: GET /api/produtos
+- **Operação**: GET /produtos
 - **Duração**: 5 minutos
 - **Critério**: Tempo médio < 2 segundos
 
 **TP-002: Consulta de Produtos (Carga Máxima)**
 
 - **Usuários Simultâneos**: 30
-- **Operação**: GET /api/produtos
+- **Operação**: GET /produtos
 - **Duração**: 10 minutos
 - **Critério**: 95% requests < 2 segundos
 
