@@ -1,276 +1,259 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
+import Usuario from "../../models/Usuario.js";
+import Produto from "../../models/Produto.js";
+
+import usuarioRepository from "../UsuarioRepository.js";
+import produtoRepository from "../ProdutoRepository.js";
 
 class MovimentacaoFilterBuilder {
-    constructor() {
-        this.filtros = {};
-    }
+  constructor() {
+    this.filtros = {};
+    this.usuarioModel = new Usuario();
+    this.produtoModel = new Produto();
 
-    /**
-     * Filtra movimentações por tipo (entrada ou saída)
-     * @param {string} tipo - 'entrada' ou 'saida'
-     * @returns {MovimentacaoFilterBuilder} - Instância atual para encadeamento
-     */
-    comTipo(tipo) {
-        if (tipo && ['entrada', 'saida'].includes(tipo)) {
-            this.filtros.tipo = tipo;
-        }
-        return this;
-    }
+    this.usuarioRepository = new usuarioRepository();
+    this.produtoRepository = new produtoRepository();
+  }
 
-    /**
-     * Filtra movimentações por destino
-     * @param {string} destino - Destino da movimentação
-     * @returns {MovimentacaoFilterBuilder} - Instância atual para encadeamento
-     */
-    comDestino(destino) {
-        if (destino && destino.trim() !== '') {
-            this.filtros.destino = { $regex: this.escapeRegex(destino), $options: 'i' };
-        }
-        return this;
+  /**
+   * Filtra movimentações por tipo (entrada ou saída)
+   */
+  comTipo(tipo) {
+    if (tipo && ["entrada", "saida"].includes(tipo)) {
+      this.filtros.tipo = tipo;
     }
+    return this;
+  }
 
-    /**
-     * Filtra movimentações por período
-     * @param {string|Date} dataInicio - Data inicial do período
-     * @param {string|Date} dataFim - Data final do período
-     * @returns {MovimentacaoFilterBuilder} - Instância atual para encadeamento
-     */
-    comPeriodo(dataInicio, dataFim) {
-        if (dataInicio && dataFim) {
-            const dataInicioObj = new Date(dataInicio);
-            const dataFimObj = new Date(dataFim);
-            
-            // Verifica se ambas as datas são válidas
-            if (!isNaN(dataInicioObj) && !isNaN(dataFimObj)) {
-                // Configura o fim do dia para a data final
-                dataFimObj.setHours(23, 59, 59, 999);
-                
-                this.filtros.data_movimentacao = {
-                    $gte: dataInicioObj,
-                    $lte: dataFimObj
-                };
-            }
-        }
-        return this;
+  /**
+   * Filtra movimentações por destino
+   */
+  comDestino(destino) {
+    if (destino && destino.trim() !== "") {
+      this.filtros.destino = {
+        $regex: this.escapeRegex(destino),
+        $options: "i",
+      };
     }
+    return this;
+  }
 
-    /**
-     * Filtra movimentações por ID de usuário
-     * @param {string} idUsuario - ID do usuário
-     * @returns {MovimentacaoFilterBuilder} - Instância atual para encadeamento
-     */
-    comUsuarioId(idUsuario) {
-        if (idUsuario && mongoose.Types.ObjectId.isValid(idUsuario)) {
-            this.filtros.id_usuario = idUsuario;
-        }
-        return this;
-    }
+  /**
+   * Filtra movimentações por período
+   */
+  comPeriodo(data_inicio, data_fim) {
+    if (data_inicio && data_fim) {
+      // Função auxiliar para converter "DD-MM-YYYY" em Date
+      const parseDate = (dateStr) => {
+        const [dia, mes, ano] = dateStr.split("-").map(Number);
+        return new Date(ano, mes - 1, dia); // mês começa em 0 no JS
+      };
 
-    /**
-     * Filtra movimentações por nome de usuário
-     * @param {string} nomeUsuario - Nome do usuário
-     * @returns {MovimentacaoFilterBuilder} - Instância atual para encadeamento
-     */
-    comUsuarioNome(nomeUsuario) {
-        if (nomeUsuario && nomeUsuario.trim() !== '') {
-            this.filtros.nome_usuario = { $regex: this.escapeRegex(nomeUsuario), $options: 'i' };
-        }
-        return this;
-    }
+      const data_inicioObj = parseDate(data_inicio);
+      const data_fimObj = parseDate(data_fim);
 
-    /**
-     * Filtra movimentações por ID do produto
-     * @param {string} produtoId - ID do produto
-     * @returns {MovimentacaoFilterBuilder} - Instância atual para encadeamento
-     */
-    comProdutoId(produtoId) {
-        if (produtoId && mongoose.Types.ObjectId.isValid(produtoId)) {
-            this.filtros['produtos.produto_ref'] = produtoId;
-        }
-        return this;
+      if (!isNaN(data_inicioObj) && !isNaN(data_fimObj)) {
+        this.filtros.data_movimentacao = {
+          $gte: data_inicioObj,
+          $lte: new Date(data_fimObj.setHours(23, 59, 59, 999)), // fim do dia
+        };
+      }
     }
+    return this;
+  }
 
-    /**
-     * Filtra movimentações por código de produto
-     * @param {string} codigoProduto - Código do produto
-     * @returns {MovimentacaoFilterBuilder} - Instância atual para encadeamento
-     */
-    comProdutoCodigo(codigoProduto) {
-        if (codigoProduto && codigoProduto.trim() !== '') {
-            this.filtros['produtos.codigo_produto'] = { 
-                $regex: this.escapeRegex(codigoProduto), 
-                $options: 'i' 
-            };
-        }
-        return this;
+  /**
+   * Filtra movimentações por ID de usuário
+   */
+  async comUsuarioId(usuario_id) {
+    if (usuario_id && mongoose.Types.ObjectId.isValid(usuario_id)) {
+      const usuarioExiste = await this.usuarioRepository.buscarPorId(
+        usuario_id
+      );
+      if (usuarioExiste) {
+        this.filtros.id_usuario = usuario_id;
+      } else {
+        // Filtro impossível, nunca retorna nada
+        this.filtros.id_usuario = null;
+      }
     }
+    return this;
+  }
 
-    /**
-     * Filtra movimentações por nome de produto
-     * @param {string} nomeProduto - Nome do produto
-     * @returns {MovimentacaoFilterBuilder} - Instância atual para encadeamento
-     */
-    comProdutoNome(nomeProduto) {
-        if (nomeProduto && nomeProduto.trim() !== '') {
-            this.filtros['produtos.nome_produto'] = { 
-                $regex: this.escapeRegex(nomeProduto), 
-                $options: 'i' 
-            };
-        }
-        return this;
-    }
+  async comUsuarioNome(nome_usuario) {
+    if (nome_usuario && nome_usuario.trim() !== "") {
+      const usuarioEncontrado = await this.usuarioRepository.buscarPorNome(
+        nome_usuario.trim()
+      );
 
-    /**
-     * Filtra movimentações por ID do fornecedor
-     * @param {number|string} idFornecedor - ID do fornecedor
-     * @returns {MovimentacaoFilterBuilder} - Instância atual para encadeamento
-     */
-    comFornecedorId(idFornecedor) {
-        if (idFornecedor) {
-            const fornecedorId = parseInt(idFornecedor);
-            if (!isNaN(fornecedorId)) {
-                this.filtros['produtos.id_fornecedor'] = fornecedorId;
-            }
-        }
-        return this;
-    }
+      const usuariosIDs = Array.isArray(usuarioEncontrado)
+        ? usuarioEncontrado.map((g) => g._id)
+        : usuarioEncontrado
+        ? [usuarioEncontrado._id]
+        : [];
 
-    /**
-     * Filtra movimentações por nome do fornecedor
-     * @param {string} nomeFornecedor - Nome do fornecedor
-     * @returns {MovimentacaoFilterBuilder} - Instância atual para encadeamento
-     */
-    comFornecedorNome(nomeFornecedor) {
-        if (nomeFornecedor && nomeFornecedor.trim() !== '') {
-            this.filtros['produtos.nome_fornecedor'] = { 
-                $regex: this.escapeRegex(nomeFornecedor), 
-                $options: 'i' 
-            };
-        }
-        return this;
+      if (usuariosIDs.length > 0) {
+        this.filtros.id_usuario = { $in: usuariosIDs };
+      } else {
+        // Se nenhum usuário for encontrado, garante que o filtro não retorne resultados
+        this.filtros.id_usuario = { $exists: false };
+      }
     }
+    return this;
+  }
 
-    /**
-     * Filtra movimentações por quantidade mínima de produtos
-     * @param {number|string} quantidadeMin - Quantidade mínima
-     * @returns {MovimentacaoFilterBuilder} - Instância atual para encadeamento
-     */
-    comQuantidadeMinima(quantidadeMin) {
-        if (quantidadeMin !== undefined && quantidadeMin !== null) {
-            const quantidade = Number(quantidadeMin);
-            if (!isNaN(quantidade)) {
-                this.filtros['produtos.quantidade_produtos'] = { 
-                    ...(this.filtros['produtos.quantidade_produtos'] || {}),
-                    $gte: quantidade 
-                };
-            }
-        }
-        return this;
-    }
+  /**
+   * Filtra movimentações por ID do produto
+   * Agora verifica se o produto existe antes de aplicar o filtro.
+   */
+  async comProdutoId(produto_id) {
+    if (produto_id && mongoose.Types.ObjectId.isValid(produto_id)) {
+      const produtoExiste = await this.produtoRepository.buscarProdutoPorID(
+        produto_id
+      );
 
-    /**
-     * Filtra movimentações por quantidade máxima de produtos
-     * @param {number|string} quantidadeMax - Quantidade máxima
-     * @returns {MovimentacaoFilterBuilder} - Instância atual para encadeamento
-     */
-    comQuantidadeMaxima(quantidadeMax) {
-        if (quantidadeMax !== undefined && quantidadeMax !== null) {
-            const quantidade = Number(quantidadeMax);
-            if (!isNaN(quantidade)) {
-                this.filtros['produtos.quantidade_produtos'] = { 
-                    ...(this.filtros['produtos.quantidade_produtos'] || {}),
-                    $lte: quantidade 
-                };
-            }
-        }
-        return this;
+      if (produtoExiste) {
+        this.filtros["produtos._id"] = new mongoose.Types.ObjectId(produto_id);
+      } else {
+        // Filtro impossível: nunca retorna nada
+        this.filtros._id = { $exists: false };
+      }
     }
+    return this;
+  }
 
-    /**
-     * Filtra movimentações por data específica
-     * @param {string|Date} data - Data da movimentação
-     * @returns {MovimentacaoFilterBuilder} - Instância atual para encadeamento
-     */
-    comData(data) {
-        if (data) {
-            const dataObj = new Date(data);
-            if (!isNaN(dataObj)) {
-                // Criar intervalo de início e fim do dia
-                const inicioData = new Date(dataObj.setHours(0, 0, 0, 0));
-                const fimData = new Date(dataObj.setHours(23, 59, 59, 999));
-                
-                this.filtros.data_movimentacao = {
-                    $gte: inicioData,
-                    $lte: fimData
-                };
-            }
-        }
-        return this;
-    }
+  async comProdutoNome(nome_produto) {
+    if (nome_produto && nome_produto.trim() !== "") {
+      const produtoEncontrado = await this.produtoRepository.buscarPorNome(
+        nome_produto.trim()
+      );
 
-    /**
-     * Filtra movimentações após uma data específica
-     * @param {string|Date} data - Data a partir da qual filtrar
-     * @returns {MovimentacaoFilterBuilder} - Instância atual para encadeamento
-     */
-    comDataApos(data) {
-        if (data) {
-            const dataObj = new Date(data);
-            if (!isNaN(dataObj)) {
-                this.filtros.data_movimentacao = {
-                    ...(this.filtros.data_movimentacao || {}),
-                    $gte: dataObj
-                };
-            }
-        }
-        return this;
-    }
+      const produtosIDs = Array.isArray(produtoEncontrado)
+        ? produtoEncontrado.map((g) => g._id)
+        : produtoEncontrado
+        ? [produtoEncontrado._id]
+        : [];
 
-    /**
-     * Filtra movimentações antes de uma data específica
-     * @param {string|Date} data - Data até a qual filtrar
-     * @returns {MovimentacaoFilterBuilder} - Instância atual para encadeamento
-     */
-    comDataAntes(data) {
-        if (data) {
-            const dataObj = new Date(data);
-            if (!isNaN(dataObj)) {
-                this.filtros.data_movimentacao = {
-                    ...(this.filtros.data_movimentacao || {}),
-                    $lte: dataObj
-                };
-            }
-        }
-        return this;
-    }
+      console.log("IDs dos produtos encontrados:", produtosIDs);
 
-    /**
-     * Utilitário para escapar caracteres especiais em expressões regulares
-     * @param {string} texto - Texto a ser escapado
-     * @returns {string} - Texto com caracteres especiais escapados
-     */
-    escapeRegex(texto) {
-        return texto.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+      if (produtosIDs.length > 0) {
+        this.filtros["produtos._id"] = { $in: produtosIDs };
+      } else {
+        this.filtros._id = { $exists: false };
+      }
     }
+    return this;
+  }
 
-    comStatus(status) {
-        if (status !== undefined) {
-            // Converter string 'true' ou 'false' para booleano
-            if (typeof status === 'string') {
-                status = status.toLowerCase() === 'true';
-            }
-            this.filtros.status = status;
-        }
-        return this;
+  /**
+   * Filtra movimentações por código de produto
+   */
+  comProdutoCodigo(codigo_produto) {
+    if (codigo_produto && codigo_produto.trim() !== "") {
+      this.filtros["produtos.codigo_produto"] = {
+        $regex: this.escapeRegex(codigo_produto),
+        $options: "i",
+      };
     }
+    return this;
+  }
 
-    /**
-     * Constrói e retorna o objeto de filtros
-     * @returns {Object} - Filtros para consulta MongoDB
-     */
-    build() {
-        return this.filtros;
+  /**
+   * Filtra movimentações por quantidade mínima de produtos
+   */
+  comQuantidadeMinima(quantidade_min) {
+    const quantidade = Number(quantidade_min);
+    if (!isNaN(quantidade)) {
+      this.filtros["produtos.quantidade_produtos"] = {
+        ...(this.filtros["produtos.quantidade_produtos"] || {}),
+        $gte: quantidade,
+      };
     }
+    return this;
+  }
+
+  /**
+   * Filtra movimentações por quantidade máxima de produtos
+   */
+  comQuantidadeMaxima(quantidade_max) {
+    const quantidade = Number(quantidade_max);
+    if (!isNaN(quantidade)) {
+      this.filtros["produtos.quantidade_produtos"] = {
+        ...(this.filtros["produtos.quantidade_produtos"] || {}),
+        $lte: quantidade,
+      };
+    }
+    return this;
+  }
+
+  /**
+   * Filtra movimentações por data específica
+   */
+  comData(data) {
+    if (data) {
+      const dataObj = new Date(data);
+      if (!isNaN(dataObj)) {
+        this.filtros.data_movimentacao = {
+          $gte: new Date(dataObj.setHours(0, 0, 0, 0)),
+          $lte: new Date(dataObj.setHours(23, 59, 59, 999)),
+        };
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Filtra movimentações após uma data específica
+   */
+  comDataApos(data) {
+    const dataObj = new Date(data);
+    if (!isNaN(dataObj)) {
+      this.filtros.data_movimentacao = {
+        ...(this.filtros.data_movimentacao || {}),
+        $gte: dataObj,
+      };
+    }
+    return this;
+  }
+
+  /**
+   * Filtra movimentações antes de uma data específica
+   */
+  comDataAntes(data) {
+    const dataObj = new Date(data);
+    if (!isNaN(dataObj)) {
+      this.filtros.data_movimentacao = {
+        ...(this.filtros.data_movimentacao || {}),
+        $lte: dataObj,
+      };
+    }
+    return this;
+  }
+
+  /**
+   * Filtra movimentações por status
+   */
+  comStatus(status) {
+    if (status !== undefined) {
+      this.filtros.status =
+        typeof status === "string" ? status.toLowerCase() === "true" : status;
+    }
+    return this;
+  }
+
+  /**
+   * Utilitário para escapar caracteres especiais em expressões regulares
+   */
+  escapeRegex(texto) {
+    return texto.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+  }
+
+  /**
+   * Constrói e retorna o objeto de filtros
+   */
+  build() {
+    return this.filtros;
+  }
 }
 
 export default MovimentacaoFilterBuilder;

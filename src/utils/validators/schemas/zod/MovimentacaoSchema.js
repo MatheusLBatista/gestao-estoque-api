@@ -6,18 +6,11 @@ const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 // Schema para produto na movimentação
 const ProdutoMovimentacaoSchema = z.object({
-  produto_ref: z.string().refine(isValidObjectId, {
+  _id: z.string().refine(isValidObjectId, {
     message: "ID do produto inválido",
-  }),
-  id_produto: z.number({
-    required_error: "ID do produto é obrigatório",
-    invalid_type_error: "ID do produto deve ser um número",
   }),
   codigo_produto: z.string({
     required_error: "Código do produto é obrigatório",
-  }),
-  nome_produto: z.string({
-    required_error: "Nome do produto é obrigatório",
   }),
   quantidade_produtos: z
     .number({
@@ -43,8 +36,6 @@ const ProdutoMovimentacaoSchema = z.object({
     .nonnegative({
       message: "Custo não pode ser negativo",
     }),
-  id_fornecedor: z.number().optional(),
-  nome_fornecedor: z.string().optional(),
 });
 
 // Schema completo para criação de movimentação
@@ -60,13 +51,15 @@ export const MovimentacaoSchema = z.object({
     .min(3, {
       message: "Destino deve ter no mínimo 3 caracteres",
     }),
-  data_movimentacao: z.date().optional().default(() => new Date()),
-  id_produto: z.string().refine(isValidObjectId, {
-    message: "ID do produto inválido",
-  }),
-  nome_usuario: z.string({
-    required_error: "Nome do usuário é obrigatório",
-  }),
+  data_movimentacao: z
+    .optional(),
+  id_usuario: z
+    .string()
+    .refine(isValidObjectId, {
+      message: "ID do usuário inválido",
+    })
+    .optional(),
+  status: z.boolean().optional().default(true),
   produtos: z
     .array(ProdutoMovimentacaoSchema, {
       required_error: "Produtos são obrigatórios",
@@ -102,7 +95,7 @@ export const MovimentacaoUpdateSchema = z
         message: "ID do usuário inválido",
       })
       .optional(),
-    nome_usuario: z.string().optional(),
+    status: z.boolean().optional(),
     produtos: z
       .array(ProdutoMovimentacaoSchema)
       .min(1, {

@@ -1,7 +1,7 @@
 import commonSchemas from "../schemas/common.js";
 
 const movimentacoesRoutes = {
-    "/api/movimentacoes": {
+    "/movimentacoes": {
         get: {
             tags: ["Movimentações"],
             summary: "Lista todas as movimentações",
@@ -30,63 +30,7 @@ const movimentacoesRoutes = {
                     schema: { 
                         type: "string", 
                         enum: ["entrada", "saida"],
-                        example: "entrada"
-                    }
-                },
-                {
-                    name: "produto_id",
-                    in: "query",
-                    description: "Filtrar por ID do produto (ObjectId)",
-                    schema: { 
-                        type: "string", 
-                        example: "60d5ecb54b24a12a5c8e4f1a"
-                    }
-                },
-                {
-                    name: "codigo_produto",
-                    in: "query",
-                    description: "Filtrar por código do produto",
-                    schema: { 
-                        type: "string", 
-                        example: "PF001"
-                    }
-                },
-                {
-                    name: "usuario_id",
-                    in: "query",
-                    description: "Filtrar por ID do usuário responsável",
-                    schema: { 
-                        type: "string", 
-                        example: "60d5ecb54b24a12a5c8e4f1d"
-                    }
-                },
-                {
-                    name: "nome_usuario",
-                    in: "query",
-                    description: "Filtrar por nome do usuário",
-                    schema: { 
-                        type: "string", 
-                        example: "João Silva"
-                    }
-                },
-                {
-                    name: "data_inicio",
-                    in: "query",
-                    description: "Data de início do período (YYYY-MM-DD)",
-                    schema: { 
-                        type: "string", 
-                        format: "date", 
-                        example: "2024-01-01"
-                    }
-                },
-                {
-                    name: "data_fim",
-                    in: "query",
-                    description: "Data de fim do período (YYYY-MM-DD)",
-                    schema: { 
-                        type: "string", 
-                        format: "date", 
-                        example: "2024-01-31"
+                        // example: "entrada"
                     }
                 },
                 {
@@ -95,27 +39,74 @@ const movimentacoesRoutes = {
                     description: "Filtrar por destino da movimentação",
                     schema: { 
                         type: "string", 
-                        example: "Estoque Principal"
+                        // example: "Estoque Principal"
                     }
                 },
                 {
-                    name: "valor_min",
+                    name: "codigo_produto",
                     in: "query",
-                    description: "Valor total mínimo da movimentação",
+                    description: "Filtrar por código do produto",
                     schema: { 
-                        type: "number", 
-                        example: 100.00
+                        type: "string", 
+                        // example: "PF001"
                     }
                 },
                 {
-                    name: "valor_max",
+                    name: "produto_id",
                     in: "query",
-                    description: "Valor total máximo da movimentação",
+                    description: "Filtrar por ID do produto (ObjectId)",
                     schema: { 
-                        type: "number", 
-                        example: 1000.00
+                        type: "string", 
+                        // example: "60d5ecb54b24a12a5c8e4f1a"
                     }
-                }
+                },
+                {
+                    name: "nome_produto",
+                    in: "query",
+                    description: "Filtrar por nome do produto",
+                    schema: { 
+                        type: "string", 
+                        // example: "Produto Exemplo"
+                    }
+                },
+                {
+                    name: "usuario_id",
+                    in: "query",
+                    description: "Filtrar por ID do usuário responsável",
+                    schema: { 
+                        type: "string", 
+                        // example: "60d5ecb54b24a12a5c8e4f1d"
+                    }
+                },
+                {
+                    name: "nome_usuario",
+                    in: "query",
+                    description: "Filtrar por nome do usuário",
+                    schema: { 
+                        type: "string", 
+                        // example: "João Silva"
+                    }
+                },
+                {
+                    name: "data_inicio",
+                    in: "query",
+                    description: "Data de início do período (DD-MM-YYYY)",
+                    schema: { 
+                        type: "string", 
+                        format: "date", 
+                        // example: "01-01-2024"
+                    }
+                },
+                {
+                    name: "data_fim",
+                    in: "query",
+                    description: "Data de fim do período (DD-MM-YYYY)",
+                    schema: {
+                        type: "string",
+                        format: "date",
+                        // example: "31-01-2024"
+                    }
+                },
             ],
             responses: {
                 200: {
@@ -164,31 +155,6 @@ const movimentacoesRoutes = {
                     "application/json": {
                         schema: {
                             $ref: "#/components/schemas/MovimentacaoCreateRequest"
-                        },
-                        examples: {
-                            "exemplo_entrada": {
-                                summary: "Movimentação de entrada",
-                                value: {
-                                    "tipo": "entrada",
-                                    "destino": "Depósito Central",
-                                    "data_movimentacao": "2025-06-14T01:23:07.364Z",
-                                    "id_produto": "64b6f9e5a4b7c2d1f8a12345",
-                                    "nome_usuario": "João da Silva",
-                                    "produtos": [
-                                        {
-                                            "produto_ref": "6872773c8c0ec82fae6bf6da",
-                                            "id_produto": 1,
-                                            "codigo_produto": "DIS-6267",
-                                            "nome_produto": "Ergonômico Algodão Cadeira",
-                                            "quantidade_produtos": 10,
-                                            "preco": 5499.99,
-                                            "custo": 3849.993,
-                                            "id_fornecedor": 187,
-                                            "nome_fornecedor": "Distribuidora Central Ltda"
-                                        }
-                                    ]
-                                }
-                            }
                         }
                     }
                 }
@@ -247,7 +213,7 @@ const movimentacoesRoutes = {
             }
         }
     },
-    "/api/movimentacoes/{id}": {
+    "/movimentacoes/{id}": {
         get: {
             tags: ["Movimentações"],
             summary: "Buscar movimentação por ID",
@@ -286,80 +252,6 @@ const movimentacoesRoutes = {
                 },
                 404: {
                     description: "Movimentação não encontrada",
-                    content: {
-                        "application/json": {
-                            schema: {
-                                $ref: "#/components/schemas/ErrorResponse"
-                            }
-                        }
-                    }
-                },
-                ...commonSchemas.CommonResponses
-            }
-        },
-        put: {
-            tags: ["Movimentações"],
-            summary: "Atualizar movimentação completa",
-            description: `
-            Atualiza uma movimentação existente com reversão e reaplicação das alterações de estoque.
-            
-            **Processo de Atualização:**
-            1. Reverte as alterações de estoque da movimentação original
-            2. Valida os novos dados
-            3. Aplica as novas alterações de estoque
-            4. Atualiza a movimentação no banco
-            
-            **Importante:**
-            - Reversão automática do estoque anterior
-            - Validação de estoque para as novas quantidades
-            - Mantém histórico de alterações
-            `,
-            security: [{ bearerAuth: [] }],
-            parameters: [
-                {
-                    name: "id",
-                    in: "path",
-                    required: true,
-                    description: "ID único da movimentação",
-                    schema: {
-                        type: "string",
-                        example: "60d5ecb54b24a12a5c8e4f1c"
-                    }
-                }
-            ],
-            requestBody: {
-                required: true,
-                content: {
-                    "application/json": {
-                        schema: {
-                            $ref: "#/components/schemas/MovimentacaoCreateRequest"
-                        }
-                    }
-                }
-            },
-            responses: {
-                200: {
-                    description: "Movimentação atualizada com sucesso",
-                    content: {
-                        "application/json": {
-                            schema: {
-                                $ref: "#/components/schemas/MovimentacaoResponse"
-                            }
-                        }
-                    }
-                },
-                404: {
-                    description: "Movimentação não encontrada",
-                    content: {
-                        "application/json": {
-                            schema: {
-                                $ref: "#/components/schemas/ErrorResponse"
-                            }
-                        }
-                    }
-                },
-                400: {
-                    description: "Dados inválidos ou estoque insuficiente",
                     content: {
                         "application/json": {
                             schema: {
@@ -411,12 +303,6 @@ const movimentacoesRoutes = {
                                 summary: "Atualizar apenas destino",
                                 value: {
                                     destino: "Estoque Filial Centro"
-                                }
-                            },
-                            "atualizar_data": {
-                                summary: "Atualizar data da movimentação",
-                                value: {
-                                    data_movimentacao: "2024-01-20T14:30:00.000Z"
                                 }
                             }
                         }
@@ -553,201 +439,201 @@ const movimentacoesRoutes = {
             }
         }
     },
-    "/api/movimentacoes/relatorio": {
-        get: {
-            tags: ["Movimentações"],
-            summary: "Relatório de movimentações",
-            description: `
-            Gera relatório detalhado de movimentações com agregações e estatísticas.
+    // "/movimentacoes/relatorio": {
+    //     get: {
+    //         tags: ["Movimentações"],
+    //         summary: "Relatório de movimentações",
+    //         description: `
+    //         Gera relatório detalhado de movimentações com agregações e estatísticas.
             
-            **Funcionalidades:**
-            - Agregações por período, tipo, produto, usuário
-            - Cálculos de valores totais, médias, quantidade de movimentações
-            - Comparativos entre períodos
-            - Produtos mais movimentados
-            - Usuários mais ativos
+    //         **Funcionalidades:**
+    //         - Agregações por período, tipo, produto, usuário
+    //         - Cálculos de valores totais, médias, quantidade de movimentações
+    //         - Comparativos entre períodos
+    //         - Produtos mais movimentados
+    //         - Usuários mais ativos
             
-            **Tipos de Relatório:**
-            - Resumo geral
-            - Por período específico
-            - Por tipo de movimentação
-            - Por produto
-            - Por usuário
-            `,
-            security: [{ bearerAuth: [] }],
-            parameters: [
-                {
-                    name: "tipo_relatorio",
-                    in: "query",
-                    description: "Tipo de relatório a gerar",
-                    schema: {
-                        type: "string",
-                        enum: ["geral", "periodo", "produto", "usuario", "comparativo"],
-                        default: "geral",
-                        example: "periodo"
-                    }
-                },
-                {
-                    name: "data_inicio",
-                    in: "query",
-                    description: "Data de início para o relatório (YYYY-MM-DD)",
-                    schema: {
-                        type: "string",
-                        format: "date",
-                        example: "2024-01-01"
-                    }
-                },
-                {
-                    name: "data_fim",
-                    in: "query",
-                    description: "Data de fim para o relatório (YYYY-MM-DD)",
-                    schema: {
-                        type: "string",
-                        format: "date",
-                        example: "2024-01-31"
-                    }
-                },
-                {
-                    name: "agrupar_por",
-                    in: "query",
-                    description: "Campo para agrupamento",
-                    schema: {
-                        type: "string",
-                        enum: ["dia", "semana", "mes", "produto", "usuario", "tipo"],
-                        example: "mes"
-                    }
-                }
-            ],
-            responses: {
-                200: {
-                    description: "Relatório gerado com sucesso",
-                    content: {
-                        "application/json": {
-                            schema: {
-                                type: "object",
-                                properties: {
-                                    success: {
-                                        type: "boolean",
-                                        example: true
-                                    },
-                                    message: {
-                                        type: "string",
-                                        example: "Relatório gerado com sucesso"
-                                    },
-                                    data: {
-                                        type: "object",
-                                        properties: {
-                                            periodo: {
-                                                type: "object",
-                                                properties: {
-                                                    inicio: {
-                                                        type: "string",
-                                                        format: "date",
-                                                        example: "2024-01-01"
-                                                    },
-                                                    fim: {
-                                                        type: "string",
-                                                        format: "date",
-                                                        example: "2024-01-31"
-                                                    }
-                                                }
-                                            },
-                                            resumo: {
-                                                type: "object",
-                                                properties: {
-                                                    total_movimentacoes: {
-                                                        type: "integer",
-                                                        example: 150
-                                                    },
-                                                    total_entradas: {
-                                                        type: "integer",
-                                                        example: 75
-                                                    },
-                                                    total_saidas: {
-                                                        type: "integer",
-                                                        example: 75
-                                                    },
-                                                    valor_total_entradas: {
-                                                        type: "number",
-                                                        example: 25750.50
-                                                    },
-                                                    valor_total_saidas: {
-                                                        type: "number",
-                                                        example: 18950.75
-                                                    },
-                                                    produtos_distintos: {
-                                                        type: "integer",
-                                                        example: 45
-                                                    },
-                                                    usuarios_ativos: {
-                                                        type: "integer",
-                                                        example: 8
-                                                    }
-                                                }
-                                            },
-                                            detalhamento: {
-                                                type: "array",
-                                                items: {
-                                                    type: "object",
-                                                    properties: {
-                                                        agrupamento: {
-                                                            type: "string",
-                                                            example: "2024-01"
-                                                        },
-                                                        quantidade_movimentacoes: {
-                                                            type: "integer",
-                                                            example: 25
-                                                        },
-                                                        valor_total: {
-                                                            type: "number",
-                                                            example: 5750.25
-                                                        },
-                                                        entradas: {
-                                                            type: "integer",
-                                                            example: 15
-                                                        },
-                                                        saidas: {
-                                                            type: "integer",
-                                                            example: 10
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            produtos_mais_movimentados: {
-                                                type: "array",
-                                                items: {
-                                                    type: "object",
-                                                    properties: {
-                                                        produto_id: {
-                                                            type: "string",
-                                                            example: "60d5ecb54b24a12a5c8e4f1a"
-                                                        },
-                                                        nome_produto: {
-                                                            type: "string",
-                                                            example: "Pastilha de Freio Dianteira"
-                                                        },
-                                                        total_movimentacoes: {
-                                                            type: "integer",
-                                                            example: 15
-                                                        },
-                                                        quantidade_total: {
-                                                            type: "number",
-                                                            example: 150
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                ...commonSchemas.CommonResponses
-            }
-        }
-    }
+    //         **Tipos de Relatório:**
+    //         - Resumo geral
+    //         - Por período específico
+    //         - Por tipo de movimentação
+    //         - Por produto
+    //         - Por usuário
+    //         `,
+    //         security: [{ bearerAuth: [] }],
+    //         parameters: [
+    //             {
+    //                 name: "tipo_relatorio",
+    //                 in: "query",
+    //                 description: "Tipo de relatório a gerar",
+    //                 schema: {
+    //                     type: "string",
+    //                     enum: ["geral", "periodo", "produto", "usuario", "comparativo"],
+    //                     default: "geral",
+    //                     example: "periodo"
+    //                 }
+    //             },
+    //             {
+    //                 name: "data_inicio",
+    //                 in: "query",
+    //                 description: "Data de início para o relatório (YYYY-MM-DD)",
+    //                 schema: {
+    //                     type: "string",
+    //                     format: "date",
+    //                     example: "2024-01-01"
+    //                 }
+    //             },
+    //             {
+    //                 name: "data_fim",
+    //                 in: "query",
+    //                 description: "Data de fim para o relatório (YYYY-MM-DD)",
+    //                 schema: {
+    //                     type: "string",
+    //                     format: "date",
+    //                     example: "2024-01-31"
+    //                 }
+    //             },
+    //             {
+    //                 name: "agrupar_por",
+    //                 in: "query",
+    //                 description: "Campo para agrupamento",
+    //                 schema: {
+    //                     type: "string",
+    //                     enum: ["dia", "semana", "mes", "produto", "usuario", "tipo"],
+    //                     example: "mes"
+    //                 }
+    //             }
+    //         ],
+    //         responses: {
+    //             200: {
+    //                 description: "Relatório gerado com sucesso",
+    //                 content: {
+    //                     "application/json": {
+    //                         schema: {
+    //                             type: "object",
+    //                             properties: {
+    //                                 success: {
+    //                                     type: "boolean",
+    //                                     example: true
+    //                                 },
+    //                                 message: {
+    //                                     type: "string",
+    //                                     example: "Relatório gerado com sucesso"
+    //                                 },
+    //                                 data: {
+    //                                     type: "object",
+    //                                     properties: {
+    //                                         periodo: {
+    //                                             type: "object",
+    //                                             properties: {
+    //                                                 inicio: {
+    //                                                     type: "string",
+    //                                                     format: "date",
+    //                                                     example: "2024-01-01"
+    //                                                 },
+    //                                                 fim: {
+    //                                                     type: "string",
+    //                                                     format: "date",
+    //                                                     example: "2024-01-31"
+    //                                                 }
+    //                                             }
+    //                                         },
+    //                                         resumo: {
+    //                                             type: "object",
+    //                                             properties: {
+    //                                                 total_movimentacoes: {
+    //                                                     type: "integer",
+    //                                                     example: 150
+    //                                                 },
+    //                                                 total_entradas: {
+    //                                                     type: "integer",
+    //                                                     example: 75
+    //                                                 },
+    //                                                 total_saidas: {
+    //                                                     type: "integer",
+    //                                                     example: 75
+    //                                                 },
+    //                                                 valor_total_entradas: {
+    //                                                     type: "number",
+    //                                                     example: 25750.50
+    //                                                 },
+    //                                                 valor_total_saidas: {
+    //                                                     type: "number",
+    //                                                     example: 18950.75
+    //                                                 },
+    //                                                 produtos_distintos: {
+    //                                                     type: "integer",
+    //                                                     example: 45
+    //                                                 },
+    //                                                 usuarios_ativos: {
+    //                                                     type: "integer",
+    //                                                     example: 8
+    //                                                 }
+    //                                             }
+    //                                         },
+    //                                         detalhamento: {
+    //                                             type: "array",
+    //                                             items: {
+    //                                                 type: "object",
+    //                                                 properties: {
+    //                                                     agrupamento: {
+    //                                                         type: "string",
+    //                                                         example: "2024-01"
+    //                                                     },
+    //                                                     quantidade_movimentacoes: {
+    //                                                         type: "integer",
+    //                                                         example: 25
+    //                                                     },
+    //                                                     valor_total: {
+    //                                                         type: "number",
+    //                                                         example: 5750.25
+    //                                                     },
+    //                                                     entradas: {
+    //                                                         type: "integer",
+    //                                                         example: 15
+    //                                                     },
+    //                                                     saidas: {
+    //                                                         type: "integer",
+    //                                                         example: 10
+    //                                                     }
+    //                                                 }
+    //                                             }
+    //                                         },
+    //                                         produtos_mais_movimentados: {
+    //                                             type: "array",
+    //                                             items: {
+    //                                                 type: "object",
+    //                                                 properties: {
+    //                                                     produto_id: {
+    //                                                         type: "string",
+    //                                                         example: "60d5ecb54b24a12a5c8e4f1a"
+    //                                                     },
+    //                                                     nome_produto: {
+    //                                                         type: "string",
+    //                                                         example: "Pastilha de Freio Dianteira"
+    //                                                     },
+    //                                                     total_movimentacoes: {
+    //                                                         type: "integer",
+    //                                                         example: 15
+    //                                                     },
+    //                                                     quantidade_total: {
+    //                                                         type: "number",
+    //                                                         example: 150
+    //                                                     }
+    //                                                 }
+    //                                             }
+    //                                         }
+    //                                     }
+    //                                 }
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             },
+    //             ...commonSchemas.CommonResponses
+    //         }
+    //     }
+    // }
 };
 
 export default movimentacoesRoutes;

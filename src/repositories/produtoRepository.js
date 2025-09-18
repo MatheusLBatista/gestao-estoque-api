@@ -110,6 +110,29 @@ class ProdutoRepository {
         return produto;
     }
 
+    async buscarPorNome(nome, includeTokens = false) {
+        let query = this.model.find({ nome_produto: { $regex: nome, $options: 'i' } });
+
+        if (includeTokens) {
+            query = query.select('+refreshtoken +accesstoken');
+        }
+
+        const produto = await query;
+        
+        if (!produto) {
+            throw new CustomError({
+                statusCode: 404,
+                errorType: 'resourceNotFound',
+                field: 'Usuário',
+                details: [],
+                customMessage: messages.error.resourceNotFound('Produto')
+            });
+        }
+        console.log('Produto encontrado:', produto);
+
+        return produto;
+    }
+
     async cadastrarProduto(dadosProduto) {
         const produtoExistente = await this.model.findOne({ codigo_produto: dadosProduto.codigo_produto });
         if (produtoExistente) {

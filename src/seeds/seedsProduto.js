@@ -6,7 +6,7 @@ import { ProdutoSchema } from '../utils/validators/schemas/zod/ProdutoSchema.js'
 
 async function seedProduto(fornecedores = []) {
     try {
-        await Produto.deleteMany();
+        await Produto.deleteMany({});
 
         const produtos = [];
         const fakeMapping = getGlobalFakeMapping();
@@ -16,7 +16,7 @@ async function seedProduto(fornecedores = []) {
         }
 
         // Cria produtos validados pelo Zod
-        for (let i = 0; i < 500; i++) {
+        for (let i = 0; i < 50; i++) {
             const fornecedor = fornecedores[Math.floor(Math.random() * fornecedores.length)];
             
             const fornecedorId = fornecedor._id.toString().substring(0, 8);
@@ -42,7 +42,7 @@ async function seedProduto(fornecedores = []) {
                     }
                     
                     produtoFake = {
-                        nome_produto: fakeMapping.produto.nome_produto(),
+                        nome_produto: fakeMapping.produto.nome_produto()+` ${i}`,
                         descricao: fakeMapping.produto.descricao(),
                         preco: preco,
                         marca: fakeMapping.produto.marca(),
@@ -53,7 +53,7 @@ async function seedProduto(fornecedores = []) {
                         data_ultima_entrada: new Date(),
                         status: true,
                         id_fornecedor: idNumerico,
-                        codigo_produto: `${fornecedor.nome_fornecedor.substring(0,3).toUpperCase()}-${Math.floor(Math.random() * 10000)}`
+                        codigo_produto: `${fornecedor.nome_fornecedor.substring(0,3).toUpperCase()}-${Math.floor(Math.random() * 10000)} ${i}`,
                     };
                     
                     // Validar com Zod

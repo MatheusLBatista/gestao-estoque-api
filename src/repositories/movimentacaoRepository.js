@@ -24,11 +24,14 @@ class MovimentacaoRepository {
         });
       }
 
-      // Ajuste aqui para tratar possíveis erros de referência
       try {
         const data = await this.model
           .findById(id)
-          .populate("id_usuario", "nome_usuario");
+          .populate("id_usuario", "nome_usuario email")
+          .populate(
+            "produtos._id",
+            "nome_produto codigo_produto estoque id_fornecedor"
+          );
 
         if (!data) {
           throw new CustomError({
@@ -44,7 +47,6 @@ class MovimentacaoRepository {
       } catch (populateError) {
         console.error("Erro ao popular referências:", populateError);
 
-        // Tenta retornar sem o populate em caso de erro
         const data = await this.model.findById(id);
         if (!data) {
           throw new CustomError({
@@ -59,76 +61,77 @@ class MovimentacaoRepository {
       }
     }
 
-    // Para busca por filtros
     const {
       tipo,
+      destino,
       data_inicio,
       data_fim,
       produto,
+      nome_produto,
+      nome_usuario,
+      codigo_produto,
       usuario,
       page = 1,
     } = req.query || {};
 
     const limite = Math.min(parseInt(req.query?.limite, 10) || 10, 100);
 
-    const filtros = {};
+    const filterBuilder = new MovimentacaoFilterBuilder()
+      .comTipo(tipo || "")
+      .comDestino(destino || "")
+      .comPeriodo(data_inicio || "", data_fim || "");
 
-    if (tipo) {
-      filtros.tipo = tipo;
-      console.log(`Aplicando filtro por tipo: "${tipo}"`);
-    }
+    await Promise.all([
+      filterBuilder.comProdutoId(produto || ""),
+      filterBuilder.comProdutoNome(nome_produto || ""),
+      filterBuilder.comUsuarioId(usuario || ""),
+      filterBuilder.comUsuarioNome(nome_usuario || ""),
+      filterBuilder.comProdutoCodigo(codigo_produto || ""),
+    ]);
 
-    if (data_inicio && data_fim) {
-      filtros.data_movimentacao = {
-        $gte: new Date(data_inicio),
-        $lte: new Date(data_fim),
-      };
-      console.log(
-        `Aplicando filtro por período: de ${data_inicio} até ${data_fim}`
-      );
-    }
+    console.log("Filtros aplicados:", JSON.stringify(filterBuilder, null, 2));
 
-    // Restante do código de filtros...
+    const filtros = filterBuilder.build();
 
     const options = {
       page: parseInt(page, 10),
-      limit: parseInt(limite, 10),
+      limit: Math.min(parseInt(limite, 10), 100),
       sort: { data_movimentacao: -1 },
-      // Opções de populate simplificadas para reduzir dependências
       populate: [
         { path: "id_usuario", select: "nome_usuario email" },
         {
-          path: "produtos.produto_ref",
-          select: "nome_produto codigo_produto quantidade_estoque",
+          path: "produtos._id",
+          select: "nome_produto estoque",
         },
       ],
     };
 
-    console.log("Filtros aplicados:", filtros);
-
     try {
       const resultado = await this.model.paginate(filtros, options);
-      console.log(`Encontradas ${resultado.docs?.length || 0} movimentações`);
+      console.log(`Encontradas ${resultado.totalDocs} movimentações`);
       return resultado;
     } catch (paginateError) {
       console.error("Erro ao paginar movimentações:", paginateError);
 
-      // Fallback sem populate em caso de erro
-      const options = {
+      const fallbackOptions = {
         page: parseInt(page, 10),
         limit: parseInt(limite, 10),
         sort: { data_movimentacao: -1 },
         populate: false,
       };
 
-      const resultado = await this.model.paginate(filtros, options);
+      const resultado = await this.model.paginate(filtros, fallbackOptions);
       return resultado;
     }
   }
 
   async buscarMovimentacaoPorID(id) {
     console.log("Estou no buscarMovimentacaoPorID em MovimentacaoRepository");
-    const movimentacao = await this.model.findById(id);
+
+    const movimentacao = await this.model
+      .findById(id)
+      .populate("id_usuario", "nome_usuario email")
+      .populate("produtos._id", "nome_produto estoque");
 
     if (!movimentacao) {
       throw new CustomError({
@@ -136,19 +139,43 @@ class MovimentacaoRepository {
         errorType: "resourceNotFound",
         field: "Movimentacao",
         details: [],
-        customMessage: messages.error.resourceNotFound('Movimentacao')
+        customMessage: messages.error.resourceNotFound("Movimentação"),
       });
     }
 
     return movimentacao;
   }
 
-  async cadastrarMovimentacao(dadosMovimentacao) {
+  async cadastrarMovimentacao(dadosMovimentacao, req) {
     console.log("Estou no cadastrarMovimentacao em MovimentacaoRepository");
+
+    // Atribuir automaticamente o usuário logado ao campo id_usuario
+    if (req && req.user && req.user._id) {
+      dadosMovimentacao.id_usuario = req.user._id;
+    }
 
     try {
       const movimentacao = new this.model(dadosMovimentacao);
       const resultado = await movimentacao.save();
+
+      // Verificar se o estoque foi atualizado corretamente
+      for (const produto of dadosMovimentacao.produtos) {
+        const produtoAtualizado = await mongoose
+          .model("produtos")
+          .findById(produto._id);
+
+        // Garantir que a quantidade de estoque não seja NaN
+        if (!isNaN(produtoAtualizado.estoque)) {
+          console.log(
+            `Produto: ${produtoAtualizado.nome_produto}, Estoque Atual: ${produtoAtualizado.estoque}`
+          );
+        } else {
+          console.error(
+            `Erro: Estoque do produto ${produtoAtualizado.nome_produto} é inválido.`
+          );
+        }
+      }
+
       console.log("Movimentação cadastrada com sucesso");
       return resultado;
     } catch (error) {
@@ -183,10 +210,6 @@ class MovimentacaoRepository {
 
   async atualizarMovimentacao(id, dadosAtualizacao) {
     console.log("Estou no atualizarMovimentacao em MovimentacaoRepository");
-    console.log(
-      "Dados de atualização:",
-      JSON.stringify(dadosAtualizacao, null, 2)
-    );
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new CustomError({
@@ -204,13 +227,11 @@ class MovimentacaoRepository {
           new: true,
           runValidators: true,
         })
-        .populate("id_usuario")
-        .populate("produtos.produto_ref");
-
-      console.log(
-        "Resultado da atualização:",
-        movimentacaoAtualizada ? "Sucesso" : "Falha"
-      );
+        .populate("id_usuario", "nome_usuario email")
+        .populate(
+          "produtos._id",
+          "nome_produto codigo_produto estoque id_fornecedor"
+        );
 
       if (!movimentacaoAtualizada) {
         throw new CustomError({
@@ -225,10 +246,6 @@ class MovimentacaoRepository {
       return movimentacaoAtualizada;
     } catch (error) {
       console.error("Erro ao atualizar movimentação:", error);
-
-      if (error instanceof CustomError) {
-        throw error;
-      }
 
       if (error.name === "ValidationError") {
         const detalhes = Object.keys(error.errors).map((campo) => ({
@@ -286,86 +303,22 @@ class MovimentacaoRepository {
     return movimentacao;
   }
 
-  async filtrarMovimentacoesAvancado(opcoesFiltro = {}, opcoesPaginacao = {}) {
-    console.log(
-      "Estou no filtrarMovimentacoesAvancado em MovimentacaoRepository"
-    );
-
-    const builder = new MovimentacaoFilterBuilder();
-
-    // Aplicar filtros básicos
-    if (opcoesFiltro.tipo) builder.comTipo(opcoesFiltro.tipo);
-    if (opcoesFiltro.destino) builder.comDestino(opcoesFiltro.destino);
-
-    // Filtros de data
-    if (opcoesFiltro.data) {
-      builder.comData(opcoesFiltro.data);
-    } else if (opcoesFiltro.dataInicio && opcoesFiltro.dataFim) {
-      builder.comPeriodo(opcoesFiltro.dataInicio, opcoesFiltro.dataFim);
-    } else {
-      if (opcoesFiltro.dataInicio)
-        builder.comDataApos(opcoesFiltro.dataInicio);
-      if (opcoesFiltro.dataFim) builder.comDataAntes(opcoesFiltro.dataFim);
-    }
-
-    // Filtros de usuário
-    if (opcoesFiltro.idUsuario) builder.comUsuarioId(opcoesFiltro.idUsuario);
-    if (opcoesFiltro.nomeUsuario)
-      builder.comUsuarioNome(opcoesFiltro.nomeUsuario);
-
-    // Filtros de produto
-    if (opcoesFiltro.idProduto) builder.comProdutoId(opcoesFiltro.idProduto);
-    if (opcoesFiltro.codigoProduto)
-      builder.comProdutoCodigo(opcoesFiltro.codigoProduto);
-    if (opcoesFiltro.nomeProduto)
-      builder.comProdutoNome(opcoesFiltro.nomeProduto);
-
-    // Filtros de fornecedor
-    if (opcoesFiltro.idFornecedor)
-      builder.comFornecedorId(opcoesFiltro.idFornecedor);
-    if (opcoesFiltro.nomeFornecedor)
-      builder.comFornecedorNome(opcoesFiltro.nomeFornecedor);
-
-    // Filtros de quantidade
-    if (opcoesFiltro.quantidadeMin !== undefined)
-      builder.comQuantidadeMinima(opcoesFiltro.quantidadeMin);
-    if (opcoesFiltro.quantidadeMax !== undefined)
-      builder.comQuantidadeMaxima(opcoesFiltro.quantidadeMax);
-
-    // Construir os filtros
-    const filtros = builder.build();
-    console.log("Filtros aplicados:", JSON.stringify(filtros, null, 2));
-
-    // Configurar paginação
-    const { page = 1, limite = 10 } = opcoesPaginacao;
-    const options = {
-      page: parseInt(page, 10),
-      limit: Math.min(parseInt(limite, 10), 100),
-      sort: { data_movimentacao: -1 },
-      populate: ["id_usuario", "produtos.produto_ref"],
-    };
-
-    const resultado = await this.model.paginate(filtros, options);
-    console.log(`Encontradas ${resultado.docs?.length || 0} movimentações`);
-    return resultado;
-  }
-
-  async desativarMovimentacao(id){
-    const movimentacao = await this.model.findByIdAndUpdate (
+  async desativarMovimentacao(id) {
+    const movimentacao = await this.model.findByIdAndUpdate(
       id,
       { status: false },
       { new: true }
-  );
-  return movimentacao;
+    );
+    return movimentacao;
   }
 
-  async reativarMovimentacao(id){
-    const movimentacao = await this.model.findByIdAndUpdate (
+  async reativarMovimentacao(id) {
+    const movimentacao = await this.model.findByIdAndUpdate(
       id,
       { status: true },
       { new: true }
-  );
-  return movimentacao;
+    );
+    return movimentacao;
   }
 }
 

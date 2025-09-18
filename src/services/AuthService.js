@@ -52,7 +52,6 @@ export class AuthService {
       });
     }
 
-    //TODO: verificar a veracidade desse if após revisar o usuário
     if (!usuario.senha_definida || !usuario.senha) {
       throw new CustomError({
         statusCode: 401,
