@@ -1,60 +1,4 @@
 const movimentacaoSchemas = {
-  // Schema para produto dentro da movimentação
-  //TODO: revisar se é necessário
-  ProdutoMovimentacao: {
-    type: "object",
-    properties: {
-      produto_ref: {
-        type: "string",
-        description: "Referência ObjectId do produto",
-        example: "60d5ecb54b24a12a5c8e4f1a",
-      },
-      id_produto: {
-        type: "number",
-        description: "ID numérico do produto",
-        example: 1001,
-      },
-      codigo_produto: {
-        type: "string",
-        description: "Código do produto",
-        example: "PF001",
-      },
-      nome_produto: {
-        type: "string",
-        description: "Nome do produto",
-        example: "Pastilha de Freio Dianteira",
-      },
-      quantidade_produtos: {
-        type: "number",
-        description: "Quantidade movimentada",
-        example: 10,
-        minimum: 1,
-      },
-      preco: {
-        type: "number",
-        description: "Preço unitário do produto",
-        example: 89.9,
-        minimum: 0,
-      },
-      custo: {
-        type: "number",
-        description: "Custo unitário do produto",
-        example: 45.0,
-        minimum: 0,
-      },
-      id_fornecedor: {
-        type: "number",
-        description: "ID do fornecedor",
-        example: 123,
-      },
-      nome_fornecedor: {
-        type: "string",
-        description: "Nome do fornecedor",
-        example: "Auto Peças Sul Ltda",
-      },
-    },
-  },
-
   // Schema principal da movimentação
   Movimentacao: {
     type: "object",
@@ -114,7 +58,7 @@ const movimentacaoSchemas = {
         items: {
           type: "object",
           properties: {
-            produto_ref: {
+            _id: {
               type: "object",
               description: "Produto referenciado",
               properties: {
@@ -201,38 +145,38 @@ const movimentacaoSchemas = {
         items: {
           type: "object",
           properties: {
-                produto_ref: {
-                type: "object",
-                description: "Produto referenciado",
-                example: "68c9f7a4db05196e99002155",
-                },
-                codigo_produto: {
-                type: "string",
-                description: "Código do produto",
-                example: "DIS-6410 1",
-                },
-                quantidade_produtos: {
-                type: "integer",
-                description: "Quantidade movimentada",
-                example: 10,
-                },
-                preco: {
-                type: "number",
-                format: "double",
-                description: "Preço unitário do produto",
-                example: 8989.49,
-                },
-                custo: {
-                type: "number",
-                format: "double",
-                description: "Custo total do produto",
-                example: 6292.64,
-              }
+            _id: {
+              type: "object",
+              description: "Produto referenciado",
+              example: "68c9f7a4db05196e99002155",
+            },
+            codigo_produto: {
+              type: "string",
+              description: "Código do produto",
+              example: "DIS-6410 1",
+            },
+            quantidade_produtos: {
+              type: "integer",
+              description: "Quantidade movimentada",
+              example: 10,
+            },
+            preco: {
+              type: "number",
+              format: "double",
+              description: "Preço unitário do produto",
+              example: 8989.49,
+            },
+            custo: {
+              type: "number",
+              format: "double",
+              description: "Custo total do produto",
+              example: 6292.64,
             },
           },
         },
       },
     },
+  },
 
   // Schema para atualização de movimentação
   MovimentacaoUpdateRequest: {
@@ -251,7 +195,7 @@ const movimentacaoSchemas = {
         items: {
           type: "object",
           required: [
-            "produto_ref",
+            "_id",
             "id_produto",
             "codigo_produto",
             "nome_produto",
@@ -260,7 +204,7 @@ const movimentacaoSchemas = {
             "custo",
           ],
           properties: {
-            produto_ref: {
+            _id: {
               type: "string",
               description: "Referência ObjectId do produto",
               example: "60d5ecb54b24a12a5c8e4f1a",

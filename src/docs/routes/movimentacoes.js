@@ -439,201 +439,201 @@ const movimentacoesRoutes = {
             }
         }
     },
-    "/movimentacoes/relatorio": {
-        get: {
-            tags: ["Movimentações"],
-            summary: "Relatório de movimentações",
-            description: `
-            Gera relatório detalhado de movimentações com agregações e estatísticas.
+    // "/movimentacoes/relatorio": {
+    //     get: {
+    //         tags: ["Movimentações"],
+    //         summary: "Relatório de movimentações",
+    //         description: `
+    //         Gera relatório detalhado de movimentações com agregações e estatísticas.
             
-            **Funcionalidades:**
-            - Agregações por período, tipo, produto, usuário
-            - Cálculos de valores totais, médias, quantidade de movimentações
-            - Comparativos entre períodos
-            - Produtos mais movimentados
-            - Usuários mais ativos
+    //         **Funcionalidades:**
+    //         - Agregações por período, tipo, produto, usuário
+    //         - Cálculos de valores totais, médias, quantidade de movimentações
+    //         - Comparativos entre períodos
+    //         - Produtos mais movimentados
+    //         - Usuários mais ativos
             
-            **Tipos de Relatório:**
-            - Resumo geral
-            - Por período específico
-            - Por tipo de movimentação
-            - Por produto
-            - Por usuário
-            `,
-            security: [{ bearerAuth: [] }],
-            parameters: [
-                {
-                    name: "tipo_relatorio",
-                    in: "query",
-                    description: "Tipo de relatório a gerar",
-                    schema: {
-                        type: "string",
-                        enum: ["geral", "periodo", "produto", "usuario", "comparativo"],
-                        default: "geral",
-                        example: "periodo"
-                    }
-                },
-                {
-                    name: "data_inicio",
-                    in: "query",
-                    description: "Data de início para o relatório (YYYY-MM-DD)",
-                    schema: {
-                        type: "string",
-                        format: "date",
-                        example: "2024-01-01"
-                    }
-                },
-                {
-                    name: "data_fim",
-                    in: "query",
-                    description: "Data de fim para o relatório (YYYY-MM-DD)",
-                    schema: {
-                        type: "string",
-                        format: "date",
-                        example: "2024-01-31"
-                    }
-                },
-                {
-                    name: "agrupar_por",
-                    in: "query",
-                    description: "Campo para agrupamento",
-                    schema: {
-                        type: "string",
-                        enum: ["dia", "semana", "mes", "produto", "usuario", "tipo"],
-                        example: "mes"
-                    }
-                }
-            ],
-            responses: {
-                200: {
-                    description: "Relatório gerado com sucesso",
-                    content: {
-                        "application/json": {
-                            schema: {
-                                type: "object",
-                                properties: {
-                                    success: {
-                                        type: "boolean",
-                                        example: true
-                                    },
-                                    message: {
-                                        type: "string",
-                                        example: "Relatório gerado com sucesso"
-                                    },
-                                    data: {
-                                        type: "object",
-                                        properties: {
-                                            periodo: {
-                                                type: "object",
-                                                properties: {
-                                                    inicio: {
-                                                        type: "string",
-                                                        format: "date",
-                                                        example: "2024-01-01"
-                                                    },
-                                                    fim: {
-                                                        type: "string",
-                                                        format: "date",
-                                                        example: "2024-01-31"
-                                                    }
-                                                }
-                                            },
-                                            resumo: {
-                                                type: "object",
-                                                properties: {
-                                                    total_movimentacoes: {
-                                                        type: "integer",
-                                                        example: 150
-                                                    },
-                                                    total_entradas: {
-                                                        type: "integer",
-                                                        example: 75
-                                                    },
-                                                    total_saidas: {
-                                                        type: "integer",
-                                                        example: 75
-                                                    },
-                                                    valor_total_entradas: {
-                                                        type: "number",
-                                                        example: 25750.50
-                                                    },
-                                                    valor_total_saidas: {
-                                                        type: "number",
-                                                        example: 18950.75
-                                                    },
-                                                    produtos_distintos: {
-                                                        type: "integer",
-                                                        example: 45
-                                                    },
-                                                    usuarios_ativos: {
-                                                        type: "integer",
-                                                        example: 8
-                                                    }
-                                                }
-                                            },
-                                            detalhamento: {
-                                                type: "array",
-                                                items: {
-                                                    type: "object",
-                                                    properties: {
-                                                        agrupamento: {
-                                                            type: "string",
-                                                            example: "2024-01"
-                                                        },
-                                                        quantidade_movimentacoes: {
-                                                            type: "integer",
-                                                            example: 25
-                                                        },
-                                                        valor_total: {
-                                                            type: "number",
-                                                            example: 5750.25
-                                                        },
-                                                        entradas: {
-                                                            type: "integer",
-                                                            example: 15
-                                                        },
-                                                        saidas: {
-                                                            type: "integer",
-                                                            example: 10
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            produtos_mais_movimentados: {
-                                                type: "array",
-                                                items: {
-                                                    type: "object",
-                                                    properties: {
-                                                        produto_id: {
-                                                            type: "string",
-                                                            example: "60d5ecb54b24a12a5c8e4f1a"
-                                                        },
-                                                        nome_produto: {
-                                                            type: "string",
-                                                            example: "Pastilha de Freio Dianteira"
-                                                        },
-                                                        total_movimentacoes: {
-                                                            type: "integer",
-                                                            example: 15
-                                                        },
-                                                        quantidade_total: {
-                                                            type: "number",
-                                                            example: 150
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                ...commonSchemas.CommonResponses
-            }
-        }
-    }
+    //         **Tipos de Relatório:**
+    //         - Resumo geral
+    //         - Por período específico
+    //         - Por tipo de movimentação
+    //         - Por produto
+    //         - Por usuário
+    //         `,
+    //         security: [{ bearerAuth: [] }],
+    //         parameters: [
+    //             {
+    //                 name: "tipo_relatorio",
+    //                 in: "query",
+    //                 description: "Tipo de relatório a gerar",
+    //                 schema: {
+    //                     type: "string",
+    //                     enum: ["geral", "periodo", "produto", "usuario", "comparativo"],
+    //                     default: "geral",
+    //                     example: "periodo"
+    //                 }
+    //             },
+    //             {
+    //                 name: "data_inicio",
+    //                 in: "query",
+    //                 description: "Data de início para o relatório (YYYY-MM-DD)",
+    //                 schema: {
+    //                     type: "string",
+    //                     format: "date",
+    //                     example: "2024-01-01"
+    //                 }
+    //             },
+    //             {
+    //                 name: "data_fim",
+    //                 in: "query",
+    //                 description: "Data de fim para o relatório (YYYY-MM-DD)",
+    //                 schema: {
+    //                     type: "string",
+    //                     format: "date",
+    //                     example: "2024-01-31"
+    //                 }
+    //             },
+    //             {
+    //                 name: "agrupar_por",
+    //                 in: "query",
+    //                 description: "Campo para agrupamento",
+    //                 schema: {
+    //                     type: "string",
+    //                     enum: ["dia", "semana", "mes", "produto", "usuario", "tipo"],
+    //                     example: "mes"
+    //                 }
+    //             }
+    //         ],
+    //         responses: {
+    //             200: {
+    //                 description: "Relatório gerado com sucesso",
+    //                 content: {
+    //                     "application/json": {
+    //                         schema: {
+    //                             type: "object",
+    //                             properties: {
+    //                                 success: {
+    //                                     type: "boolean",
+    //                                     example: true
+    //                                 },
+    //                                 message: {
+    //                                     type: "string",
+    //                                     example: "Relatório gerado com sucesso"
+    //                                 },
+    //                                 data: {
+    //                                     type: "object",
+    //                                     properties: {
+    //                                         periodo: {
+    //                                             type: "object",
+    //                                             properties: {
+    //                                                 inicio: {
+    //                                                     type: "string",
+    //                                                     format: "date",
+    //                                                     example: "2024-01-01"
+    //                                                 },
+    //                                                 fim: {
+    //                                                     type: "string",
+    //                                                     format: "date",
+    //                                                     example: "2024-01-31"
+    //                                                 }
+    //                                             }
+    //                                         },
+    //                                         resumo: {
+    //                                             type: "object",
+    //                                             properties: {
+    //                                                 total_movimentacoes: {
+    //                                                     type: "integer",
+    //                                                     example: 150
+    //                                                 },
+    //                                                 total_entradas: {
+    //                                                     type: "integer",
+    //                                                     example: 75
+    //                                                 },
+    //                                                 total_saidas: {
+    //                                                     type: "integer",
+    //                                                     example: 75
+    //                                                 },
+    //                                                 valor_total_entradas: {
+    //                                                     type: "number",
+    //                                                     example: 25750.50
+    //                                                 },
+    //                                                 valor_total_saidas: {
+    //                                                     type: "number",
+    //                                                     example: 18950.75
+    //                                                 },
+    //                                                 produtos_distintos: {
+    //                                                     type: "integer",
+    //                                                     example: 45
+    //                                                 },
+    //                                                 usuarios_ativos: {
+    //                                                     type: "integer",
+    //                                                     example: 8
+    //                                                 }
+    //                                             }
+    //                                         },
+    //                                         detalhamento: {
+    //                                             type: "array",
+    //                                             items: {
+    //                                                 type: "object",
+    //                                                 properties: {
+    //                                                     agrupamento: {
+    //                                                         type: "string",
+    //                                                         example: "2024-01"
+    //                                                     },
+    //                                                     quantidade_movimentacoes: {
+    //                                                         type: "integer",
+    //                                                         example: 25
+    //                                                     },
+    //                                                     valor_total: {
+    //                                                         type: "number",
+    //                                                         example: 5750.25
+    //                                                     },
+    //                                                     entradas: {
+    //                                                         type: "integer",
+    //                                                         example: 15
+    //                                                     },
+    //                                                     saidas: {
+    //                                                         type: "integer",
+    //                                                         example: 10
+    //                                                     }
+    //                                                 }
+    //                                             }
+    //                                         },
+    //                                         produtos_mais_movimentados: {
+    //                                             type: "array",
+    //                                             items: {
+    //                                                 type: "object",
+    //                                                 properties: {
+    //                                                     produto_id: {
+    //                                                         type: "string",
+    //                                                         example: "60d5ecb54b24a12a5c8e4f1a"
+    //                                                     },
+    //                                                     nome_produto: {
+    //                                                         type: "string",
+    //                                                         example: "Pastilha de Freio Dianteira"
+    //                                                     },
+    //                                                     total_movimentacoes: {
+    //                                                         type: "integer",
+    //                                                         example: 15
+    //                                                     },
+    //                                                     quantidade_total: {
+    //                                                         type: "number",
+    //                                                         example: 150
+    //                                                     }
+    //                                                 }
+    //                                             }
+    //                                         }
+    //                                     }
+    //                                 }
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             },
+    //             ...commonSchemas.CommonResponses
+    //         }
+    //     }
+    // }
 };
 
 export default movimentacoesRoutes;

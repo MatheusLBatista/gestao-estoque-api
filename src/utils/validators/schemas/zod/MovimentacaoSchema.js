@@ -6,7 +6,7 @@ const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 // Schema para produto na movimentação
 const ProdutoMovimentacaoSchema = z.object({
-  produto_ref: z.string().refine(isValidObjectId, {
+  _id: z.string().refine(isValidObjectId, {
     message: "ID do produto inválido",
   }),
   codigo_produto: z.string({
@@ -51,10 +51,14 @@ export const MovimentacaoSchema = z.object({
     .min(3, {
       message: "Destino deve ter no mínimo 3 caracteres",
     }),
-  data_movimentacao: z.date().optional().default(() => new Date()),
-  id_usuario: z.string().refine(isValidObjectId, {
-    message: "ID do usuário inválido",
-  }).optional(),
+  data_movimentacao: z
+    .optional(),
+  id_usuario: z
+    .string()
+    .refine(isValidObjectId, {
+      message: "ID do usuário inválido",
+    })
+    .optional(),
   status: z.boolean().optional().default(true),
   produtos: z
     .array(ProdutoMovimentacaoSchema, {
@@ -69,24 +73,31 @@ export const MovimentacaoSchema = z.object({
 // Schema para atualização de movimentação (todos os campos são opcionais)
 export const MovimentacaoUpdateSchema = z
   .object({
-    tipo: z.enum(["entrada", "saida"], {
-      invalid_type_error: 'Tipo deve ser "entrada" ou "saida"',
-    }).optional(),
-    destino: z.string()
+    tipo: z
+      .enum(["entrada", "saida"], {
+        invalid_type_error: 'Tipo deve ser "entrada" ou "saida"',
+      })
+      .optional(),
+    destino: z
+      .string()
       .min(3, {
         message: "Destino deve ter no mínimo 3 caracteres",
       })
       .optional(),
-    data_movimentacao: z.date({
-      invalid_type_error: "Data da movimentação deve ser uma data válida",
-    }).optional(),
-    id_usuario: z.string()
+    data_movimentacao: z
+      .date({
+        invalid_type_error: "Data da movimentação deve ser uma data válida",
+      })
+      .optional(),
+    id_usuario: z
+      .string()
       .refine(isValidObjectId, {
         message: "ID do usuário inválido",
       })
       .optional(),
     status: z.boolean().optional(),
-    produtos: z.array(ProdutoMovimentacaoSchema)
+    produtos: z
+      .array(ProdutoMovimentacaoSchema)
       .min(1, {
         message: "A movimentação deve ter pelo menos um produto",
       })

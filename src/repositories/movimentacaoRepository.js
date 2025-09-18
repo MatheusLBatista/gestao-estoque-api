@@ -29,7 +29,7 @@ class MovimentacaoRepository {
           .findById(id)
           .populate("id_usuario", "nome_usuario email")
           .populate(
-            "produtos.produto_ref",
+            "produtos._id",
             "nome_produto codigo_produto estoque id_fornecedor"
           );
 
@@ -77,17 +77,17 @@ class MovimentacaoRepository {
     const limite = Math.min(parseInt(req.query?.limite, 10) || 10, 100);
 
     const filterBuilder = new MovimentacaoFilterBuilder()
-        .comTipo(tipo || '')
-        .comDestino(destino || '')
-        .comPeriodo(data_inicio || '', data_fim || '')
-        
-        await Promise.all([
-            filterBuilder.comProdutoId(produto || ''),
-            filterBuilder.comProdutoNome(nome_produto || ''),
-            filterBuilder.comUsuarioId(usuario || ''),
-            filterBuilder.comUsuarioNome(nome_usuario || ''),
-            filterBuilder.comProdutoCodigo(codigo_produto || '')
-        ]);
+      .comTipo(tipo || "")
+      .comDestino(destino || "")
+      .comPeriodo(data_inicio || "", data_fim || "");
+
+    await Promise.all([
+      filterBuilder.comProdutoId(produto || ""),
+      filterBuilder.comProdutoNome(nome_produto || ""),
+      filterBuilder.comUsuarioId(usuario || ""),
+      filterBuilder.comUsuarioNome(nome_usuario || ""),
+      filterBuilder.comProdutoCodigo(codigo_produto || ""),
+    ]);
 
     console.log("Filtros aplicados:", JSON.stringify(filterBuilder, null, 2));
 
@@ -100,7 +100,7 @@ class MovimentacaoRepository {
       populate: [
         { path: "id_usuario", select: "nome_usuario email" },
         {
-          path: "produtos.produto_ref",
+          path: "produtos._id",
           select: "nome_produto estoque",
         },
       ],
@@ -131,10 +131,7 @@ class MovimentacaoRepository {
     const movimentacao = await this.model
       .findById(id)
       .populate("id_usuario", "nome_usuario email")
-      .populate(
-        "produtos.produto_ref",
-        "nome_produto estoque"
-      );
+      .populate("produtos._id", "nome_produto estoque");
 
     if (!movimentacao) {
       throw new CustomError({
@@ -165,7 +162,7 @@ class MovimentacaoRepository {
       for (const produto of dadosMovimentacao.produtos) {
         const produtoAtualizado = await mongoose
           .model("produtos")
-          .findById(produto.produto_ref);
+          .findById(produto._id);
 
         // Garantir que a quantidade de estoque não seja NaN
         if (!isNaN(produtoAtualizado.estoque)) {
@@ -232,7 +229,7 @@ class MovimentacaoRepository {
         })
         .populate("id_usuario", "nome_usuario email")
         .populate(
-          "produtos.produto_ref",
+          "produtos._id",
           "nome_produto codigo_produto estoque id_fornecedor"
         );
 

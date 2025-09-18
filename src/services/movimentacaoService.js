@@ -65,10 +65,7 @@ class MovimentacaoService {
       dadosMovimentacao.data_movimentacao = new Date();
     }
 
-    if (
-      !dadosMovimentacao.produtos ||
-      dadosMovimentacao.produtos.length === 0
-    ) {
+    if (!dadosMovimentacao.produtos || dadosMovimentacao.produtos.length === 0) {
       throw new CustomError({
         statusCode: HttpStatusCodes.BAD_REQUEST.code,
         errorType: "validationError",
@@ -78,12 +75,21 @@ class MovimentacaoService {
       });
     }
 
-    if (dadosMovimentacao.tipo === "saida") {
-      for (const produtoMov of dadosMovimentacao.produtos) {
-        const produto = await this.produtoService.buscarProdutoPorID(
-          produtoMov.produto_ref
-        );
+    for (const produtoMov of dadosMovimentacao.produtos) {
+      const produto = await this.produtoService.buscarProdutoPorID(produtoMov._id);
 
+      // 🔎 Verificação entre _id e codigo_produto
+      if (produtoMov.codigo_produto && produto.codigo_produto !== produtoMov.codigo_produto) {
+        throw new CustomError({
+          statusCode: HttpStatusCodes.BAD_REQUEST.code,
+          errorType: "validationError",
+          field: "codigo_produto",
+          details: [],
+          customMessage: `O código do produto informado (${produtoMov.codigo_produto}) não corresponde ao produto com ID ${produtoMov._id}.`,
+        });
+      }
+
+      if (dadosMovimentacao.tipo === "saida") {
         if (produto.estoque < produtoMov.quantidade_produtos) {
           throw new CustomError({
             statusCode: HttpStatusCodes.BAD_REQUEST.code,
@@ -97,13 +103,7 @@ class MovimentacaoService {
         await this.produtoService.atualizarProduto(produto._id, {
           estoque: produto.estoque - produtoMov.quantidade_produtos,
         });
-      }
-    } else if (dadosMovimentacao.tipo === "entrada") {
-      for (const produtoMov of dadosMovimentacao.produtos) {
-        const produto = await this.produtoService.buscarProdutoPorID(
-          produtoMov.produto_ref
-        );
-
+      } else if (dadosMovimentacao.tipo === "entrada") {
         await this.produtoService.atualizarProduto(produto._id, {
           estoque: produto.estoque + produtoMov.quantidade_produtos,
           data_ultima_entrada: new Date(),
@@ -128,7 +128,9 @@ class MovimentacaoService {
       });
     }
 
-    const movimentacaoOriginal = await this.repository.buscarMovimentacaoPorID(id);
+    const movimentacaoOriginal = await this.repository.buscarMovimentacaoPorID(
+      id
+    );
 
     if (!movimentacaoOriginal) {
       throw new CustomError({
@@ -161,17 +163,21 @@ class MovimentacaoService {
     // Se produtos ou tipo foram alterados, refazer estoque
     if (dadosAtualizacao.produtos || dadosAtualizacao.tipo) {
       const novoTipo = dadosAtualizacao.tipo || movimentacaoOriginal.tipo;
-      const novosProdutos = dadosAtualizacao.produtos || movimentacaoOriginal.produtos;
+      const novosProdutos =
+        dadosAtualizacao.produtos || movimentacaoOriginal.produtos;
 
       // 1. Estorna movimentação original
       for (const produtoMov of movimentacaoOriginal.produtos) {
         const produto = await this.produtoService.buscarProdutoPorID(
-          produtoMov.produto_ref
+          produtoMov._id
         );
 
         if (movimentacaoOriginal.tipo === "entrada") {
           await this.produtoService.atualizarProduto(produto._id, {
-            estoque: Math.max(0, produto.estoque - produtoMov.quantidade_produtos),
+            estoque: Math.max(
+              0,
+              produto.estoque - produtoMov.quantidade_produtos
+            ),
           });
         } else if (movimentacaoOriginal.tipo === "saida") {
           await this.produtoService.atualizarProduto(produto._id, {
@@ -183,7 +189,7 @@ class MovimentacaoService {
       // 2. Aplica movimentação atualizada
       for (const produtoMov of novosProdutos) {
         const produto = await this.produtoService.buscarProdutoPorID(
-          produtoMov.produto_ref
+          produtoMov._id
         );
 
         if (novoTipo === "entrada") {
@@ -208,19 +214,13 @@ class MovimentacaoService {
       }
     }
 
+    const allowedFields = ['destino'];
+    dadosAtualizacao = Object.fromEntries(
+      Object.entries(dadosAtualizacao).filter(([key]) => allowedFields.includes(key))
+    );
+
+    // sempre atualiza a data
     dadosAtualizacao.data_ultima_atualizacao = new Date();
-
-    delete dadosAtualizacao.id_usuario;
-    delete dadosAtualizacao.data_movimentacao;
-    delete dadosAtualizacao.status;
-    delete dadosAtualizacao._id;
-    delete dadosAtualizacao.data_cadastro;
-    delete dadosAtualizacao.__v;
-    delete dadosAtualizacao.tipo;
-    delete dadosAtualizacao.usuario;
-    delete dadosAtualizacao.data_ultima_atualizacao;
-    delete dadosAtualizacao.produtos;
-
 
     const movimentacaoAtualizada = await this.repository.atualizarMovimentacao(
       id,
@@ -257,17 +257,20 @@ class MovimentacaoService {
     if (movimentacao.tipo === "entrada") {
       for (const produtoMov of movimentacao.produtos) {
         const produto = await this.produtoService.buscarProdutoPorID(
-          produtoMov.produto_ref
+          produtoMov._id
         );
 
         await this.produtoService.atualizarProduto(produto._id, {
-          estoque: Math.max(0, produto.estoque - produtoMov.quantidade_produtos),
+          estoque: Math.max(
+            0,
+            produto.estoque - produtoMov.quantidade_produtos
+          ),
         });
       }
     } else if (movimentacao.tipo === "saida") {
       for (const produtoMov of movimentacao.produtos) {
         const produto = await this.produtoService.buscarProdutoPorID(
-          produtoMov.produto_ref
+          produtoMov._id
         );
 
         await this.produtoService.atualizarProduto(produto._id, {
@@ -276,7 +279,9 @@ class MovimentacaoService {
       }
     }
 
-    const data = await this.repository.atualizarMovimentacao(id, { status: false });
+    const data = await this.repository.atualizarMovimentacao(id, {
+      status: false,
+    });
     return data;
   }
 
@@ -308,7 +313,7 @@ class MovimentacaoService {
     if (movimentacao.tipo === "entrada") {
       for (const produtoMov of movimentacao.produtos) {
         const produto = await this.produtoService.buscarProdutoPorID(
-          produtoMov.produto_ref
+          produtoMov._id
         );
 
         await this.produtoService.atualizarProduto(produto._id, {
@@ -318,7 +323,7 @@ class MovimentacaoService {
     } else if (movimentacao.tipo === "saida") {
       for (const produtoMov of movimentacao.produtos) {
         const produto = await this.produtoService.buscarProdutoPorID(
-          produtoMov.produto_ref
+          produtoMov._id
         );
 
         // Aqui pode dar erro se o estoque não for suficiente
@@ -338,7 +343,9 @@ class MovimentacaoService {
       }
     }
 
-    const data = await this.repository.atualizarMovimentacao(id, { status: true });
+    const data = await this.repository.atualizarMovimentacao(id, {
+      status: true,
+    });
     return data;
   }
 
@@ -387,7 +394,7 @@ class MovimentacaoService {
     if (movimentacao.tipo === "saida") {
       for (const produtoMov of movimentacao.produtos) {
         const produto = await this.produtoService.buscarProdutoPorID(
-          produtoMov.produto_ref
+          produtoMov._id
         );
 
         await this.produtoService.atualizarProduto(produto._id, {
@@ -397,7 +404,7 @@ class MovimentacaoService {
     } else if (movimentacao.tipo === "entrada") {
       for (const produtoMov of movimentacao.produtos) {
         const produto = await this.produtoService.buscarProdutoPorID(
-          produtoMov.produto_ref
+          produtoMov._id
         );
 
         await this.produtoService.atualizarProduto(produto._id, {

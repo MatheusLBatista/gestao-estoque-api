@@ -47,13 +47,8 @@
             },
             "url": {
               "raw": "{{base_url}}/login",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
             },
             "description": "Login com usuário administrador"
           }
@@ -88,13 +83,8 @@
             },
             "url": {
               "raw": "{{base_url}}/login",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
             },
             "description": "Login com usuário gerente"
           }
@@ -129,13 +119,8 @@
             },
             "url": {
               "raw": "{{base_url}}/login",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
             },
             "description": "Login com usuário estoquista"
           }
@@ -156,13 +141,8 @@
             },
             "url": {
               "raw": "{{base_url}}/refresh",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "auth",
-                "refresh"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh"]
             }
           }
         },
@@ -183,13 +163,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/logout",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "auth",
-                "logout"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
             }
           }
         },
@@ -219,14 +194,8 @@
             },
             "url": {
               "raw": "{{base_url}}/revoke/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "auth",
-                "revoke",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["auth", "revoke", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -248,13 +217,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/produtos",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "produtos"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "produtos"],
               "query": [
                 {
                   "key": "page",
@@ -296,13 +260,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/produtos",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "produtos"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "produtos"]
             },
             "auth": {
               "type": "bearer",
@@ -323,14 +282,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/produtos/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "produtos",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "produtos", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -357,14 +310,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/produtos/estoque-baixo",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "produtos",
-                "estoque-baixo"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "produtos", "estoque-baixo"]
             },
             "auth": {
               "type": "bearer",
@@ -385,14 +332,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/produtos/busca?nome=Pastilha",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "produtos",
-                "busca"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "produtos", "busca"],
               "query": [
                 {
                   "key": "nome",
@@ -419,14 +360,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/produtos/busca?categoria=Freios",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "produtos",
-                "busca"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "produtos", "busca"],
               "query": [
                 {
                   "key": "categoria",
@@ -453,14 +388,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/produtos/busca?codigo=PF001",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "produtos",
-                "busca"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "produtos", "busca"],
               "query": [
                 {
                   "key": "codigo",
@@ -487,14 +416,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/produtos/busca?marca=Bosch",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "produtos",
-                "busca"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "produtos", "busca"],
               "query": [
                 {
                   "key": "marca",
@@ -530,14 +453,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/produtos/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "produtos",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "produtos", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -564,15 +481,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/produtos/desativar/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "produtos",
-                "desativar",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "produtos", "desativar", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -599,15 +509,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/produtos/reativar/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "produtos",
-                "reativar",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "produtos", "reativar", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -634,14 +537,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/produtos/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "produtos",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "produtos", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -673,13 +570,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/usuarios",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "usuarios"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "usuarios"],
               "query": [
                 {
                   "key": "page",
@@ -721,13 +613,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/usuarios",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "usuarios"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "usuarios"]
             },
             "auth": {
               "type": "bearer",
@@ -748,14 +635,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/usuarios/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "usuarios",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "usuarios", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -782,15 +663,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/usuarios/busca/:matricula",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "usuarios",
-                "busca",
-                ":matricula"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "usuarios", "busca", ":matricula"],
               "variable": [
                 {
                   "key": "matricula",
@@ -826,14 +700,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/usuarios/:matricula",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "usuarios",
-                ":matricula"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "usuarios", ":matricula"],
               "variable": [
                 {
                   "key": "matricula",
@@ -860,15 +728,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/usuarios/desativar/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "usuarios",
-                "desativar",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "usuarios", "desativar", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -895,15 +756,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/usuarios/reativar/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "usuarios",
-                "reativar",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "usuarios", "reativar", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -930,14 +784,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/usuarios/:matricula",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "usuarios",
-                ":matricula"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "usuarios", ":matricula"],
               "variable": [
                 {
                   "key": "matricula",
@@ -969,13 +817,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/fornecedores",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "fornecedores"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "fornecedores"],
               "query": [
                 {
                   "key": "page",
@@ -1017,13 +860,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/fornecedores",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "fornecedores"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "fornecedores"]
             },
             "auth": {
               "type": "bearer",
@@ -1044,13 +882,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/fornecedores?nome_fornecedor=Distribuidora Central",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "fornecedores"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "fornecedores"],
               "query": [
                 {
                   "key": "nome_fornecedor",
@@ -1077,13 +910,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/fornecedores?cnpj=12345678901234",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "fornecedores"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "fornecedores"],
               "query": [
                 {
                   "key": "cnpj",
@@ -1119,14 +947,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/fornecedores/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "fornecedores",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "fornecedores", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -1153,14 +975,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/fornecedores/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "fornecedores",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "fornecedores", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -1192,13 +1008,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/movimentacoes",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "movimentacoes"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "movimentacoes"],
               "query": [
                 {
                   "key": "page",
@@ -1236,17 +1047,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"entrada\",\n  \"destino\": \"Estoque Principal\",\n  \"data_movimentacao\": \"2025-07-07T20:00:00.000Z\",\n  \"id_produto\": \"686c12577770446a1ee99bc2\",\n  \"nome_usuario\": \"Administrador\",\n  \"produtos\": [\n    {\n      \"produto_ref\": \"686c12577770446a1ee99bc2\",\n      \"id_produto\": 471,\n      \"codigo_produto\": \"DIS-9441\",\n      \"nome_produto\": \"Fantástico Borracha Sapatos\",\n      \"quantidade_produtos\": 25,\n      \"preco\": 4201.69,\n      \"custo\": 2941.18,\n      \"id_fornecedor\": 47,\n      \"nome_fornecedor\": \"Distribuidora Central Ltda\"\n    }\n  ]\n}"
+              "raw": "{\n  \"tipo\": \"entrada\",\n  \"destino\": \"Estoque Principal\",\n  \"data_movimentacao\": \"2025-07-07T20:00:00.000Z\",\n  \"id_produto\": \"686c12577770446a1ee99bc2\",\n  \"nome_usuario\": \"Administrador\",\n  \"produtos\": [\n    {\n      \"_id\": \"686c12577770446a1ee99bc2\",\n      \"id_produto\": 471,\n      \"codigo_produto\": \"DIS-9441\",\n      \"nome_produto\": \"Fantástico Borracha Sapatos\",\n      \"quantidade_produtos\": 25,\n      \"preco\": 4201.69,\n      \"custo\": 2941.18,\n      \"id_fornecedor\": 47,\n      \"nome_fornecedor\": \"Distribuidora Central Ltda\"\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/movimentacoes",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "movimentacoes"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "movimentacoes"]
             },
             "auth": {
               "type": "bearer",
@@ -1267,14 +1073,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/movimentacoes/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "movimentacoes",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "movimentacoes", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -1301,14 +1101,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/movimentacoes/busca?nome_produto=Pastilha",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "movimentacoes",
-                "busca"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "movimentacoes", "busca"],
               "query": [
                 {
                   "key": "nome_produto",
@@ -1335,14 +1129,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/movimentacoes/busca?tipo=entrada",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "movimentacoes",
-                "busca"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "movimentacoes", "busca"],
               "query": [
                 {
                   "key": "tipo",
@@ -1369,14 +1157,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/movimentacoes/busca?nome_usuario=João",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "movimentacoes",
-                "busca"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "movimentacoes", "busca"],
               "query": [
                 {
                   "key": "nome_usuario",
@@ -1403,14 +1185,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/movimentacoes/filtro?dataInicio=2024-01-01&dataFim=2024-01-31&tipo=SAIDA",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "movimentacoes",
-                "filtro"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "movimentacoes", "filtro"],
               "query": [
                 {
                   "key": "dataInicio",
@@ -1450,18 +1226,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tipo\": \"entrada\",\n  \"destino\": \"Transferência\",\n  \"data_movimentacao\": \"2025-07-07T20:00:00.000Z\",\n  \"nome_usuario\": \"Novo Usuario\",\n  \"produtos\": [\n    {\n      \"produto_ref\": \"686c12577770446a1ee99bc2\",\n      \"id_produto\": 471,\n      \"codigo_produto\": \"DIS-9441\",\n      \"nome_produto\": \"Fantástico Borracha Sapatos\",\n      \"quantidade_produtos\": 30,\n      \"preco\": 4201.69,\n      \"custo\": 2941.18,\n      \"id_fornecedor\": 47,\n      \"nome_fornecedor\": \"Distribuidora Central Ltda\"\n    }\n  ]\n}"
+              "raw": "{\n  \"tipo\": \"entrada\",\n  \"destino\": \"Transferência\",\n  \"data_movimentacao\": \"2025-07-07T20:00:00.000Z\",\n  \"nome_usuario\": \"Novo Usuario\",\n  \"produtos\": [\n    {\n      \"_id\": \"686c12577770446a1ee99bc2\",\n      \"id_produto\": 471,\n      \"codigo_produto\": \"DIS-9441\",\n      \"nome_produto\": \"Fantástico Borracha Sapatos\",\n      \"quantidade_produtos\": 30,\n      \"preco\": 4201.69,\n      \"custo\": 2941.18,\n      \"id_fornecedor\": 47,\n      \"nome_fornecedor\": \"Distribuidora Central Ltda\"\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/movimentacoes/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "movimentacoes",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "movimentacoes", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -1488,15 +1258,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/movimentacoes/desativar/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "movimentacoes",
-                "desativar",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "movimentacoes", "desativar", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -1523,15 +1286,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/movimentacoes/reativar/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "movimentacoes",
-                "reativar",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "movimentacoes", "reativar", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -1558,14 +1314,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/movimentacoes/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "movimentacoes",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "movimentacoes", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -1597,13 +1347,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/grupos",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "grupos"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "grupos"]
             },
             "auth": {
               "type": "bearer",
@@ -1633,13 +1378,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/grupos",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "grupos"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "grupos"]
             },
             "auth": {
               "type": "bearer",
@@ -1660,14 +1400,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/grupos/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "grupos",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "grupos", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -1703,14 +1437,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/grupos/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "grupos",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "grupos", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -1737,14 +1465,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/grupos/:id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "grupos",
-                ":id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "grupos", ":id"],
               "variable": [
                 {
                   "key": "id",
@@ -1780,15 +1502,8 @@
             },
             "url": {
               "raw": "{{base_url}}/api/grupos/:id/usuarios",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "grupos",
-                ":id",
-                "usuarios"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "grupos", ":id", "usuarios"],
               "variable": [
                 {
                   "key": "id",
@@ -1815,16 +1530,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/grupos/:id/usuarios/:usuario_id",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "grupos",
-                ":id",
-                "usuarios",
-                ":usuario_id"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "grupos", ":id", "usuarios", ":usuario_id"],
               "variable": [
                 {
                   "key": "id",
@@ -1860,14 +1567,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/logs/online-users",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "logs",
-                "online-users"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "logs", "online-users"]
             },
             "auth": {
               "type": "bearer",
@@ -1888,15 +1589,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/logs/usuario/:userId",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "logs",
-                "usuario",
-                ":userId"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "logs", "usuario", ":userId"],
               "variable": [
                 {
                   "key": "userId",
@@ -1923,14 +1617,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/logs/search?action=LOGIN&startDate=2025-01-01&endDate=2025-12-31",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "logs",
-                "search"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "logs", "search"],
               "query": [
                 {
                   "key": "action",
@@ -1965,14 +1653,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/logs/statistics",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "logs",
-                "statistics"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "logs", "statistics"]
             },
             "auth": {
               "type": "bearer",
@@ -1993,14 +1675,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/logs/critical",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "logs",
-                "critical"
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "logs", "critical"]
             },
             "auth": {
               "type": "bearer",
