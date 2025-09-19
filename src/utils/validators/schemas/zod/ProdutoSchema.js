@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import mongoose from 'mongoose';
+
+const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 export const ProdutoSchema = z.object({
     nome_produto: z.string().min(3, 'Nome do produto deve ter pelo menos 3 caracteres'),
@@ -14,7 +17,10 @@ export const ProdutoSchema = z.object({
         z.date().optional()
     ),
     status: z.boolean().optional(),
-    id_fornecedor: z.number().int('ID do fornecedor deve ser um número inteiro').positive('ID do fornecedor deve ser um número inteiro positivo'),
+    fornecedores: z.string()
+    .refine(isValidObjectId, {
+      message: "ID do fornecedor inválido",
+    }),
     codigo_produto: z.string().min(3, 'Código do produto deve ter pelo menos 3 caracteres')
 });
 

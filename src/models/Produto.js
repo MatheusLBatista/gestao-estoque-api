@@ -16,7 +16,7 @@ class Produto {
                 estoque_min: { type: Number, required: true },
                 data_ultima_entrada: { type: Date },
                 status: { type: Boolean, default: true },
-                id_fornecedor: { type: mongoose.Schema.Types.ObjectId, index:true, required: true, ref: 'fornecedores' },
+                fornecedores: { type: mongoose.Schema.Types.ObjectId, index:true, required: true, ref: 'fornecedores' },
                 codigo_produto: { type: String, required: true, index: true, unique: true },
             },
             {

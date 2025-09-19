@@ -62,10 +62,10 @@ app.use((err, req, res, next) => {
     console.error(err);
     
     if (req.path.startsWith('/produtos')) {
-      return res.status(404).json({
-        message: "Rota de produto não encontrada",
-        path: req.originalUrl
-      });
+      // return res.status(404).json({
+      //   message: "Rota de produto não encontrada",
+      //   path: req.originalUrl
+      // });
     }
     
     if (err.name === 'NotFoundError' || err.statusCode === 404) {

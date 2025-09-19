@@ -16,7 +16,7 @@ class ProdutoRepository {
         if (id) {
             // Se tem ID, busca específica por ID - mantém o código original
             const data = await this.model.findById(id)
-                .populate('id_fornecedor');
+                .populate('fornecedores', '_id nome_fornecedor cnpj email');
     
             if (!data) {
                 throw new CustomError({
@@ -87,7 +87,7 @@ class ProdutoRepository {
         const options = {
             page: page,
             limit: limite,
-            populate: 'id_fornecedor',
+            populate: 'fornecedores',
             sort: { nome_produto: 1 },
         };
     
@@ -97,7 +97,8 @@ class ProdutoRepository {
     }
 
     async buscarProdutoPorID(id) {
-        const produto = await this.model.findById(id);
+        const produto = await this.model.findById(id)
+            .populate('fornecedores', '_id nome_fornecedor cnpj email');
         if (!produto) {
             throw new CustomError({
                 statusCode: 404,
