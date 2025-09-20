@@ -42,14 +42,16 @@ class ProdutoRepository {
         const filterBuilder = new ProdutoFilterBuilder()
             .comNome(nome_produto || '')
             .comCategoria(categoria || '')
-            .comCodigo(codigo_produto || '')
-            .comFornecedor(id_fornecedor || '')
-            .comStatus(req.query?.status);
-    
+            .comCodigo(codigo_produto || '');
+
+            // await filterBuilder.comFornecedorId(id_fornecedor || '');
+            await filterBuilder.comFornecedorNome(nome_fornecedor || '');
+
         // Obter os filtros finais
         const filtros = filterBuilder.build();
         
         // Processar busca por nome de fornecedor (se houver)
+        //TODO: review
         if (nome_fornecedor) {
             // Para esta busca, precisamos primeiro encontrar o ID do fornecedor pelo nome
             const Fornecedor = mongoose.model('fornecedores');
@@ -111,12 +113,8 @@ class ProdutoRepository {
         return produto;
     }
 
-    async buscarPorNome(nome, includeTokens = false) {
+    async buscarPorNome(nome) {
         let query = this.model.find({ nome_produto: { $regex: nome, $options: 'i' } });
-
-        if (includeTokens) {
-            query = query.select('+refreshtoken +accesstoken');
-        }
 
         const produto = await query;
         

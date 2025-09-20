@@ -1,6 +1,10 @@
+import FornecedorRepository from '../fornecedorRepository.js';
+import mongoose from 'mongoose';
+
 class ProdutoFilterBuilder {
     constructor() {
         this.filters = {};
+        this.fornecedorRepository = new FornecedorRepository();
     }
 
     comNome(nome) {
@@ -45,12 +49,31 @@ class ProdutoFilterBuilder {
         return this;
     }
 
-    comFornecedor(idFornecedor) {
-        if (idFornecedor && idFornecedor.trim() !== '') {
-            this.filters.id_fornecedor = idFornecedor;
+    async comFornecedorId(fornecedor_id) {
+        if (fornecedor_id && mongoose.Types.ObjectId.isValid(fornecedor_id)) {
+          const fornecedorExiste = await this.fornecedorRepository.buscarPorId(
+            fornecedor_id
+          );
+          if (fornecedorExiste) {
+            this.filters.id_fornecedor = fornecedor_id;
+          } else {
+            // Filtro impossível, nunca retorna nada
+            this.filters.id_fornecedor = null;
+          }
         }
         return this;
     }
+
+  async comFornecedorNome(fornecedor_nome) {
+    if (fornecedor_nome) {
+      const fornecedorEncontrado =
+        await this.fornecedorRepository.buscarPorNome(fornecedor_nome);
+
+      this.filters.fornecedores = { $in: fornecedorEncontrado ? [fornecedorEncontrado._id] : [] };
+    }
+
+    return this;
+  }
 
     comStatus(status) {
         if (status !== undefined) {
