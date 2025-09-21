@@ -32,7 +32,7 @@ class ProdutoRepository {
         }
     
         // Para busca por filtros
-        const { nome_produto, categoria, codigo_produto, id_fornecedor, nome_fornecedor } = req.query || {};
+        const { nome_produto, categoria, codigo_produto, estoque_baixo, id_fornecedor, nome_fornecedor } = req.query || {};
         
         // Garantir que os parâmetros de paginação sejam sempre processados corretamente
         const page = parseInt(req.query?.page, 10) || 1;
@@ -44,8 +44,8 @@ class ProdutoRepository {
             .comCategoria(categoria || '')
             .comCodigo(codigo_produto || '');
 
-            // await filterBuilder.comFornecedorId(id_fornecedor || '');
             await filterBuilder.comFornecedorNome(nome_fornecedor || '');
+            await filterBuilder.comEstoqueBaixo(estoque_baixo || '');
 
         // Obter os filtros finais
         const filtros = filterBuilder.build();
@@ -219,7 +219,7 @@ class ProdutoRepository {
     async listarEstoqueBaixo() {
         return await this.model.find({
             $expr: { $lt: ["$estoque", "$estoque_min"] }
-        }).sort({ estoque: 1 });
+        });
     }
 
     async desativarProduto(id) { 

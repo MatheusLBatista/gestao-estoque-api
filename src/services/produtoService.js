@@ -78,6 +78,7 @@ class ProdutoService {
         return resultado;
     }
 
+    // TODO: preciso que a categoria seja implementada automaticamente baseado no preço
     async cadastrarProduto(dadosProduto) { 
         console.log('Estou no criar em ProdutoService');
 
@@ -266,8 +267,12 @@ class ProdutoService {
 
     async listarEstoqueBaixo() {
         console.log('Estou no listarEstoqueBaixo em ProdutoService');
-        const data = await this.repository.listarEstoqueBaixo();
-        return await this.enriquecerComNomesFornecedores(data);
+
+        const produtos = await this.repository.listarEstoqueBaixo();
+
+        console.log('Produtos com estoque baixo:', produtos);
+
+        return produtos;
     }
 
     async desativarProduto(id) { 
