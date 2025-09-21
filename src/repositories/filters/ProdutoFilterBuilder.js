@@ -32,14 +32,14 @@ class ProdutoFilterBuilder {
 
     comPrecoMinimo(precoMin) {
         if (precoMin !== undefined && precoMin !== null && !isNaN(precoMin)) {
-            this.filters.preco = { ...this.filters.preco, $gte: Number(precoMin) };
+            this.filters.preco = { ...this.filters.preco, $gte: precoMin };
         }
         return this;
     }
 
     comPrecoMaximo(precoMax) {
         if (precoMax !== undefined && precoMax !== null && !isNaN(precoMax)) {
-            this.filters.preco = { ...this.filters.preco, $lte: Number(precoMax) };
+            this.filters.preco = { ...this.filters.preco, $lte: precoMax };
         }
         return this;
     }
