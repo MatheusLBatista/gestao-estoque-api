@@ -1,4 +1,3 @@
-import { validate } from "uuid";
 import Fornecedor from "../models/Fornecedor.js";
 import FornecedorFilterBuilder from "./filters/FornecedorFilterBuilder.js";
 import CustomError from "../utils/helpers/CustomError.js";
@@ -89,6 +88,25 @@ class FornecedorRepository {
       });
     }
     return fornecedor;
+  }
+  
+  async buscarPorNome(nome) {
+    const fornecedores = await this.model.find({
+      nome_fornecedor: { $regex: nome, $options: "i" }
+    });
+
+    if (fornecedores.length === 0) {
+      throw new CustomError({
+        statusCode: 404,
+        errorType: "resourceNotFound",
+        field: "Fornecedor",
+        details: [],
+        customMessage: messages.error.resourceNotFound("Fornecedor"),
+      });
+    }
+
+    console.log("Fornecedores encontrados:", fornecedores);
+    return fornecedores;
   }
 
   // Método para atualizar um fornecedor existente

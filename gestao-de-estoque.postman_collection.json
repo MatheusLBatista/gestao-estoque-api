@@ -252,7 +252,7 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/produtos/",
+              "raw": "{{base_url}}/produtos/",
               "host": ["{{base_url}}"],
               "path": ["api", "produtos", ""]
             }
@@ -275,7 +275,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/produtos/6824da3de681aea690e39156",
+              "raw": "{{base_url}}/produtos/6824da3de681aea690e39156",
               "host": ["{{base_url}}"],
               "path": ["api", "produtos", "6824da3de681aea690e39156"]
             }
@@ -298,7 +298,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/produtos/estoque-baixo",
+              "raw": "{{base_url}}/produtos/estoque-baixo",
               "host": ["{{base_url}}"],
               "path": ["api", "produtos", "estoque-baixo"]
             }
@@ -321,7 +321,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/produtos/busca?nome=",
+              "raw": "{{base_url}}/produtos/busca?nome=",
               "host": ["{{base_url}}"],
               "path": ["api", "produtos", "busca"],
               "query": [
@@ -350,7 +350,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/produtos/busca?categoria=",
+              "raw": "{{base_url}}/produtos/busca?categoria=",
               "host": ["{{base_url}}"],
               "path": ["api", "produtos", "busca"],
               "query": [
@@ -379,7 +379,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/produtos/busca?codigo=",
+              "raw": "{{base_url}}/produtos/busca?codigo=",
               "host": ["{{base_url}}"],
               "path": ["api", "produtos", "busca"],
               "query": [
@@ -408,7 +408,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/produtos/busca?fornecedor=",
+              "raw": "{{base_url}}/produtos/busca?fornecedor=",
               "host": ["{{base_url}}"],
               "path": ["api", "produtos", "busca"],
               "query": [
@@ -441,7 +441,7 @@
               "raw": "{\r\n    \r\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/produtos/",
+              "raw": "{{base_url}}/produtos/",
               "host": ["{{base_url}}"],
               "path": ["api", "produtos", ""]
             }
@@ -464,7 +464,7 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/produtos/desativar/",
+              "raw": "{{base_url}}/produtos/desativar/",
               "host": ["{{base_url}}"],
               "path": ["api", "produtos", "desativar", ""]
             }
@@ -487,7 +487,7 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/produtos/reativar/",
+              "raw": "{{base_url}}/produtos/reativar/",
               "host": ["{{base_url}}"],
               "path": ["api", "produtos", "reativar", ""]
             }
@@ -510,7 +510,7 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/produtos/6824da3de681aea690e39156",
+              "raw": "{{base_url}}/produtos/6824da3de681aea690e39156",
               "host": ["{{base_url}}"],
               "path": ["api", "produtos", "6824da3de681aea690e39156"]
             }

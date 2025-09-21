@@ -111,7 +111,7 @@ const logsRoutes = {
           description: "Filtrar por rota acessada",
           schema: {
             type: "string",
-            example: "/api/produtos",
+            example: "/produtos",
           },
         },
         {

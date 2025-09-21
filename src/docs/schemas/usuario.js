@@ -60,7 +60,7 @@ const usuarioSchemas = {
           properties: {
             rota: {
               type: "string",
-              example: "/api/produtos",
+              example: "/produtos",
             },
             dominio: {
               type: "string",
@@ -147,7 +147,7 @@ const usuarioSchemas = {
           properties: {
             rota: {
               type: "string",
-              example: "/api/produtos",
+              example: "/produtos",
             },
             dominio: {
               type: "string",

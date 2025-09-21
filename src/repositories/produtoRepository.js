@@ -16,7 +16,7 @@ class ProdutoRepository {
         if (id) {
             // Se tem ID, busca específica por ID - mantém o código original
             const data = await this.model.findById(id)
-                .populate('id_fornecedor');
+                .populate('fornecedores', '_id nome_fornecedor cnpj email');
     
             if (!data) {
                 throw new CustomError({
@@ -32,7 +32,7 @@ class ProdutoRepository {
         }
     
         // Para busca por filtros
-        const { nome_produto, categoria, codigo_produto, id_fornecedor, nome_fornecedor } = req.query || {};
+        const { nome_produto, categoria, codigo_produto, estoque_baixo, id_fornecedor, nome_fornecedor, preco_minimo, preco_maximo, estoque_minimo, estoque_maximo } = req.query || {};
         
         // Garantir que os parâmetros de paginação sejam sempre processados corretamente
         const page = parseInt(req.query?.page, 10) || 1;
@@ -42,52 +42,23 @@ class ProdutoRepository {
         const filterBuilder = new ProdutoFilterBuilder()
             .comNome(nome_produto || '')
             .comCategoria(categoria || '')
-            .comCodigo(codigo_produto || '')
-            .comFornecedor(id_fornecedor || '')
-            .comStatus(req.query?.status);
-    
-        // Obter os filtros finais
+            .comPrecoMinimo(preco_minimo || null)
+            .comPrecoMaximo(preco_maximo || null)
+            .comEstoqueMinimo(estoque_minimo || null)
+            .comEstoqueMaximo(estoque_maximo || null)
+            .comCodigo(codigo_produto || '');
+
+            await filterBuilder.comFornecedorNome(nome_fornecedor || '');
+            await filterBuilder.comFornecedorId(id_fornecedor || '');
+            await filterBuilder.comFornecedorNome(nome_fornecedor || '');
+            await filterBuilder.comEstoqueBaixo(estoque_baixo || '');
+
         const filtros = filterBuilder.build();
-        
-        // Processar busca por nome de fornecedor (se houver)
-        if (nome_fornecedor) {
-            // Para esta busca, precisamos primeiro encontrar o ID do fornecedor pelo nome
-            const Fornecedor = mongoose.model('fornecedores');
-            const fornecedores = await Fornecedor.find({
-                nome_fornecedor: { $regex: nome_fornecedor, $options: 'i' }
-            }).select('_id');
-            
-            // Se encontrou fornecedores, adiciona aos filtros
-            if (fornecedores.length > 0) {
-                const fornecedorIds = fornecedores.map(f => {
-                    const tempId = f._id.toString().substring(0, 8); 
-                    return parseInt(tempId, 16) % 1000;
-                });
-                
-                filtros.id_fornecedor = { $in: fornecedorIds };
-                console.log(`Aplicando filtro por nome de fornecedor: "${nome_fornecedor}" (IDs: ${fornecedorIds.join(', ')})`);
-            } else {
-                // Se não encontrar fornecedores, retorna resultado vazio paginado
-                console.log(`Nenhum fornecedor encontrado com o nome: "${nome_fornecedor}"`);
-                return {
-                    docs: [],
-                    totalDocs: 0,
-                    limit: limite,
-                    totalPages: 0,
-                    page: page,
-                    pagingCounter: 0,
-                    hasPrevPage: false,
-                    hasNextPage: false,
-                    prevPage: null,
-                    nextPage: null
-                };
-            }
-        }
     
         const options = {
             page: page,
             limit: limite,
-            populate: 'id_fornecedor',
+            populate: 'fornecedores',
             sort: { nome_produto: 1 },
         };
     
@@ -97,7 +68,8 @@ class ProdutoRepository {
     }
 
     async buscarProdutoPorID(id) {
-        const produto = await this.model.findById(id);
+        const produto = await this.model.findById(id)
+            .populate('fornecedores', '_id nome_fornecedor cnpj email');
         if (!produto) {
             throw new CustomError({
                 statusCode: 404,
@@ -110,12 +82,8 @@ class ProdutoRepository {
         return produto;
     }
 
-    async buscarPorNome(nome, includeTokens = false) {
+    async buscarPorNome(nome) {
         let query = this.model.find({ nome_produto: { $regex: nome, $options: 'i' } });
-
-        if (includeTokens) {
-            query = query.select('+refreshtoken +accesstoken');
-        }
 
         const produto = await query;
         
@@ -220,7 +188,7 @@ class ProdutoRepository {
     async listarEstoqueBaixo() {
         return await this.model.find({
             $expr: { $lt: ["$estoque", "$estoque_min"] }
-        }).sort({ estoque: 1 });
+        });
     }
 
     async desativarProduto(id) { 

@@ -89,9 +89,12 @@ class ProdutoService {
             dadosProduto.status = true;
         }
 
-        // Calcular categoria automaticamente baseado no preço
         if (dadosProduto.preco !== undefined) {
             dadosProduto.categoria = CategoriaHelper.calcularCategoriaPorValor(dadosProduto.preco);
+        }
+
+        if (!dadosProduto.estoque) {
+            dadosProduto.estoque = 0;
         }
 
         const data = await this.repository.cadastrarProduto(dadosProduto);
@@ -115,6 +118,16 @@ class ProdutoService {
         if (dadosAtualizacao.preco !== undefined) {
             dadosAtualizacao.categoria = CategoriaHelper.calcularCategoriaPorValor(dadosAtualizacao.preco);
         }
+
+        delete dadosAtualizacao._id; 
+        delete dadosAtualizacao.fornecedores; 
+        delete dadosAtualizacao.estoque; 
+        delete dadosAtualizacao.data_ultima_entrada; 
+        delete dadosAtualizacao.status; 
+        delete dadosAtualizacao.categoria; 
+        delete dadosAtualizacao.codigo_produto;
+        delete dadosAtualizacao.data_cadastro;
+        delete dadosAtualizacao.data_ultima_atualizacao;
 
         const produtoAtualizado = await this.repository.atualizarProduto(id, dadosAtualizacao);
         return produtoAtualizado;
@@ -266,8 +279,12 @@ class ProdutoService {
 
     async listarEstoqueBaixo() {
         console.log('Estou no listarEstoqueBaixo em ProdutoService');
-        const data = await this.repository.listarEstoqueBaixo();
-        return await this.enriquecerComNomesFornecedores(data);
+
+        const produtos = await this.repository.listarEstoqueBaixo();
+
+        console.log('Produtos com estoque baixo:', produtos);
+
+        return produtos;
     }
 
     async desativarProduto(id) { 

@@ -669,7 +669,7 @@ class IntegrationTestHelper {
       };
 
       const response = await request(app)
-        .post("/api/produtos")
+        .post("/produtos")
         .set("Authorization", `Bearer ${this.token}`)
         .send(dados);
 
@@ -907,7 +907,7 @@ class IntegrationTestHelper {
       };
 
       const response = await request(getApp())
-        .post("/api/produtos")
+        .post("/produtos")
         .set("Authorization", `Bearer ${token}`)
         .send(produtoData);
 

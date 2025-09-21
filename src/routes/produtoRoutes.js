@@ -20,19 +20,6 @@ router
         asyncWrapper(produtoController.cadastrarProduto.bind(produtoController))
     )
     
-    // Rotas específicas antes das rotas com parâmetros
-    .get(
-        "/estoque-baixo",
-        LogMiddleware.log('CONSULTA_ESTOQUE_BAIXO'),
-        asyncWrapper(produtoController.listarEstoqueBaixo.bind(produtoController))
-    )
-    
-    .get(
-        "/busca",
-        LogMiddleware.log('BUSCA_PRODUTOS'),
-        asyncWrapper(produtoController.buscarProdutos.bind(produtoController))
-    )
-    
     .patch(
         "/desativar/:id",
         LogMiddleware.log('DESATIVACAO_PRODUTO'),

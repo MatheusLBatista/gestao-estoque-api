@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 import Usuario from "../../models/Usuario.js";
 import Produto from "../../models/Produto.js";
 
-import usuarioRepository from "../UsuarioRepository.js";
-import produtoRepository from "../ProdutoRepository.js";
+import usuarioRepository from "../usuarioRepository.js";
+import produtoRepository from "../produtoRepository.js";
 
 class MovimentacaoFilterBuilder {
   constructor() {

@@ -24,8 +24,8 @@
  *         path:
  *           type: string
  *           description: Endpoint onde ocorreu o erro
- *           example: "/api/produtos/123"
- *     
+ *           example: "/produtos/123"
+ *
  *     ValidationError:
  *       type: object
  *       properties:
@@ -50,7 +50,7 @@
  *           type: integer
  *           description: Código de status HTTP
  *           example: 400
- *     
+ *
  *     Success:
  *       type: object
  *       properties:
@@ -65,7 +65,7 @@
  *           type: string
  *           format: date-time
  *           description: Timestamp da resposta
- *     
+ *
  *     PaginatedResponse:
  *       type: object
  *       properties:
@@ -108,7 +108,7 @@
  *           nullable: true
  *           description: Número da página anterior
  *           example: null
- *     
+ *
  *     TokenResponse:
  *       type: object
  *       properties:
@@ -128,7 +128,7 @@
  *           type: string
  *           description: Tipo do token
  *           example: "Bearer"
- *   
+ *
  *   responses:
  *     NotFound:
  *       description: Recurso não encontrado
@@ -136,42 +136,42 @@
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/Error'
- *     
+ *
  *     BadRequest:
  *       description: Requisição inválida
  *       content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/ValidationError'
- *     
+ *
  *     Unauthorized:
  *       description: Token de acesso inválido ou expirado
  *       content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/Error'
- *     
+ *
  *     Forbidden:
  *       description: Acesso negado - permissões insuficientes
  *       content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/Error'
- *     
+ *
  *     InternalServerError:
  *       description: Erro interno do servidor
  *       content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/Error'
- *     
+ *
  *     Conflict:
  *       description: Conflito - recurso já existe
  *       content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/Error'
- *   
+ *
  *   parameters:
  *     PageParam:
  *       in: query
@@ -181,7 +181,7 @@
  *         minimum: 1
  *         default: 1
  *       description: Número da página para paginação
- *     
+ *
  *     LimitParam:
  *       in: query
  *       name: limit
@@ -191,7 +191,7 @@
  *         maximum: 100
  *         default: 10
  *       description: Número de itens por página
- *     
+ *
  *     DateStartParam:
  *       in: query
  *       name: data_inicio
@@ -200,7 +200,7 @@
  *         format: date
  *       description: Data de início para filtros de período
  *       example: "2024-01-01"
- *     
+ *
  *     DateEndParam:
  *       in: query
  *       name: data_fim
