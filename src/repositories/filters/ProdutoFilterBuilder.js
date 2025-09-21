@@ -63,30 +63,43 @@ class ProdutoFilterBuilder {
         return this;
     }
 
-    //TODO: ajustar filtros de fornecedores
     async comFornecedorId(fornecedor_id) {
         if (fornecedor_id && mongoose.Types.ObjectId.isValid(fornecedor_id)) {
           const fornecedorExiste = await this.fornecedorRepository.buscarPorId(
             fornecedor_id
           );
+
           if (fornecedorExiste) {
-            this.filters.id_fornecedor = fornecedor_id;
+            this.filters.fornecedores = fornecedor_id;
           } else {
             // Filtro impossível, nunca retorna nada
-            this.filters.id_fornecedor = null;
+            this.filters.fornecedores = null;
           }
         }
         return this;
     }
 
     async comFornecedorNome(fornecedor_nome) {
-        if (fornecedor_nome) {
-        const fornecedorEncontrado =
-            await this.fornecedorRepository.buscarPorNome(fornecedor_nome);
+        if (fornecedor_nome && fornecedor_nome.trim() !== '') {
+          const fornecedorExiste = await this.fornecedorRepository.buscarPorNome(
+            fornecedor_nome
+          );
 
-        this.filters.fornecedores = { $in: fornecedorEncontrado ? [fornecedorEncontrado._id] : [] };
+          const fornecedorIDs = Array.isArray(fornecedorExiste)
+            ? fornecedorExiste.map((g) => g._id)
+            : fornecedorExiste
+            ? [fornecedorExiste._id]
+            : [];
+
+          console.log('IDs dos fornecedores encontrados:', fornecedorIDs);
+
+          if (fornecedorIDs.length > 0) {
+            this.filters.fornecedores = { $in: fornecedorIDs };
+          } else {
+            // Filtro impossível, nunca retorna nada
+            this.filters.fornecedores = null;
+          }
         }
-
         return this;
     }
 
