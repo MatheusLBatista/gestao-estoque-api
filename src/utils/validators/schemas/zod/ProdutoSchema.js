@@ -11,8 +11,8 @@ export const ProdutoSchema = z.object({
     custo: z.number().positive('Custo deve ser um valor positivo'),
     categoria: z.enum(['A', 'B', 'C'], {
         errorMap: () => ({ message: "Categoria deve ser A (Premium), B (Intermediário) ou C (Básico)" })
-    }),
-    estoque: z.number().int('Estoque deve ser um número inteiro').nonnegative('Estoque não pode ser negativo'),
+    }).optional(),
+    estoque: z.number().int('Estoque deve ser um número inteiro').nonnegative('Estoque não pode ser negativo').optional(),
     estoque_min: z.number().int('Estoque mínimo deve ser um número inteiro').nonnegative('Estoque mínimo não pode ser negativo'),
     data_ultima_entrada: z.preprocess(
         (arg) => arg === undefined ? undefined : arg instanceof Date ? arg : new Date(arg),
