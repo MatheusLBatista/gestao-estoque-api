@@ -39,7 +39,7 @@ const produtosRoutes = {
           schema: { type: "string" },
         },
         {
-          name: "id_fornecedor",
+          name: "fornecedores",
           in: "query",
           description: "Filtrar por ID do fornecedor",
           schema: { type: "string" },
@@ -132,10 +132,8 @@ const produtosRoutes = {
                   preco: 89.9,
                   marca: "Bosch",
                   custo: 45.0,
-                  categoria: "Freios",
-                  estoque: 25,
                   estoque_min: 5,
-                  id_fornecedor: 123,
+                  fornecedores: "60d5ecb54b24a12a5c8e4f1b",
                   codigo_produto: "PF001",
                 },
               },
@@ -143,12 +141,12 @@ const produtosRoutes = {
                 summary: "Produto com campos obrigatórios",
                 value: {
                   nome_produto: "Filtro de Óleo",
+                  descricao: "Filtro de óleo para motores 1.0 a 2.0",
+                  marca: "Fram",
                   preco: 25.9,
                   custo: 12.0,
-                  categoria: "Filtros",
-                  estoque: 50,
                   estoque_min: 10,
-                  id_fornecedor: 123,
+                  fornecedores: "60d5ecb54b24a12a5c8e4f1b",
                   codigo_produto: "FO001",
                 },
               },
@@ -264,22 +262,16 @@ const produtosRoutes = {
             },
             examples: {
               atualizar_preco: {
-                summary: "Atualizar apenas preço",
+                summary: "Atualizar apenas preço e custo",
                 value: {
                   preco: 95.9,
+                  custo: 50.0,
                 },
               },
               atualizar_estoque: {
-                summary: "Atualizar estoque e estoque mínimo",
+                summary: "Atualizar estoque mínimo",
                 value: {
-                  estoque: 30,
                   estoque_min: 8,
-                },
-              },
-              desativar_produto: {
-                summary: "Desativar produto",
-                value: {
-                  status: false,
                 },
               },
             },

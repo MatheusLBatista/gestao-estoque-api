@@ -174,7 +174,7 @@ const produtoSchemas = {
     // Schema para criação de produto
     ProdutoCreateRequest: {
         type: 'object',
-        required: ['nome_produto', 'preco', 'custo', 'categoria', 'estoque', 'estoque_min', 'id_fornecedor', 'codigo_produto'],
+        required: ['nome_produto', 'preco', 'custo', 'estoque_min', 'fornecedores', 'codigo_produto'],
         properties: {
             nome_produto: {
                 type: 'string',
@@ -207,29 +207,16 @@ const produtoSchemas = {
                 example: 45.00,
                 minimum: 0
             },
-            categoria: {
-                type: 'string',
-                description: 'Categoria do produto',
-                example: 'Freios',
-                minLength: 2,
-                maxLength: 100
-            },
-            estoque: {
-                type: 'number',
-                description: 'Quantidade inicial em estoque',
-                example: 25,
-                minimum: 0
-            },
             estoque_min: {
                 type: 'number',
                 description: 'Estoque mínimo para alertas',
                 example: 5,
                 minimum: 0
             },
-            id_fornecedor: {
-                type: 'number',
-                description: 'ID numérico do fornecedor',
-                example: 123
+            fornecedores: {
+                type: 'string',
+                description: 'ID do fornecedor',
+                example: '60d5ecb54b24a12a5c8e4f1b'
             },
             codigo_produto: {
                 type: 'string',
@@ -276,29 +263,11 @@ const produtoSchemas = {
                 example: 48.00,
                 minimum: 0
             },
-            categoria: {
-                type: 'string',
-                description: 'Categoria do produto',
-                example: 'Freios',
-                minLength: 2,
-                maxLength: 100
-            },
-            estoque: {
-                type: 'number',
-                description: 'Quantidade em estoque',
-                example: 30,
-                minimum: 0
-            },
             estoque_min: {
                 type: 'number',
                 description: 'Estoque mínimo para alertas',
                 example: 8,
                 minimum: 0
-            },
-            status: {
-                type: 'boolean',
-                description: 'Status ativo do produto',
-                example: true
             }
         }
     },
