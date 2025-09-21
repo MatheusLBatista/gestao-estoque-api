@@ -24,55 +24,62 @@ const produtosRoutes = {
           in: "query",
           description:
             "Filtrar por nome do produto (busca parcial, case-insensitive)",
-          schema: { type: "string", example: "pastilha" },
+          schema: { type: "string" },
         },
         {
           name: "categoria",
           in: "query",
-          description: "Filtrar por categoria",
-          schema: { type: "string", example: "Freios" },
-        },
-        {
-          name: "marca",
-          in: "query",
-          description: "Filtrar por marca",
-          schema: { type: "string", example: "Bosch" },
+          description: "Filtrar por categoria: A, B ou C",
+          schema: { type: "string" },
         },
         {
           name: "codigo_produto",
           in: "query",
           description: "Filtrar por código do produto",
-          schema: { type: "string", example: "PF001" },
+          schema: { type: "string" },
         },
         {
           name: "id_fornecedor",
           in: "query",
           description: "Filtrar por ID do fornecedor",
-          schema: { type: "integer", example: 123 },
+          schema: { type: "string" },
         },
         {
-          name: "status",
+          name: "nome_fornecedor",
           in: "query",
-          description: "Filtrar por status ativo",
-          schema: { type: "boolean", example: true },
+          description: "Filtrar por nome do fornecedor",
+          schema: { type: "string" },
         },
         {
           name: "estoque_baixo",
           in: "query",
           description: "Filtrar produtos com estoque abaixo do mínimo",
-          schema: { type: "boolean", example: true },
+          schema: { type: "boolean" },
+        },
+
+        {
+          name: "estoque_minimo",
+          in: "query",
+          description: "Estoque mínimo",
+          schema: { type: "number" },
         },
         {
-          name: "preco_min",
+          name: "estoque_maximo",
+          in: "query",
+          description: "Estoque máximo",
+          schema: { type: "number" },
+        },
+        {
+          name: "preco_minimo",
           in: "query",
           description: "Preço mínimo",
-          schema: { type: "number", example: 50.0 },
+          schema: { type: "number" },
         },
         {
-          name: "preco_max",
+          name: "preco_maximo",
           in: "query",
           description: "Preço máximo",
-          schema: { type: "number", example: 200.0 },
+          schema: { type: "number" },
         },
       ],
       responses: {
@@ -212,75 +219,6 @@ const produtosRoutes = {
         },
         404: {
           description: "Produto não encontrado",
-          content: {
-            "application/json": {
-              schema: {
-                $ref: "#/components/schemas/ErrorResponse",
-              },
-            },
-          },
-        },
-        ...commonSchemas.CommonResponses,
-      },
-    },
-    put: {
-      tags: ["Produtos"],
-      summary: "Atualizar produto completo",
-      description: `
-            Atualiza todos os dados de um produto existente.
-            
-            **Validações:**
-            - Produto deve existir
-            - Nome e código únicos (exceto o próprio produto)
-            - Campos obrigatórios não podem ser removidos
-            - Preços e quantidades não negativos
-            `,
-      security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          name: "id",
-          in: "path",
-          required: true,
-          description: "ID único do produto",
-          schema: {
-            type: "string",
-            example: "60d5ecb54b24a12a5c8e4f1a",
-          },
-        },
-      ],
-      requestBody: {
-        required: true,
-        content: {
-          "application/json": {
-            schema: {
-              $ref: "#/components/schemas/ProdutoCreateRequest",
-            },
-          },
-        },
-      },
-      responses: {
-        200: {
-          description: "Produto atualizado com sucesso",
-          content: {
-            "application/json": {
-              schema: {
-                $ref: "#/components/schemas/ProdutoResponse",
-              },
-            },
-          },
-        },
-        404: {
-          description: "Produto não encontrado",
-          content: {
-            "application/json": {
-              schema: {
-                $ref: "#/components/schemas/ErrorResponse",
-              },
-            },
-          },
-        },
-        409: {
-          description: "Nome ou código já existe em outro produto",
           content: {
             "application/json": {
               schema: {
@@ -437,130 +375,6 @@ const produtosRoutes = {
             "application/json": {
               schema: {
                 $ref: "#/components/schemas/ErrorResponse",
-              },
-            },
-          },
-        },
-        ...commonSchemas.CommonResponses,
-      },
-    },
-  },
-  "/produtos/estoque-baixo": {
-    get: {
-      tags: ["Produtos"],
-      summary: "Listar produtos com estoque baixo",
-      description: `
-            Lista produtos onde o estoque atual está abaixo ou igual ao estoque mínimo.
-            
-            **Funcionalidades:**
-            - Filtro automático por estoque <= estoque_min
-            - Ordenação por criticidade (menor estoque primeiro)
-            - Suporte a paginação
-            - Ideal para alertas e reposição
-            `,
-      security: [{ bearerAuth: [] }],
-      parameters: [...commonSchemas.PaginationParams],
-      responses: {
-        200: {
-          description: "Produtos com estoque baixo listados",
-          content: {
-            "application/json": {
-              schema: {
-                $ref: "#/components/schemas/ProdutoListResponse",
-              },
-            },
-          },
-        },
-        ...commonSchemas.CommonResponses,
-      },
-    },
-  },
-  "/produtos/buscar": {
-    get: {
-      tags: ["Produtos"],
-      summary: "Busca avançada de produtos",
-      description: `
-            Busca produtos com múltiplos critérios e filtros avançados.
-            
-            **Funcionalidades:**
-            - Busca textual em múltiplos campos
-            - Filtros combinados
-            - Ordenação múltipla
-            - Agregações e estatísticas
-            `,
-      security: [{ bearerAuth: [] }],
-      parameters: [
-        ...commonSchemas.PaginationParams,
-        {
-          name: "q",
-          in: "query",
-          description: "Termo de busca (nome, código, descrição)",
-          schema: { type: "string", example: "freio bosch" },
-        },
-        {
-          name: "categorias",
-          in: "query",
-          description: "Lista de categorias separadas por vírgula",
-          schema: { type: "string", example: "Freios,Filtros,Suspensão" },
-        },
-        {
-          name: "ordenar_por",
-          in: "query",
-          description: "Campo de ordenação",
-          schema: {
-            type: "string",
-            enum: [
-              "nome_produto",
-              "preco",
-              "estoque",
-              "categoria",
-              "data_cadastro",
-            ],
-            example: "preco",
-          },
-        },
-        {
-          name: "ordem",
-          in: "query",
-          description: "Direção da ordenação",
-          schema: {
-            type: "string",
-            enum: ["asc", "desc"],
-            example: "asc",
-          },
-        },
-      ],
-      responses: {
-        200: {
-          description: "Resultados da busca",
-          content: {
-            "application/json": {
-              schema: {
-                allOf: [
-                  { $ref: "#/components/schemas/ProdutoListResponse" },
-                  {
-                    type: "object",
-                    properties: {
-                      filtros_aplicados: {
-                        type: "object",
-                        description: "Resumo dos filtros aplicados",
-                      },
-                      estatisticas: {
-                        type: "object",
-                        properties: {
-                          valor_total_estoque: {
-                            type: "number",
-                            example: 15750.5,
-                          },
-                          categorias_encontradas: {
-                            type: "integer",
-                            example: 5,
-                          },
-                        },
-                      },
-                    },
-                  },
-                ],
               },
             },
           },
