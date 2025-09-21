@@ -44,6 +44,20 @@ class ProdutoFilterBuilder {
         return this;
     }
 
+    comEstoqueMinimo(estoqueMin) {
+        if (estoqueMin !== undefined && estoqueMin !== null && !isNaN(estoqueMin)) {
+            this.filters.estoque = { ...this.filters.estoque, $gte: estoqueMin };
+        }
+        return this;
+    }
+
+    comEstoqueMaximo(estoqueMax) {
+        if (estoqueMax !== undefined && estoqueMax !== null && !isNaN(estoqueMax)) {
+            this.filters.estoque = { ...this.filters.estoque, $lte: estoqueMax };
+        }
+        return this;
+    }
+
     async comEstoqueBaixo(estoque_baixo) {
         if(estoque_baixo == 'true') {
             const produtoEncontrado = await this.repository.listarEstoqueBaixo();
@@ -57,7 +71,7 @@ class ProdutoFilterBuilder {
             if (produtosIDs.length > 0) {
                 this.filters._id = { $in: produtosIDs };
             } else {
-                this.filters._id = { $exists: false };
+                this.filters._id = null;
             }
         }
         return this;

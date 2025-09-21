@@ -32,7 +32,7 @@ class ProdutoRepository {
         }
     
         // Para busca por filtros
-        const { nome_produto, categoria, codigo_produto, estoque_baixo, id_fornecedor, nome_fornecedor, preco_minimo, preco_maximo } = req.query || {};
+        const { nome_produto, categoria, codigo_produto, estoque_baixo, id_fornecedor, nome_fornecedor, preco_minimo, preco_maximo, estoque_minimo, estoque_maximo } = req.query || {};
         
         // Garantir que os parâmetros de paginação sejam sempre processados corretamente
         const page = parseInt(req.query?.page, 10) || 1;
@@ -44,6 +44,8 @@ class ProdutoRepository {
             .comCategoria(categoria || '')
             .comPrecoMinimo(preco_minimo || null)
             .comPrecoMaximo(preco_maximo || null)
+            .comEstoqueMinimo(estoque_minimo || null)
+            .comEstoqueMaximo(estoque_maximo || null)
             .comCodigo(codigo_produto || '');
 
             await filterBuilder.comFornecedorNome(nome_fornecedor || '');
