@@ -9,6 +9,7 @@ import rotasMovimentacoes from './movimentacaoRoutes.js';
 import rotasAuth from './authRoutes.js';
 import rotasLogs from './logRoutes.js';
 import rotasGrupos from './grupoRoutes.js';
+import rotasDashboard from './dashboard.js';
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -32,6 +33,7 @@ const routes = (app) => {
   app.use("/api/fornecedores", express.json(), authMiddleware, authPermission, rotasFornecedores);
   app.use("/api/usuarios", express.json(), authMiddleware, authPermission, rotasUsuarios);
   app.use("/api/grupos", express.json(), authMiddleware, authPermission, rotasGrupos);
+  app.use("", express.json(), authMiddleware, authPermission, rotasDashboard);
   app.use("/movimentacoes", express.json(), authMiddleware, authPermission, rotasMovimentacoes);
   app.use("/api/logs", express.json(), rotasLogs); // Logs já têm authMiddleware internamente
 
