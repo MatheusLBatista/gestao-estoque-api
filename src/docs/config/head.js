@@ -10,6 +10,7 @@ import fornecedoresRoutes from "../routes/fornecedores.js";
 import movimentacoesRoutes from "../routes/movimentacoes.js";
 import gruposRoutes from "../routes/grupos.js";
 import logsRoutes from "../routes/logs.js";
+import dashboardRoutes from "../routes/dashboard.js";
 
 // Importar schemas
 import commonSchemas from "../schemas/common.js";
@@ -95,6 +96,7 @@ class SwaggerConfig {
         ...movimentacoesRoutes,
         ...gruposRoutes,
         ...logsRoutes,
+        ...dashboardRoutes,
       },
       tags: [
         {
@@ -124,6 +126,10 @@ class SwaggerConfig {
         {
           name: "Logs",
           description: "Auditoria e logs do sistema",
+        },
+        {
+          name: "Dashboard",
+          description: "Estatísticas e visão geral do sistema por categorias de produtos",
         },
       ],
     };
