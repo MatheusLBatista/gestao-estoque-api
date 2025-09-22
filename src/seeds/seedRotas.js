@@ -93,6 +93,16 @@ const rotasPadrao = [
         substituir: true, // Para operações completas
         modificar: true, // Para modificar dashboard
         excluir: true    // Para excluir widgets
+    },
+    {
+        rota: 'categorias',
+        dominio: 'localhost',
+        ativo: true,
+        buscar: true,    // Para visualizar categorias e produtos por categoria
+        enviar: false,   // Não permite criar categorias
+        substituir: false, // Não permite substituir
+        modificar: false, // Não permite modificar
+        excluir: false   // Não permite excluir (apenas leitura)
     }
 ];
 
@@ -108,7 +118,30 @@ async function seedRotas(incluirDinamicas = false) {
         const rotasExistentes = await Rota.countDocuments();
         
         if (rotasExistentes > 0) {
-            console.log('ℹ️  Rotas já existem no banco. Pulando seed...');
+            console.log('🔄 Atualizando rotas existentes para incluir nova rota categorias...');
+            
+            // Verificar se a rota categorias já existe
+            const rotaCategorias = await Rota.findOne({ rota: 'categorias', dominio: 'localhost' });
+            
+            if (!rotaCategorias) {
+                // Adicionar apenas a nova rota categorias
+                const novaRota = {
+                    rota: 'categorias',
+                    dominio: 'localhost',
+                    ativo: true,
+                    buscar: true,
+                    enviar: false,
+                    substituir: false,
+                    modificar: false,
+                    excluir: false
+                };
+                
+                await Rota.create(novaRota);
+                console.log('✅ Rota "categorias" adicionada com sucesso!');
+            } else {
+                console.log('ℹ️  Rota "categorias" já existe no banco.');
+            }
+            
             const rotasExistentesData = await Rota.find({});
             return rotasExistentesData;
         }
