@@ -41,7 +41,7 @@ const produtoSchemas = {
             categoria: {
                 type: 'string',
                 description: 'Categoria do produto',
-                example: 'Freios',
+                example: 'A',
                 maxLength: 100
             },
             estoque: {
@@ -62,15 +62,93 @@ const produtoSchemas = {
                 description: 'Data da última entrada no estoque',
                 example: '2024-01-15T10:30:00.000Z'
             },
-            status: {
-                type: 'boolean',
-                description: 'Status ativo do produto',
-                example: true
-            },
-            id_fornecedor: {
-                type: 'number',
-                description: 'ID numérico do fornecedor',
-                example: 123
+            fornecedores: {
+                type: 'array',
+                description: 'Lista de fornecedores associados ao produto',
+                items: {
+                    type: 'object',
+                    properties: {
+                        _id: {
+                            type: 'string',
+                            description: 'ID único do fornecedor',
+                            example: '60d5ecb54b24a12a5c8e4f1b'
+                        },
+                        nome_fornecedor: {
+                            type: 'string',
+                            description: 'Nome do fornecedor',
+                            example: 'Auto Peças Sul Ltda',
+                            maxLength: 255
+                        },
+                        cnpj: {
+                            type: 'string',
+                            description: 'CNPJ do fornecedor',
+                            example: '12.345.678/0001-90',
+                            pattern: '^\\d{2}\\.\\d{3}\\.\\d{3}\\/\\d{4}-\\d{2}$'
+                        },
+                        telefone: {
+                            type: 'string',
+                            description: 'Telefone do fornecedor',
+                            example: '(11) 99999-9999'
+                        },
+                        email: {
+                            type: 'string',
+                            format: 'email',
+                            description: 'Email do fornecedor',
+                            example: 'contato@autopecassul.com'
+                        },
+                        status: {
+                            type: 'boolean',
+                            description: 'Status ativo do fornecedor',
+                            example: true
+                        },
+                        endereco: {
+                            type: 'array',
+                            description: 'Endereços do fornecedor',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    logradouro: {
+                                        type: 'string',
+                                        description: 'Logradouro',
+                                        example: 'Rua das Peças, 123'
+                                    },
+                                    bairro: {
+                                        type: 'string',
+                                        description: 'Bairro',
+                                        example: 'Centro'
+                                    },
+                                    cidade: {
+                                        type: 'string',
+                                        description: 'Cidade',
+                                        example: 'São Paulo'
+                                    },
+                                    estado: {
+                                        type: 'string',
+                                        description: 'Estado',
+                                        example: 'SP'
+                                    },
+                                    cep: {
+                                        type: 'string',
+                                        description: 'CEP',
+                                        example: '01234-567'
+                                    }
+                                }
+                            }
+                        },
+                        data_cadastro: {
+                            type: 'string',
+                            format: 'date-time',
+                            description: 'Data de criação do fornecedor',
+                            example: '2024-01-15T10:30:00.000Z'
+                        },
+                        data_ultima_atualizacao: {
+                            type: 'string',
+                            format: 'date-time',
+                            description: 'Data da última atualização',
+                            example: '2024-01-15T15:45:00.000Z'
+                        }
+                    }
+                }
             },
             codigo_produto: {
                 type: 'string',
@@ -96,7 +174,7 @@ const produtoSchemas = {
     // Schema para criação de produto
     ProdutoCreateRequest: {
         type: 'object',
-        required: ['nome_produto', 'preco', 'custo', 'categoria', 'estoque', 'estoque_min', 'id_fornecedor', 'codigo_produto'],
+        required: ['nome_produto', 'preco', 'custo', 'estoque_min', 'fornecedores', 'codigo_produto'],
         properties: {
             nome_produto: {
                 type: 'string',
@@ -129,29 +207,16 @@ const produtoSchemas = {
                 example: 45.00,
                 minimum: 0
             },
-            categoria: {
-                type: 'string',
-                description: 'Categoria do produto',
-                example: 'Freios',
-                minLength: 2,
-                maxLength: 100
-            },
-            estoque: {
-                type: 'number',
-                description: 'Quantidade inicial em estoque',
-                example: 25,
-                minimum: 0
-            },
             estoque_min: {
                 type: 'number',
                 description: 'Estoque mínimo para alertas',
                 example: 5,
                 minimum: 0
             },
-            id_fornecedor: {
-                type: 'number',
-                description: 'ID numérico do fornecedor',
-                example: 123
+            fornecedores: {
+                type: 'string',
+                description: 'ID do fornecedor',
+                example: '60d5ecb54b24a12a5c8e4f1b'
             },
             codigo_produto: {
                 type: 'string',
@@ -198,29 +263,11 @@ const produtoSchemas = {
                 example: 48.00,
                 minimum: 0
             },
-            categoria: {
-                type: 'string',
-                description: 'Categoria do produto',
-                example: 'Freios',
-                minLength: 2,
-                maxLength: 100
-            },
-            estoque: {
-                type: 'number',
-                description: 'Quantidade em estoque',
-                example: 30,
-                minimum: 0
-            },
             estoque_min: {
                 type: 'number',
                 description: 'Estoque mínimo para alertas',
                 example: 8,
                 minimum: 0
-            },
-            status: {
-                type: 'boolean',
-                description: 'Status ativo do produto',
-                example: true
             }
         }
     },

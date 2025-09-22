@@ -23,37 +23,37 @@ const fornecedoresRoutes = {
                     name: "nome_fornecedor",
                     in: "query",
                     description: "Filtrar por nome do fornecedor (busca parcial)",
-                    schema: { type: "string", example: "Auto Peças" }
+                    schema: { type: "string" }
                 },
                 {
                     name: "cnpj",
                     in: "query",
                     description: "Filtrar por CNPJ (busca parcial)",
-                    schema: { type: "string", example: "12.345.678" }
+                    schema: { type: "string" }
                 },
                 {
                     name: "email",
                     in: "query",
                     description: "Filtrar por email",
-                    schema: { type: "string", example: "contato@autopecas.com" }
+                    schema: { type: "string" }
                 },
                 {
                     name: "status",
                     in: "query",
                     description: "Filtrar por status ativo",
-                    schema: { type: "boolean", example: true }
+                    schema: { type: "boolean" }
                 },
                 {
                     name: "cidade",
                     in: "query",
                     description: "Filtrar por cidade",
-                    schema: { type: "string", example: "São Paulo" }
+                    schema: { type: "string" }
                 },
                 {
                     name: "estado",
                     in: "query",
                     description: "Filtrar por estado (UF)",
-                    schema: { type: "string", example: "SP" }
+                    schema: { type: "string" }
                 },
                 {
                     name: "ordenar_por",
@@ -62,8 +62,7 @@ const fornecedoresRoutes = {
                     schema: { 
                         type: "string", 
                         enum: ["nome_fornecedor", "data_cadastro", "email"],
-                        default: "nome_fornecedor",
-                        example: "nome_fornecedor"
+                        default: "nome_fornecedor"
                     }
                 }
             ],
