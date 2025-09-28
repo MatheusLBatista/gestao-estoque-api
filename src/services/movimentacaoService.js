@@ -61,10 +61,6 @@ class MovimentacaoService {
       dadosMovimentacao.id_usuario = req.userId;
     }
 
-    if (!dadosMovimentacao.data_movimentacao) {
-      dadosMovimentacao.data_movimentacao = new Date();
-    }
-
     if (!dadosMovimentacao.produtos || dadosMovimentacao.produtos.length === 0) {
       throw new CustomError({
         statusCode: HttpStatusCodes.BAD_REQUEST.code,
