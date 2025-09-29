@@ -8,6 +8,7 @@ class Movimentacao {
       _id: { type: mongoose.Schema.Types.ObjectId, ref: "produtos" },
       codigo_produto: { type: String, required: true },
       quantidade_produtos: { type: Number, required: true },
+      //TODO: revisar lógica do custo e preço
       preco: { type: Number, required: true },
       preco_total: { type: Number },
       custo: { type: Number, required: true },
@@ -20,6 +21,13 @@ class Movimentacao {
         destino: { type: String, required: true },
         id_usuario: { type: mongoose.Schema.Types.ObjectId, ref: "usuarios" },
         status: { type: Boolean, default: true },
+        nota_fiscal: {
+          numero: { type: String },
+          serie: { type: String },
+          chave: { type: String },
+          data_emissao: { type: Date },
+        },
+        observacoes: { type: String },
         produtos: [produtoMovimentacaoSchema],
       },
       {
