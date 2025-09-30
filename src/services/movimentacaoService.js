@@ -74,7 +74,7 @@ class MovimentacaoService {
     for (const produtoMov of dadosMovimentacao.produtos) {
       const produto = await this.produtoService.buscarProdutoPorID(produtoMov._id);
 
-      // 🔎 Verificação entre _id e codigo_produto
+      // Verificação entre _id e codigo_produto
       if (produtoMov.codigo_produto && produto.codigo_produto !== produtoMov.codigo_produto) {
         throw new CustomError({
           statusCode: HttpStatusCodes.BAD_REQUEST.code,
@@ -86,6 +86,8 @@ class MovimentacaoService {
       }
 
       if (dadosMovimentacao.tipo === "saida") {
+        delete dadosMovimentacao.produtos.custo;
+
         if (produto.estoque < produtoMov.quantidade_produtos) {
           throw new CustomError({
             statusCode: HttpStatusCodes.BAD_REQUEST.code,
@@ -100,8 +102,11 @@ class MovimentacaoService {
           estoque: produto.estoque - produtoMov.quantidade_produtos,
         });
       } else if (dadosMovimentacao.tipo === "entrada") {
+        delete dadosMovimentacao.produtos.preco;
+        
         await this.produtoService.atualizarProduto(produto._id, {
           estoque: produto.estoque + produtoMov.quantidade_produtos,
+          custo: produtoMov.custo, // manter custo atual
           data_ultima_entrada: new Date(),
         });
       }

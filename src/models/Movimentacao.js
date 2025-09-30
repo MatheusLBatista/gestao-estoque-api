@@ -5,13 +5,11 @@ import mongoosePaginate from "mongoose-paginate-v2";
 class Movimentacao {
   constructor() {
     const produtoMovimentacaoSchema = new mongoose.Schema({
-      _id: { type: mongoose.Schema.Types.ObjectId, ref: "produtos" },
-      codigo_produto: { type: String, required: true },
+      codigo_produto: { type: String, required: true, ref: "produtos" },
       quantidade_produtos: { type: Number, required: true },
-      //TODO: revisar lógica do custo e preço
-      preco: { type: Number, required: true },
+      preco: { type: Number }, //obrigatório para saídas
       preco_total: { type: Number },
-      custo: { type: Number, required: true },
+      custo: { type: Number }, //obrigatório para entradas
       custo_total: { type: Number },
     });
 
