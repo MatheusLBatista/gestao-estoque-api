@@ -33,42 +33,33 @@ class DashboardService {
 
     async obterProdutosCategoriaA() {
         console.log('Buscando produtos da categoria A');
-        
         const Produto = mongoose.model('produtos');
-        const produtos = await Produto.find({ categoria: 'A', status: true }).lean();
-        
+        const produtos = await Produto.find({ categoria: 'A' }).lean();
         return await this.enriquecerComNomesFornecedores(produtos);
     }
 
     async obterProdutosCategoriaB() {
         console.log('Buscando produtos da categoria B');
-        
         const Produto = mongoose.model('produtos');
-        const produtos = await Produto.find({ categoria: 'B', status: true }).lean();
-        
+        const produtos = await Produto.find({ categoria: 'B' }).lean();
         return await this.enriquecerComNomesFornecedores(produtos);
     }
 
     async obterProdutosCategoriaC() {
         console.log('Buscando produtos da categoria C');
-        
         const Produto = mongoose.model('produtos');
-        const produtos = await Produto.find({ categoria: 'C', status: true }).lean();
-        
+        const produtos = await Produto.find({ categoria: 'C' }).lean();
         return await this.enriquecerComNomesFornecedores(produtos);
     }
 
     async obterResumoCategoriasCount() {
         console.log('Obtendo resumo das categorias');
-        
         const Produto = mongoose.model('produtos');
-        
         const [categoriaA, categoriaB, categoriaC] = await Promise.all([
-            Produto.countDocuments({ categoria: 'A', status: true }),
-            Produto.countDocuments({ categoria: 'B', status: true }),
-            Produto.countDocuments({ categoria: 'C', status: true })
+            Produto.countDocuments({ categoria: 'A' }),
+            Produto.countDocuments({ categoria: 'B' }),
+            Produto.countDocuments({ categoria: 'C' })
         ]);
-
         return {
             categoria_A: {
                 count: categoriaA,
