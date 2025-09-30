@@ -43,9 +43,15 @@ async function seedMovimentacao(usuarios = [], produtos = []) {
           _id: produto1._id,
           codigo_produto: produto1.codigo_produto,
           quantidade_produtos: 30,
-          custo: produto1.custo, 
+          custo: produto1.custo,
         },
       ],
+      nota_fiscal: {
+        numero: "000001234",
+        serie: "1",
+        chave: "35200714200166000187550010000012341234567890",
+        data_emissao: new Date(),
+      },
       observacoes: "Movimentação de entrada fixa - Seed",
     };
 
@@ -58,7 +64,7 @@ async function seedMovimentacao(usuarios = [], produtos = []) {
           _id: produto2._id,
           codigo_produto: produto2.codigo_produto,
           quantidade_produtos: 15,
-          preco: produto2.preco, 
+          preco: produto2.preco,
         },
       ],
       observacoes: "Movimentação de saída fixa - Seed",
@@ -96,6 +102,9 @@ async function seedMovimentacao(usuarios = [], produtos = []) {
         dataMovimentacao.getDate() - Math.floor(Math.random() * 30)
       );
 
+      const numeroNF = Math.floor(Math.random() * 999999) + 100000;
+      const serie = Math.floor(Math.random() * 3) + 1;
+
       const movimentacaoFake = {
         tipo,
         destino: tipo === "entrada" ? "Estoque" : "Venda",
@@ -116,9 +125,19 @@ async function seedMovimentacao(usuarios = [], produtos = []) {
             }),
           },
         ],
+        ...(tipo === "entrada" && {
+          nota_fiscal: {
+            numero: numeroNF.toString().padStart(9, "0"),
+            serie: serie.toString(),
+            chave: `352007142001660001875500${serie}0000${numeroNF}1234567890`,
+            data_emissao: dataMovimentacao,
+          },
+        }),
         observacoes: `Movimentação ${
           tipo === "entrada" ? "de entrada" : "de saída"
-        } - Seed ${i + 1}`,
+        } - Seed ${i + 1}${
+          tipo === "entrada" ? ` (NF: ${numeroNF})` : " (Sem NF)"
+        }`,
       };
 
       // Validar movimentação antes de adicionar
@@ -155,12 +174,26 @@ async function seedMovimentacao(usuarios = [], produtos = []) {
 
     console.log(`Tentando inserir ${movimentacoes.length} movimentações...`);
 
-    // Log das movimentações que serão inseridas
     movimentacoes.forEach((mov, index) => {
       console.log(`📋 Movimentação ${index + 1}:`);
       console.log(`   Tipo: ${mov.tipo}`);
       console.log(`   Destino: ${mov.destino}`);
       console.log(`   Produtos: ${mov.produtos.length} item(s)`);
+
+      if (mov.nota_fiscal) {
+        console.log(`   📄 Nota Fiscal:`);
+        console.log(`     Número: ${mov.nota_fiscal.numero}`);
+        console.log(`     Série: ${mov.nota_fiscal.serie}`);
+        console.log(`     Chave: ${mov.nota_fiscal.chave}`);
+        console.log(
+          `     Data Emissão: ${mov.nota_fiscal.data_emissao?.toLocaleDateString(
+            "pt-BR"
+          )}`
+        );
+      } else {
+        console.log(`   📄 Nota Fiscal: Não informada`);
+      }
+
       mov.produtos.forEach((prod, i) => {
         console.log(
           `     Produto ${i + 1}: ${prod.codigo_produto} - Qtd: ${
@@ -172,6 +205,8 @@ async function seedMovimentacao(usuarios = [], produtos = []) {
         if (mov.tipo === "saida")
           console.log(`       Preço: R$ ${prod.preco || "N/A"}`);
       });
+      console.log(`   Observações: ${mov.observacoes}`);
+      console.log("─".repeat(50));
     });
 
     const resultado = await Movimentacao.insertMany(movimentacoes);
