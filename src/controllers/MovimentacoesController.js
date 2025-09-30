@@ -94,7 +94,7 @@ class MovimentacoesController {
   async cadastrarMovimentacao(req, res) {
     console.log("Estou no cadastrarMovimentacao em MovimentacoesController");
 
-    const parsedData = req.body;
+    const parsedData = await MovimentacaoSchema.parseAsync(req.body);
     const data = await this.service.cadastrarMovimentacao(parsedData, req);
 
     return CommonResponse.created(
