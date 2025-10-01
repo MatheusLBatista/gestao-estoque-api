@@ -5,10 +5,11 @@ import authPermission from "../middlewares/AuthPermission.js";
 import rotasProdutos from "./produtoRoutes.js";
 import rotasFornecedores from "./fornecedorRoutes.js";
 import rotasUsuarios from "./usuarioRoutes.js";
-import rotasMovimentacoes from "./movimentacaoRoutes.js";
-import rotasAuth from "./authRoutes.js";
-import rotasLogs from "./logRoutes.js";
-import rotasGrupos from "./grupoRoutes.js";
+import rotasMovimentacoes from './movimentacaoRoutes.js';
+import rotasAuth from './authRoutes.js';
+import rotasLogs from './logRoutes.js';
+import rotasGrupos from './grupoRoutes.js';
+import rotasDashboard from './dashboard.js';
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -63,6 +64,8 @@ const routes = (app) => {
     rotasMovimentacoes
   );
   app.use("/api/logs", express.json(), rotasLogs); // Logs já têm authMiddleware internamente
+  app.use("/dashboard", express.json(), authMiddleware, authPermission, rotasDashboard);
+
 
   // Se não é nenhuma rota válida, produz 404
   app.use((req, res) => {
