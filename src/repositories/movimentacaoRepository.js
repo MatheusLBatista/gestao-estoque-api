@@ -24,41 +24,25 @@ class MovimentacaoRepository {
         });
       }
 
-      try {
-        const data = await this.model
-          .findById(id)
-          .populate("id_usuario", "nome_usuario email")
-          .populate(
-            "produtos._id",
-            "nome_produto codigo_produto estoque id_fornecedor"
-          );
+      const data = await this.model
+        .findById(id)
+        .populate("id_usuario", "nome_usuario email")
+        .populate(
+          "produtos._id",
+          "nome_produto codigo_produto estoque id_fornecedor"
+        );
 
-        if (!data) {
-          throw new CustomError({
-            statusCode: 404,
-            errorType: "resourceNotFound",
-            field: "Movimentacao",
-            details: [],
-            customMessage: messages.error.resourceNotFound("Movimentação"),
-          });
-        }
-
-        return data;
-      } catch (populateError) {
-        console.error("Erro ao popular referências:", populateError);
-
-        const data = await this.model.findById(id);
-        if (!data) {
-          throw new CustomError({
-            statusCode: 404,
-            errorType: "resourceNotFound",
-            field: "Movimentacao",
-            details: [],
-            customMessage: messages.error.resourceNotFound("Movimentação"),
-          });
-        }
-        return data;
+      if (!data) {
+        throw new CustomError({
+          statusCode: 404,
+          errorType: "resourceNotFound",
+          field: "Movimentacao",
+          details: [],
+          customMessage: messages.error.resourceNotFound("Movimentação"),
+        });
       }
+
+      return data;
     }
 
     const {
@@ -99,30 +83,58 @@ class MovimentacaoRepository {
       sort: { data_movimentacao: -1 },
       populate: [
         { path: "id_usuario", select: "nome_usuario email" },
-        {
-          path: "produtos._id",
-          select: "nome_produto estoque",
-        },
+        { path: "produtos._id", select: "nome_produto estoque" },
       ],
     };
 
-    try {
-      const resultado = await this.model.paginate(filtros, options);
-      console.log(`Encontradas ${resultado.totalDocs} movimentações`);
-      return resultado;
-    } catch (paginateError) {
-      console.error("Erro ao paginar movimentações:", paginateError);
+    const resultado = await this.model.paginate(filtros, options);
 
-      const fallbackOptions = {
-        page: parseInt(page, 10),
-        limit: parseInt(limite, 10),
-        sort: { data_movimentacao: -1 },
-        populate: false,
-      };
-
-      const resultado = await this.model.paginate(filtros, fallbackOptions);
-      return resultado;
+    if (!resultado || !resultado.docs) {
+      throw new CustomError({
+        statusCode: 404,
+        errorType: "resourceNotFound",
+        field: "Movimentacao",
+        details: [],
+        customMessage: messages.error.resourceNotFound("Movimentações"),
+      });
     }
+
+    const stats = {
+      total_entradas: 0,
+      total_saidas: 0,
+      valor_total_entradas: 0, 
+      valor_total_saidas: 0, 
+      lucro_total: 0,
+    };
+
+    resultado.docs.forEach((mov) => {
+      if (mov.tipo === "entrada") {
+        stats.total_entradas++;
+        mov.produtos.forEach((prod) => {
+          stats.valor_total_entradas +=
+            (prod.custo || 0) * prod.quantidade_produtos;
+        });
+      } else if (mov.tipo === "saida") {
+        stats.total_saidas++;
+        mov.produtos.forEach((prod) => {
+          stats.valor_total_saidas +=
+            (prod.preco || 0) * prod.quantidade_produtos;
+        });
+      }
+    });
+
+    stats.lucro_total = stats.valor_total_saidas - stats.valor_total_entradas;
+
+    return {
+      ...resultado,
+      estatisticas: {
+        total_entradas: stats.total_entradas,
+        total_saidas: stats.total_saidas,
+        valor_total_entradas: parseFloat(stats.valor_total_entradas.toFixed(2)),
+        valor_total_saidas: parseFloat(stats.valor_total_saidas.toFixed(2)),
+        lucro_total: parseFloat(stats.lucro_total.toFixed(2)),
+      },
+    };
   }
 
   async buscarMovimentacaoPorID(id) {
