@@ -64,7 +64,7 @@ const routes = (app) => {
     rotasMovimentacoes
   );
   app.use("/api/logs", express.json(), rotasLogs); // Logs já têm authMiddleware internamente
-  app.use("/dashboard", express.json(), authMiddleware, authPermission, rotasDashboard);
+  app.use("", express.json(), authMiddleware, authPermission, rotasDashboard);
 
 
   // Se não é nenhuma rota válida, produz 404
