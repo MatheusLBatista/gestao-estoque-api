@@ -1,7 +1,7 @@
 import commonSchemas from "../schemas/common.js";
 
 const logsRoutes = {
-  "/api/logs": {
+  "/logs": {
     get: {
       tags: ["Logs"],
       summary: "Buscar logs de auditoria do sistema",
@@ -310,7 +310,7 @@ const logsRoutes = {
     },
   },
 
-  "/api/logs/export": {
+  "/logs/export": {
     get: {
       tags: ["Logs"],
       summary: "Exportar logs para arquivo",

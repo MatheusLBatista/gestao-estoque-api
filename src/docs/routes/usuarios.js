@@ -1,7 +1,7 @@
 import commonSchemas from "../schemas/common.js";
 
 const usuariosRoutes = {
-  "/api/usuarios": {
+  "/usuarios": {
     get: {
       tags: ["Usuários"],
       summary: "Lista todos os usuários",
@@ -116,7 +116,7 @@ const usuariosRoutes = {
     },
   },
 
-  "/api/usuarios/cadastrar-sem-senha": {
+  "/usuarios/cadastrar-sem-senha": {
     post: {
       tags: ["Usuários"],
       summary: "Cadastrar usuário sem senha (gera código de segurança)",
@@ -191,7 +191,7 @@ const usuariosRoutes = {
     },
   },
 
-  "/api/usuarios/{id}": {
+  "/usuarios/{id}": {
     get: {
       tags: ["Usuários"],
       summary: "Buscar usuário por ID",
@@ -220,7 +220,7 @@ const usuariosRoutes = {
     },
   },
 
-  "/api/usuarios/{matricula}": {
+  "/usuarios/{matricula}": {
     patch: {
       tags: ["Usuários"],
       summary: "Atualizar usuário por matrícula",
@@ -292,7 +292,7 @@ const usuariosRoutes = {
     },
   },
 
-  "/api/usuarios/busca/{matricula}": {
+  "/usuarios/busca/{matricula}": {
     get: {
       tags: ["Usuários"],
       summary: "Buscar usuário por matrícula",
@@ -300,7 +300,7 @@ const usuariosRoutes = {
         Busca um usuário específico pela matrícula informada na URL.
         
         **Exemplo de uso:**
-        \`GET /api/usuarios/busca/ADM0001\`
+        \`GET /usuarios/busca/ADM0001\`
       `,
       security: [{ bearerAuth: [] }],
       parameters: [
@@ -334,7 +334,7 @@ const usuariosRoutes = {
     },
   },
 
-  "/api/usuarios/desativar/{matricula}": {
+  "/usuarios/desativar/{matricula}": {
     patch: {
       tags: ["Usuários"],
       summary: "Desativar usuário por matrícula",
@@ -363,7 +363,7 @@ const usuariosRoutes = {
     },
   },
 
-  "/api/usuarios/reativar/{matricula}": {
+  "/usuarios/reativar/{matricula}": {
     patch: {
       tags: ["Usuários"],
       summary: "Reativar usuário por matrícula",
@@ -392,7 +392,7 @@ const usuariosRoutes = {
     },
   },
 
-  "/api/usuarios/grupos/adicionar": {
+  "/usuarios/grupos/adicionar": {
     post: {
       tags: ["Usuários"],
       summary: "Adicionar usuário a um grupo",
@@ -444,7 +444,7 @@ const usuariosRoutes = {
     },
   },
 
-  "/api/usuarios/grupos/remover": {
+  "/usuarios/grupos/remover": {
     post: {
       tags: ["Usuários"],
       summary: "Remover usuário de um grupo",
@@ -496,7 +496,7 @@ const usuariosRoutes = {
     },
   },
 
-  "/api/usuarios/grupos/{userId}": {
+  "/usuarios/grupos/{userId}": {
     get: {
       tags: ["Usuários"],
       summary: "Listar grupos de um usuário",

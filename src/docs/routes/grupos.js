@@ -1,7 +1,7 @@
 import commonSchemas from "../schemas/common.js";
 
 const gruposRoutes = {
-    "/api/grupos": {
+    "/grupos": {
         get: {
             tags: ["Grupos"],
             summary: "Lista todos os grupos",
@@ -112,7 +112,7 @@ const gruposRoutes = {
             }
         }
     },
-    "/api/grupos/{id}": {
+    "/grupos/{id}": {
         get: {
             tags: ["Grupos"],
             summary: "Buscar grupo por ID",
@@ -248,7 +248,7 @@ const gruposRoutes = {
             }
         }
     },
-    "/api/grupos/desativar/{id}": {
+    "/grupos/desativar/{id}": {
         patch: {
             tags: ["Grupos"],
             summary: "Desativar grupo",
@@ -292,7 +292,7 @@ const gruposRoutes = {
             }
         }
     },
-    "/api/grupos/{id}/ativar": {
+    "/grupos/{id}/ativar": {
         patch: {
             tags: ["Grupos"],
             summary: "Ativar grupo",
@@ -336,7 +336,7 @@ const gruposRoutes = {
             }
         }
     },
-    "/api/grupos/{id}/permissoes": {
+    "/grupos/{id}/permissoes": {
         post: {
             tags: ["Grupos"],
             summary: "Adicionar permissão ao grupo",
