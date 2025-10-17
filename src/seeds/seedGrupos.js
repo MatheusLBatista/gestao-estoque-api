@@ -306,14 +306,12 @@ async function seedGrupos() {
             return gruposExistentesData;
         }
 
-        // Buscar TODAS as rotas existentes no banco para o grupo Administradores
         const todasAsRotas = await import('../models/Rotas.js').then(module => module.default);
         const rotasExistentes = await todasAsRotas.find({});
         
-        console.log(`📋 Encontradas ${rotasExistentes.length} rotas no sistema para permissões completas`);
+        console.log(`📋 Encontradas ${rotasExistentes.length} rotas no sistema para sincronização de permissões`);
 
-        // Criar permissões COMPLETAS para TODAS as rotas encontradas
-        const permissoesCompletas = rotasExistentes.map(rota => ({
+        const permissoesAdminCompletas = rotasExistentes.map(rota => ({
             rota: rota.rota,
             dominio: rota.dominio || 'localhost',
             ativo: true,
@@ -324,64 +322,89 @@ async function seedGrupos() {
             excluir: true     // DELETE
         }));
 
-        // Garantir que rotas essenciais estejam incluídas (caso não existam ainda no banco)
-        const rotasEssenciais = [
-            'produtos', 'fornecedores', 'usuarios', 'grupos', 
-            'movimentacoes', 'auth', 'logs', 'relatorios', 'dashboard',
-            'permissoes', 'api-docs', 'perfis', 'configuracoes', 'backups',
-            'uploads', 'exports', 'imports', 'swagger', 'health', 'metrics'
-        ];
+        const permissoesGerenteCompletas = rotasExistentes
+            .filter(rota => ['produtos', 'fornecedores', 'usuarios', 'relatorios', 'dashboard'].includes(rota.rota))
+            .map(rota => ({
+                rota: rota.rota,
+                dominio: rota.dominio || 'localhost',
+                ativo: true,
+                buscar: true,
+                // Gerentes podem criar/alterar produtos e fornecedores, mas só consultar usuários
+                enviar: ['produtos', 'fornecedores'].includes(rota.rota),
+                substituir: ['produtos', 'fornecedores'].includes(rota.rota),
+                modificar: ['produtos', 'fornecedores'].includes(rota.rota),
+                excluir: false 
+            }));
 
-        rotasEssenciais.forEach(nomeRota => {
-            const jaExiste = permissoesCompletas.find(p => p.rota === nomeRota);
-            if (!jaExiste) {
-                permissoesCompletas.push({
-                    rota: nomeRota,
-                    dominio: 'localhost',
-                    ativo: true,
-                    buscar: true,    // GET
-                    enviar: true,    // POST
-                    substituir: true, // PUT
-                    modificar: true,  // PATCH
-                    excluir: true     // DELETE
-                });
-            }
-        });
+        const permissoesEstoquistaCompletas = rotasExistentes
+            .filter(rota => ['produtos', 'fornecedores', 'dashboard'].includes(rota.rota))
+            .map(rota => ({
+                rota: rota.rota,
+                dominio: rota.dominio || 'localhost',
+                ativo: true,
+                buscar: true,
+                enviar: false,
+                substituir: false,
+                // Estoquistas só podem modificar produtos (alterar quantidades)
+                modificar: rota.rota === 'produtos',
+                excluir: false
+            }));
 
-        // Atualizar o grupo Administradores com TODAS as permissões
         const gruposAtualizados = [...gruposPadrao];
-        const indexAdmin = gruposAtualizados.findIndex(g => g.nome === 'Administradores');
         
+        const indexAdmin = gruposAtualizados.findIndex(g => g.nome === 'Administradores');
         if (indexAdmin !== -1) {
-            gruposAtualizados[indexAdmin].permissoes = permissoesCompletas;
-            gruposAtualizados[indexAdmin].descricao = `Grupo com acesso ABSOLUTO - ${permissoesCompletas.length} rotas com TODAS as permissões (GET, POST, PUT, PATCH, DELETE)`;
-            console.log(`🔓 Grupo Administradores configurado com ${permissoesCompletas.length} permissões completas`);
+            gruposAtualizados[indexAdmin].permissoes = permissoesAdminCompletas;
+            gruposAtualizados[indexAdmin].descricao = `Grupo com acesso ABSOLUTO - ${permissoesAdminCompletas.length} rotas com TODAS as permissões (GET, POST, PUT, PATCH, DELETE)`;
+            console.log(`Grupo Administradores configurado com ${permissoesAdminCompletas.length} permissões completas`);
+        }
+        
+        const indexGerente = gruposAtualizados.findIndex(g => g.nome === 'Gerentes');
+        if (indexGerente !== -1) {
+            gruposAtualizados[indexGerente].permissoes = permissoesGerenteCompletas;
+            gruposAtualizados[indexGerente].descricao = `Grupo com acesso de gerenciamento - ${permissoesGerenteCompletas.length} rotas com permissões limitadas`;
+            console.log(`Grupo Gerentes configurado com ${permissoesGerenteCompletas.length} permissões limitadas`);
+        }
+        
+        const indexEstoquista = gruposAtualizados.findIndex(g => g.nome === 'Estoquistas');
+        if (indexEstoquista !== -1) {
+            gruposAtualizados[indexEstoquista].permissoes = permissoesEstoquistaCompletas;
+            gruposAtualizados[indexEstoquista].descricao = `Grupo com acesso básico - ${permissoesEstoquistaCompletas.length} rotas com permissões básicas`;
+            console.log(`Grupo Estoquistas configurado com ${permissoesEstoquistaCompletas.length} permissões básicas`);
         }
 
         const fakeMapping = getGlobalFakeMapping();
         
-        // Combinar grupos atualizados com grupos dinâmicos
         const todosGrupos = [...gruposAtualizados];
         
-        // Adicionar alguns grupos dinâmicos usando o fakeMapping
         const gruposDinamicos = gerarGruposDinamicos(fakeMapping, 2);
         todosGrupos.push(...gruposDinamicos);
 
-        // Inserir grupos padrão e dinâmicos
         const gruposInseridos = await Grupo.insertMany(todosGrupos);
         
         console.log(`✅ ${gruposInseridos.length} grupos criados com sucesso!`);
         console.log('👥 Grupos criados:', gruposInseridos.map(g => g.nome).join(', '));
 
-        // Log específico para o grupo Administradores
         const grupoAdminCriado = gruposInseridos.find(g => g.nome === 'Administradores');
+        const grupoGerenteCriado = gruposInseridos.find(g => g.nome === 'Gerentes');
+        const grupoEstoquistaCriado = gruposInseridos.find(g => g.nome === 'Estoquistas');
+        
         if (grupoAdminCriado) {
-            console.log(`🔑 Grupo Administradores criado com ${grupoAdminCriado.permissoes.length} permissões COMPLETAS`);
-            console.log('📋 Rotas com acesso absoluto:', grupoAdminCriado.permissoes.map(p => p.rota).join(', '));
+            console.log(`\n🔑 Grupo Administradores: ${grupoAdminCriado.permissoes.length} permissões COMPLETAS`);
+            console.log('   📋 Rotas com acesso total:', grupoAdminCriado.permissoes.map(p => p.rota).join(', '));
+        }
+        
+        if (grupoGerenteCriado) {
+            console.log(`\n👔 Grupo Gerentes: ${grupoGerenteCriado.permissoes.length} permissões LIMITADAS`);
+            console.log('   📋 Rotas com acesso gerencial:', grupoGerenteCriado.permissoes.map(p => p.rota).join(', '));
+        }
+        
+        if (grupoEstoquistaCriado) {
+            console.log(`\n📦 Grupo Estoquistas: ${grupoEstoquistaCriado.permissoes.length} permissões BÁSICAS`);
+            console.log('   📋 Rotas com acesso básico:', grupoEstoquistaCriado.permissoes.map(p => p.rota).join(', '));
         }
 
-        // Exibir resumo das permissões
-        console.log('\n📋 Resumo das permissões por grupo:');
+
         gruposInseridos.forEach(grupo => {
             console.log(`\n👥 ${grupo.nome}:`);
             grupo.permissoes.forEach(perm => {

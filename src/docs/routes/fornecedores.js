@@ -1,7 +1,7 @@
 import commonSchemas from "../schemas/common.js";
 
 const fornecedoresRoutes = {
-    "/api/fornecedores": {
+    "/fornecedores": {
         get: {
             tags: ["Fornecedores"],
             summary: "Lista todos os fornecedores",
@@ -203,7 +203,7 @@ const fornecedoresRoutes = {
             }
         }
     },
-    "/api/fornecedores/{id}": {
+    "/fornecedores/{id}": {
         get: {
             tags: ["Fornecedores"],
             summary: "Buscar fornecedor por ID",
@@ -586,7 +586,7 @@ const fornecedoresRoutes = {
             }
         }
     },
-    "/api/fornecedores/buscar": {
+    "/fornecedores/buscar": {
         get: {
             tags: ["Fornecedores"],
             summary: "Busca avançada de fornecedores",
@@ -688,7 +688,7 @@ const fornecedoresRoutes = {
             }
         }
     },
-    "/api/fornecedores/validar-cnpj": {
+    "/fornecedores/validar-cnpj": {
         post: {
             tags: ["Fornecedores"],
             summary: "Validar CNPJ",
