@@ -27,7 +27,7 @@ const routes = (app) => {
   // Rotas públicas (não necessitam de autenticação)
   app.use(express.json(), rotasAuth);
 
-  // Rotas protegidas (precisam de autenticação)
+  // Rotas protegidas (precisam de autenticação e verificação de permissões)
   app.use(
     "/produtos",
     express.json(),
@@ -36,21 +36,21 @@ const routes = (app) => {
     rotasProdutos
   );
   app.use(
-    "/api/fornecedores",
+    "/fornecedores",
     express.json(),
     authMiddleware,
     authPermission,
     rotasFornecedores
   );
   app.use(
-    "/api/usuarios",
+    "/usuarios",
     express.json(),
     authMiddleware,
     authPermission,
     rotasUsuarios
   );
   app.use(
-    "/api/grupos",
+    "/grupos",
     express.json(),
     authMiddleware,
     authPermission,
@@ -63,8 +63,20 @@ const routes = (app) => {
     authPermission,
     rotasMovimentacoes
   );
-  app.use("/api/logs", express.json(), rotasLogs); // Logs já têm authMiddleware internamente
-  app.use("", express.json(), authMiddleware, authPermission, rotasDashboard);
+  app.use(
+    "/logs", 
+    express.json(), 
+    authMiddleware,
+    authPermission,
+    rotasLogs
+  );
+  app.use(
+    "/dashboard", 
+    express.json(), 
+    authMiddleware, 
+    authPermission, 
+    rotasDashboard
+  );
 
 
   // Se não é nenhuma rota válida, produz 404

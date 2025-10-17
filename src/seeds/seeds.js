@@ -15,15 +15,19 @@ async function main() {
         console.log("✅ Conexão com o banco de dados estabelecida.");
         
         // Seed das rotas do sistema (deve ser executado primeiro)
+        console.log("🛤️  Executando seed de rotas...");
         const rotas = await seedRotas();
         console.log(`✅ Seed de ${rotas.length} rotas concluído.`);
         
         // Seed dos grupos de permissão (deve ser executado após as rotas)
+        console.log("👥 Executando seed de grupos...");
         const grupos = await seedGrupos();
         console.log(`✅ Seed de ${grupos.length} grupos concluído.`);
         
+        // Seed dos usuários (deve ser executado após os grupos)
+        console.log("👤 Executando seed de usuários...");
         const usuarios = await seedUsuario();
-        console.log(`✅ Seed de ${usuarios.length} usuários concluído.`);
+        console.log(`✅ Seed de ${usuarios.length} usuários concluído (incluindo Admin, Gerente e Estoquista).`);
         
         const fornecedores = await seedFornecedor();
         console.log(`✅ Seed de ${fornecedores.length} fornecedores concluído.`);
@@ -35,6 +39,7 @@ async function main() {
         console.log(`✅ Seed de ${movimentacoes.length} movimentações concluído.`);
         
         console.log("✅ Todos os dados inseridos com sucesso!");
+        
     } catch (erro) {
         console.error("❌ Erro ao inserir dados:", erro);
     } finally {

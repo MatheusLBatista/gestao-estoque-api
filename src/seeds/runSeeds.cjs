@@ -5,21 +5,25 @@ const mongoose = require('mongoose');
 
 async function runSeeds() {
     try {
+        console.log('🚀 Iniciando execução de seeds...');
+        
         // Usar import dinâmico aqui funciona porque é um processo Node separado
-        const { default: seedUsuario } = await import('./seedsUsuario.js');
         const { default: seedRotas } = await import('./seedRotas.js');  
         const { default: seedGrupos } = await import('./seedGrupos.js');
+        const { default: seedUsuario } = await import('./seedsUsuario.js');
         
-        console.log('🌱 Executando seedRotas...');
+        console.log('🛤️  Executando seed de rotas...');
         await seedRotas();
         
-        console.log('🌱 Executando seedGrupos...');
+        console.log('👥 Executando seed de grupos...');
         await seedGrupos();
         
-        console.log('🌱 Executando seedUsuario...');
-        await seedUsuario();
+        console.log('👤 Executando seed de usuários...');
+        const usuarios = await seedUsuario();
         
         console.log('✅ Todas as seeds foram executadas com sucesso!');
+        console.log(`📊 Total de usuários criados: ${usuarios.length}`);
+        console.log('🎯 Usuários principais: Admin, Gerente e Estoquista prontos para uso!');
         process.exit(0);
         
     } catch (error) {
