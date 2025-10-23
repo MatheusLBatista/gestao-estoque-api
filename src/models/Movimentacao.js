@@ -5,7 +5,8 @@ import mongoosePaginate from "mongoose-paginate-v2";
 class Movimentacao {
   constructor() {
     const produtoMovimentacaoSchema = new mongoose.Schema({
-      codigo_produto: { type: String, required: true, ref: "produtos" },
+      _id: { type: mongoose.Schema.Types.ObjectId, ref: "produtos" },
+      codigo_produto: { type: String, required: true },
       quantidade_produtos: { type: Number, required: true },
       preco: { type: Number }, //obrigatório para saídas
       preco_total: { type: Number },
@@ -48,6 +49,34 @@ class Movimentacao {
 
       next();
     });
+
+    movimentacaoSchema.virtual("totalProdutos").get(function () {
+      return this.produtos.reduce(
+        (total, p) => total + (p.quantidade_produtos || 0),
+        0
+      );
+    });
+
+    movimentacaoSchema.virtual("totalCusto").get(function () {
+      if (this.tipo !== "entrada") return undefined;
+      return this.produtos.reduce(
+        (total, p) =>
+          total + (p.custo_total || p.custo * p.quantidade_produtos || 0),
+        0
+      );
+    });
+
+    movimentacaoSchema.virtual("totalPreco").get(function () {
+      if (this.tipo !== "saida") return undefined;
+      return this.produtos.reduce(
+        (total, p) =>
+          total + (p.preco_total || p.preco * p.quantidade_produtos || 0),
+        0
+      );
+    });
+
+    movimentacaoSchema.set("toJSON", { virtuals: true });
+    movimentacaoSchema.set("toObject", { virtuals: true });
 
     movimentacaoSchema.plugin(mongoosePaginate);
     this.model = mongoose.model("movimentacoes", movimentacaoSchema);
