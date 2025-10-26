@@ -43,20 +43,50 @@ class MovimentacaoFilterBuilder {
    */
   comPeriodo(data_inicio, data_fim) {
     if (data_inicio && data_fim) {
-      // Função auxiliar para converter "DD-MM-YYYY" em Date
-      const parseDate = (dateStr) => {
-        const [dia, mes, ano] = dateStr.split("-").map(Number);
-        return new Date(ano, mes - 1, dia); // mês começa em 0 no JS
-      };
+      try {
+        const parseDate = (dateStr) => {
+          let dia, mes, ano;
 
-      const data_inicioObj = parseDate(data_inicio);
-      const data_fimObj = parseDate(data_fim);
+          if (dateStr.includes("/")) {
+            [dia, mes, ano] = dateStr.split("/").map(Number);
+          } else if (dateStr.includes("-")) {
+            const parts = dateStr.split("-");
+            if (parts[0].length === 4) {   
+              [ano, mes, dia] = parts.map(Number);
+            } else {   
+              [dia, mes, ano] = parts.map(Number);
+            }
+          } else {
+            return null;
+          }
 
-      if (!isNaN(data_inicioObj) && !isNaN(data_fimObj)) {
-        this.filtros.data_movimentacao = {
-          $gte: data_inicioObj,
-          $lte: new Date(data_fimObj.setHours(23, 59, 59, 999)), // fim do dia
+          return new Date(ano, mes - 1, dia);
         };
+
+        const data_inicioObj = parseDate(data_inicio);
+        const data_fimObj = parseDate(data_fim);
+
+        if (
+          data_inicioObj &&
+          data_fimObj &&
+          !isNaN(data_inicioObj) &&
+          !isNaN(data_fimObj)
+        ) {
+          this.filtros.data_cadastro = {
+            $gte: data_inicioObj,
+            $lte: new Date(
+              data_fimObj.getFullYear(),
+              data_fimObj.getMonth(),
+              data_fimObj.getDate(),
+              23,
+              59,
+              59,
+              999
+            ),
+          };
+        }
+      } catch (error) {
+        console.error("Erro ao processar filtro de data:", error);
       }
     }
     return this;
@@ -73,7 +103,6 @@ class MovimentacaoFilterBuilder {
       if (usuarioExiste) {
         this.filtros.id_usuario = usuario_id;
       } else {
-        // Filtro impossível, nunca retorna nada
         this.filtros.id_usuario = null;
       }
     }
@@ -193,7 +222,7 @@ class MovimentacaoFilterBuilder {
     if (data) {
       const dataObj = new Date(data);
       if (!isNaN(dataObj)) {
-        this.filtros.data_movimentacao = {
+        this.filtros.data_cadastro = {
           $gte: new Date(dataObj.setHours(0, 0, 0, 0)),
           $lte: new Date(dataObj.setHours(23, 59, 59, 999)),
         };
@@ -208,8 +237,8 @@ class MovimentacaoFilterBuilder {
   comDataApos(data) {
     const dataObj = new Date(data);
     if (!isNaN(dataObj)) {
-      this.filtros.data_movimentacao = {
-        ...(this.filtros.data_movimentacao || {}),
+      this.filtros.data_cadastro = {
+        ...(this.filtros.data_cadastro || {}),
         $gte: dataObj,
       };
     }
@@ -222,8 +251,8 @@ class MovimentacaoFilterBuilder {
   comDataAntes(data) {
     const dataObj = new Date(data);
     if (!isNaN(dataObj)) {
-      this.filtros.data_movimentacao = {
-        ...(this.filtros.data_movimentacao || {}),
+      this.filtros.data_cadastro = {
+        ...(this.filtros.data_cadastro || {}),
         $lte: dataObj,
       };
     }
