@@ -120,16 +120,17 @@ class SwaggerConfig {
           description: "Controle de entrada e saída de produtos",
         },
         {
+          name: "Dashboard",
+          description:
+            "Estatísticas e visão geral do sistema por categorias de produtos",
+        },
+        {
           name: "Grupos",
           description: "Gestão de grupos e permissões",
         },
         {
           name: "Logs",
           description: "Auditoria e logs do sistema",
-        },
-        {
-          name: "Dashboard",
-          description: "Estatísticas e visão geral do sistema por categorias de produtos",
         },
       ],
     };
