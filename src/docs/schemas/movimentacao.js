@@ -6,7 +6,7 @@ const movimentacaoSchemas = {
       _id: {
         type: "string",
         description: "ID único da movimentação",
-        example: "68c9f7a5db05196e9900218a",
+        example: "68dc2e998a45b02c6d047cb0",
       },
       tipo: {
         type: "string",
@@ -18,12 +18,6 @@ const movimentacaoSchemas = {
         type: "string",
         description: "Destino da movimentação",
         example: "Venda",
-      },
-      data_movimentacao: {
-        type: "string",
-        format: "date-time",
-        description: "Data e hora da movimentação",
-        example: "2025-09-16T23:49:57.046Z",
       },
       id_usuario: {
         type: "object",
@@ -32,18 +26,18 @@ const movimentacaoSchemas = {
           _id: {
             type: "string",
             description: "ID do usuário",
-            example: "68c9f7a2db05196e990020e3",
+            example: "68dc2e978a45b02c6d047c00",
           },
           nome_usuario: {
             type: "string",
             description: "Nome do usuário",
-            example: "Administrador Master",
+            example: "Heloísa Moreira",
           },
           email: {
             type: "string",
             format: "email",
             description: "Email do usuário",
-            example: "admin@sistema.com",
+            example: "usuario6@sistema.com",
           },
         },
       },
@@ -52,74 +46,128 @@ const movimentacaoSchemas = {
         description: "Status da movimentação",
         example: true,
       },
+      observacoes: {
+        type: "string",
+        description: "Observações da movimentação",
+        example: "Movimentação de saída - Seed 7 (Sem NF)",
+      },
       produtos: {
         type: "array",
         description: "Lista de produtos da movimentação",
         items: {
           type: "object",
           properties: {
-            _id: {
-              type: "object",
-              description: "Produto referenciado",
-              properties: {
-                _id: {
-                  type: "string",
-                  description: "ID do produto",
-                  example: "68c9f7a4db05196e99002155",
-                },
-                nome_produto: {
-                  type: "string",
-                  description: "Nome do produto",
-                  example: "Impressionante Algodão Luvas 1",
-                },
-                estoque: {
-                  type: "integer",
-                  description: "Quantidade em estoque",
-                  example: 46,
-                },
-              },
-            },
             codigo_produto: {
               type: "string",
               description: "Código do produto",
-              example: "DIS-6410 1",
+              example: "DIS-8749 16",
             },
             quantidade_produtos: {
               type: "integer",
               description: "Quantidade movimentada",
-              example: 10,
+              example: 4,
             },
             preco: {
               type: "number",
               format: "double",
-              description: "Preço unitário do produto",
-              example: 8989.49,
+              description: "Preço unitário do produto (para saídas)",
+              example: 4927.35,
             },
             custo: {
               type: "number",
               format: "double",
-              description: "Custo total do produto",
-              example: 6292.64,
+              description: "Custo unitário do produto (para entradas)",
+              example: 1760.42,
             },
             _id: {
-              type: "string",
-              description: "ID do item na movimentação",
-              example: "68c9f7a5db05196e9900218b",
+              type: "object",
+              description: "Produto referenciado completo",
+              properties: {
+                _id: {
+                  type: "string",
+                  description: "ID do produto",
+                  example: "68dc2e998a45b02c6d047c7b",
+                },
+                nome_produto: {
+                  type: "string",
+                  description: "Nome do produto",
+                  example: "Licenciado Aço Queijo 16",
+                },
+                estoque: {
+                  type: "integer",
+                  description: "Quantidade atual em estoque",
+                  example: 81,
+                },
+                id: {
+                  type: "string",
+                  description: "ID do produto (alias)",
+                  example: "68dc2e998a45b02c6d047c7b",
+                },
+              },
             },
           },
         },
+      },
+      totalProdutos: {
+        type: "integer",
+        description: "Total de produtos na movimentação",
+        example: 4,
+      },
+      totalCusto: {
+        type: "number",
+        format: "double",
+        description: "Valor total dos custos (presente apenas em entradas)",
+        example: 35208.46,
+      },
+      totalPreco: {
+        type: "number",
+        format: "double",
+        description: "Valor total dos preços (presente apenas em saídas)",
+        example: 19709.4,
+      },
+      nota_fiscal: {
+        type: "object",
+        description: "Dados da nota fiscal (quando aplicável)",
+        properties: {
+          numero: {
+            type: "string",
+            description: "Número da nota fiscal",
+            example: "000348325",
+          },
+          serie: {
+            type: "string",
+            description: "Série da nota fiscal",
+            example: "2",
+          },
+          chave: {
+            type: "string",
+            description: "Chave de acesso da nota fiscal",
+            example: "352007142001660001875500200003483251234567890",
+          },
+          data_emissao: {
+            type: "string",
+            format: "date-time",
+            description: "Data de emissão da nota fiscal",
+            example: "2025-09-04T19:25:13.520Z",
+          },
+        },
+      },
+      id: {
+        type: "string",
+        description: "ID da movimentação (alias)",
+        example: "68dc2e998a45b02c6d047cb0",
       },
       data_cadastro: {
         type: "string",
         format: "date-time",
         description: "Data de criação da movimentação",
-        example: "2025-09-16T23:49:57.053Z",
+        example: "2025-09-30T19:25:13.549Z",
       },
       data_ultima_atualizacao: {
         type: "string",
         format: "date-time",
         description: "Data da última atualização",
-        example: "2025-09-16T23:49:57.053Z",
+        example: "2025-09-30T19:25:13.549Z",
       },
     },
   },
@@ -127,66 +175,50 @@ const movimentacaoSchemas = {
   // Schema para criação de movimentação
   MovimentacaoCreateRequest: {
     type: "object",
+    required: ["tipo", "produtos"],
     properties: {
       tipo: {
         type: "string",
         enum: ["entrada", "saida"],
         description: "Tipo da movimentação",
-        example: "saida",
+        example: "entrada",
       },
       destino: {
         type: "string",
         description: "Destino da movimentação",
-        example: "Venda",
+        example: "Estoque",
       },
-      produtos: {
-        type: "array",
-        description: "Lista de produtos da movimentação",
-        items: {
-          type: "object",
-          properties: {
-            _id: {
-              type: "object",
-              description: "Produto referenciado",
-              example: "68c9f7a4db05196e99002155",
-            },
-            codigo_produto: {
-              type: "string",
-              description: "Código do produto",
-              example: "DIS-6410 1",
-            },
-            quantidade_produtos: {
-              type: "integer",
-              description: "Quantidade movimentada",
-              example: 10,
-            },
-            preco: {
-              type: "number",
-              format: "double",
-              description: "Preço unitário do produto",
-              example: 8989.49,
-            },
-            custo: {
-              type: "number",
-              format: "double",
-              description: "Custo total do produto",
-              example: 6292.64,
-            },
+      observacoes: {
+        type: "string",
+        description: "Observações sobre a movimentação",
+        example: "Movimentação de entrada - Compra fornecedor",
+      },
+      nota_fiscal: {
+        type: "object",
+        description: "Dados da nota fiscal (opcional)",
+        properties: {
+          numero: {
+            type: "string",
+            description: "Número da nota fiscal",
+            example: "000348325",
+          },
+          serie: {
+            type: "string",
+            description: "Série da nota fiscal",
+            example: "2",
+          },
+          chave: {
+            type: "string",
+            description: "Chave de acesso da nota fiscal",
+            example: "352007142001660001875500200003483251234567890",
+          },
+          data_emissao: {
+            type: "string",
+            format: "date-time",
+            description: "Data de emissão da nota fiscal",
+            example: "2025-09-04T19:25:13.520Z",
           },
         },
-      },
-    },
-  },
-
-  // Schema para atualização de movimentação
-  MovimentacaoUpdateRequest: {
-    type: "object",
-    properties: {
-      destino: {
-        type: "string",
-        description: "Destino da movimentação",
-        example: "Estoque Principal",
-        minLength: 3,
       },
       produtos: {
         type: "array",
@@ -194,63 +226,35 @@ const movimentacaoSchemas = {
         minItems: 1,
         items: {
           type: "object",
-          required: [
-            "_id",
-            "id_produto",
-            "codigo_produto",
-            "nome_produto",
-            "quantidade_produtos",
-            "preco",
-            "custo",
-          ],
+          required: ["_id", "quantidade_produtos"],
           properties: {
             _id: {
               type: "string",
-              description: "Referência ObjectId do produto",
-              example: "60d5ecb54b24a12a5c8e4f1a",
-            },
-            id_produto: {
-              type: "number",
-              description: "ID numérico do produto",
-              example: 1001,
+              description: "ID do produto",
+              example: "68dc2e998a45b02c6d047c91",
             },
             codigo_produto: {
               type: "string",
-              description: "Código do produto",
-              example: "PF001",
-            },
-            nome_produto: {
-              type: "string",
-              description: "Nome do produto",
-              example: "Pastilha de Freio Dianteira",
+              description: "Código do produto (opcional, para validação)",
+              example: "DIS-2892 38",
             },
             quantidade_produtos: {
-              type: "number",
-              description: "Quantidade movimentada",
-              example: 10,
+              type: "integer",
               minimum: 1,
-            },
-            preco: {
-              type: "number",
-              description: "Preço unitário do produto",
-              example: 89.9,
-              minimum: 0,
+              description: "Quantidade de produtos",
+              example: 20,
             },
             custo: {
               type: "number",
-              description: "Custo unitário do produto",
-              example: 45.0,
-              minimum: 0,
+              format: "double",
+              description: "Custo unitário (obrigatório para entradas)",
+              example: 1760.42,
             },
-            id_fornecedor: {
+            preco: {
               type: "number",
-              description: "ID do fornecedor",
-              example: 123,
-            },
-            nome_fornecedor: {
-              type: "string",
-              description: "Nome do fornecedor",
-              example: "Auto Peças Sul Ltda",
+              format: "double",
+              description: "Preço unitário (obrigatório para saídas)",
+              example: 4927.35,
             },
           },
         },
@@ -258,21 +262,65 @@ const movimentacaoSchemas = {
     },
   },
 
-  // Schema para resposta de movimentação única
+  // Schema para resposta única de movimentação
   MovimentacaoResponse: {
     type: "object",
     properties: {
-      success: {
+      error: {
         type: "boolean",
-        example: true,
+        example: false,
+      },
+      code: {
+        type: "integer",
+        example: 201,
       },
       message: {
         type: "string",
-        example: "Movimentação encontrada com sucesso",
+        example: "Movimentação registrada com sucesso.",
       },
       data: {
         $ref: "#/components/schemas/Movimentacao",
       },
+      errors: {
+        type: "array",
+        example: [],
+      },
+    },
+    example: {
+      error: false,
+      code: 201,
+      message: "Movimentação registrada com sucesso.",
+      data: {
+        _id: "68dc2e998a45b02c6d047cb0",
+        tipo: "saida",
+        destino: "Venda",
+        id_usuario: {
+          _id: "68dc2e978a45b02c6d047c00",
+          nome_usuario: "Heloísa Moreira",
+          email: "usuario6@sistema.com",
+        },
+        status: true,
+        observacoes: "Movimentação de saída - Seed 7 (Sem NF)",
+        produtos: [
+          {
+            codigo_produto: "DIS-8749 16",
+            quantidade_produtos: 4,
+            preco: 4927.35,
+            _id: {
+              _id: "68dc2e998a45b02c6d047c7b",
+              nome_produto: "Licenciado Aço Queijo 16",
+              estoque: 81,
+              id: "68dc2e998a45b02c6d047c7b",
+            },
+          },
+        ],
+        data_cadastro: "2025-09-30T19:25:13.549Z",
+        data_ultima_atualizacao: "2025-09-30T19:25:13.549Z",
+        totalProdutos: 4,
+        totalPreco: 19709.4,
+        id: "68dc2e998a45b02c6d047cb0",
+      },
+      errors: [],
     },
   },
 
@@ -280,13 +328,17 @@ const movimentacaoSchemas = {
   MovimentacaoListResponse: {
     type: "object",
     properties: {
-      success: {
+      error: {
         type: "boolean",
-        example: true,
+        example: false,
+      },
+      code: {
+        type: "integer",
+        example: 200,
       },
       message: {
         type: "string",
-        example: "Movimentações listadas com sucesso",
+        example: "Movimentações listadas com sucesso.",
       },
       data: {
         type: "object",
@@ -299,43 +351,90 @@ const movimentacaoSchemas = {
           },
           totalDocs: {
             type: "integer",
-            example: 200,
+            description: "Total de documentos encontrados",
+            example: 150,
           },
           limit: {
             type: "integer",
+            description: "Limite de documentos por página",
             example: 10,
           },
           totalPages: {
             type: "integer",
-            example: 20,
+            description: "Total de páginas",
+            example: 15,
           },
           page: {
             type: "integer",
+            description: "Página atual",
             example: 1,
           },
           pagingCounter: {
             type: "integer",
+            description: "Contador de paginação",
             example: 1,
           },
           hasPrevPage: {
             type: "boolean",
+            description: "Indica se há página anterior",
             example: false,
           },
           hasNextPage: {
             type: "boolean",
+            description: "Indica se há próxima página",
             example: true,
           },
           prevPage: {
             type: "integer",
             nullable: true,
+            description: "Número da página anterior",
             example: null,
           },
           nextPage: {
             type: "integer",
             nullable: true,
+            description: "Número da próxima página",
             example: 2,
           },
+          estatisticas: {
+            type: "object",
+            description: "Estatísticas das movimentações",
+            properties: {
+              total_entradas: {
+                type: "integer",
+                description: "Total de movimentações de entrada",
+                example: 85,
+              },
+              total_saidas: {
+                type: "integer",
+                description: "Total de movimentações de saída",
+                example: 65,
+              },
+              valor_total_entradas: {
+                type: "number",
+                format: "double",
+                description: "Valor total das entradas",
+                example: 125420.75,
+              },
+              valor_total_saidas: {
+                type: "number",
+                format: "double",
+                description: "Valor total das saídas",
+                example: 89650.5,
+              },
+              lucro_total: {
+                type: "number",
+                format: "double",
+                description: "Lucro total (saídas - entradas)",
+                example: 35770.25,
+              },
+            },
+          },
         },
+      },
+      errors: {
+        type: "array",
+        example: [],
       },
     },
   },
