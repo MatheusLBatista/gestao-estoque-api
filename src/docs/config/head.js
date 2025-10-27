@@ -94,9 +94,9 @@ class SwaggerConfig {
         ...produtosRoutes,
         ...fornecedoresRoutes,
         ...movimentacoesRoutes,
+        ...dashboardRoutes,
         ...gruposRoutes,
         ...logsRoutes,
-        ...dashboardRoutes,
       },
       tags: [
         {
