@@ -57,6 +57,28 @@ const movimentacaoSchemas = {
         items: {
           type: "object",
           properties: {
+            codigo_produto: {
+              type: "string",
+              description: "Código do produto",
+              example: "DIS-8749 16",
+            },
+            quantidade_produtos: {
+              type: "integer",
+              description: "Quantidade movimentada",
+              example: 4,
+            },
+            preco: {
+              type: "number",
+              format: "double",
+              description: "Preço unitário do produto (para saídas)",
+              example: 4927.35,
+            },
+            custo: {
+              type: "number",
+              format: "double",
+              description: "Custo unitário do produto (para entradas)",
+              example: 1760.42,
+            },
             _id: {
               type: "object",
               description: "Produto referenciado completo",
@@ -83,28 +105,6 @@ const movimentacaoSchemas = {
                 },
               },
             },
-            codigo_produto: {
-              type: "string",
-              description: "Código do produto",
-              example: "DIS-8749 16",
-            },
-            quantidade_produtos: {
-              type: "integer",
-              description: "Quantidade movimentada",
-              example: 4,
-            },
-            preco: {
-              type: "number",
-              format: "double",
-              description: "Preço unitário do produto (para saídas)",
-              example: 4927.35,
-            },
-            custo: {
-              type: "number",
-              format: "double",
-              description: "Custo unitário do produto (para entradas)",
-              example: 1760.42,
-            },
           },
         },
       },
@@ -116,13 +116,13 @@ const movimentacaoSchemas = {
       totalCusto: {
         type: "number",
         format: "double",
-        description: "Valor total dos custos (para entradas)",
+        description: "Valor total dos custos (presente apenas em entradas)",
         example: 35208.46,
       },
       totalPreco: {
         type: "number",
         format: "double",
-        description: "Valor total dos preços (para saídas)",
+        description: "Valor total dos preços (presente apenas em saídas)",
         example: 19709.4,
       },
       nota_fiscal: {
@@ -256,18 +256,6 @@ const movimentacaoSchemas = {
               description: "Preço unitário (obrigatório para saídas)",
               example: 4927.35,
             },
-            custo_total: {
-              type: "number",
-              format: "double",
-              description: "Custo total calculado (custo * quantidade)",
-              example: 35208.46,
-            },
-            preco_total: {
-              type: "number",
-              format: "double",
-              description: "Preço total calculado (preco * quantidade)",
-              example: 19709.4,
-            },
           },
         },
       },
@@ -297,6 +285,42 @@ const movimentacaoSchemas = {
         type: "array",
         example: [],
       },
+    },
+    example: {
+      error: false,
+      code: 201,
+      message: "Movimentação registrada com sucesso.",
+      data: {
+        _id: "68dc2e998a45b02c6d047cb0",
+        tipo: "saida",
+        destino: "Venda",
+        id_usuario: {
+          _id: "68dc2e978a45b02c6d047c00",
+          nome_usuario: "Heloísa Moreira",
+          email: "usuario6@sistema.com",
+        },
+        status: true,
+        observacoes: "Movimentação de saída - Seed 7 (Sem NF)",
+        produtos: [
+          {
+            codigo_produto: "DIS-8749 16",
+            quantidade_produtos: 4,
+            preco: 4927.35,
+            _id: {
+              _id: "68dc2e998a45b02c6d047c7b",
+              nome_produto: "Licenciado Aço Queijo 16",
+              estoque: 81,
+              id: "68dc2e998a45b02c6d047c7b",
+            },
+          },
+        ],
+        data_cadastro: "2025-09-30T19:25:13.549Z",
+        data_ultima_atualizacao: "2025-09-30T19:25:13.549Z",
+        totalProdutos: 4,
+        totalPreco: 19709.4,
+        id: "68dc2e998a45b02c6d047cb0",
+      },
+      errors: [],
     },
   },
 
