@@ -43,50 +43,28 @@ class MovimentacaoFilterBuilder {
    */
   comPeriodo(data_inicio, data_fim) {
     if (data_inicio && data_fim) {
-      try {
-        const parseDate = (dateStr) => {
-          let dia, mes, ano;
-
-          if (dateStr.includes("/")) {
-            [dia, mes, ano] = dateStr.split("/").map(Number);
-          } else if (dateStr.includes("-")) {
-            const parts = dateStr.split("-");
-            if (parts[0].length === 4) {   
-              [ano, mes, dia] = parts.map(Number);
-            } else {   
-              [dia, mes, ano] = parts.map(Number);
-            }
-          } else {
-            return null;
-          }
-
-          return new Date(ano, mes - 1, dia);
-        };
-
-        const data_inicioObj = parseDate(data_inicio);
-        const data_fimObj = parseDate(data_fim);
-
-        if (
-          data_inicioObj &&
-          data_fimObj &&
-          !isNaN(data_inicioObj) &&
-          !isNaN(data_fimObj)
-        ) {
-          this.filtros.data_cadastro = {
-            $gte: data_inicioObj,
-            $lte: new Date(
-              data_fimObj.getFullYear(),
-              data_fimObj.getMonth(),
-              data_fimObj.getDate(),
-              23,
-              59,
-              59,
-              999
-            ),
-          };
+      // Função auxiliar para converter "DD-MM-YYYY" em Date UTC
+      const parseDate = (dateStr, isEndOfDay = false) => {
+        const [dia, mes, ano] = dateStr.split("-").map(Number);
+        if (isEndOfDay) {
+          // Para data final, usar 23:59:59.999 UTC
+          return new Date(Date.UTC(ano, mes - 1, dia, 23, 59, 59, 999));
+        } else {
+          // Para data inicial, usar 00:00:00.000 UTC
+          return new Date(Date.UTC(ano, mes - 1, dia, 0, 0, 0, 0));
         }
-      } catch (error) {
-        console.error("Erro ao processar filtro de data:", error);
+      };
+
+      const data_inicioObj = parseDate(data_inicio, false);
+      const data_fimObj = parseDate(data_fim, true);
+
+      if (!isNaN(data_inicioObj) && !isNaN(data_fimObj)) {
+        console.log(`Filtro de datas: ${data_inicio} -> ${data_inicioObj.toISOString()}, ${data_fim} -> ${data_fimObj.toISOString()}`);
+        
+        this.filtros.data_movimentacao = {
+          $gte: data_inicioObj,
+          $lte: data_fimObj
+        };
       }
     }
     return this;
@@ -103,6 +81,7 @@ class MovimentacaoFilterBuilder {
       if (usuarioExiste) {
         this.filtros.id_usuario = usuario_id;
       } else {
+        // Filtro impossível, nunca retorna nada
         this.filtros.id_usuario = null;
       }
     }
@@ -222,7 +201,7 @@ class MovimentacaoFilterBuilder {
     if (data) {
       const dataObj = new Date(data);
       if (!isNaN(dataObj)) {
-        this.filtros.data_cadastro = {
+        this.filtros.data_movimentacao = {
           $gte: new Date(dataObj.setHours(0, 0, 0, 0)),
           $lte: new Date(dataObj.setHours(23, 59, 59, 999)),
         };
@@ -237,8 +216,8 @@ class MovimentacaoFilterBuilder {
   comDataApos(data) {
     const dataObj = new Date(data);
     if (!isNaN(dataObj)) {
-      this.filtros.data_cadastro = {
-        ...(this.filtros.data_cadastro || {}),
+      this.filtros.data_movimentacao = {
+        ...(this.filtros.data_movimentacao || {}),
         $gte: dataObj,
       };
     }
@@ -251,8 +230,8 @@ class MovimentacaoFilterBuilder {
   comDataAntes(data) {
     const dataObj = new Date(data);
     if (!isNaN(dataObj)) {
-      this.filtros.data_cadastro = {
-        ...(this.filtros.data_cadastro || {}),
+      this.filtros.data_movimentacao = {
+        ...(this.filtros.data_movimentacao || {}),
         $lte: dataObj,
       };
     }
