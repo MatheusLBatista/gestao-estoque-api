@@ -18,6 +18,7 @@ class Movimentacao {
       {
         tipo: { type: String, required: true, enum: ["entrada", "saida"] },
         destino: { type: String, required: true },
+        data_movimentacao: { type: Date, default: Date.now },
         id_usuario: { type: mongoose.Schema.Types.ObjectId, ref: "usuarios" },
         status: { type: Boolean, default: true },
         nota_fiscal: {
