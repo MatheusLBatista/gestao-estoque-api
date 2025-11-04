@@ -39,12 +39,13 @@ class FornecedorRepository {
       return fornecedor;
     }
 
-    const { cnpj, nome_fornecedor, page = 1 } = req.query;
+    const { cnpj, nome_fornecedor, status, page = 1 } = req.query;
     const limite = Math.min(parseInt(req.query.limite, 10) || 10, 100);
 
     const filterBuilder = new FornecedorFilterBuilder()
       .comCNPJ(cnpj || "")
-      .comNome(nome_fornecedor || "");
+      .comNome(nome_fornecedor || "")
+      .comStatus(status);
 
     if (typeof filterBuilder.build !== "function") {
       throw new CustomError({
@@ -89,10 +90,10 @@ class FornecedorRepository {
     }
     return fornecedor;
   }
-  
+
   async buscarPorNome(nome) {
     const fornecedores = await this.model.find({
-      nome_fornecedor: { $regex: nome, $options: "i" }
+      nome_fornecedor: { $regex: nome, $options: "i" },
     });
 
     if (fornecedores.length === 0) {
