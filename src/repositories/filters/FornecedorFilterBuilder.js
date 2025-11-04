@@ -8,7 +8,11 @@ class FornecedorFilterBuilder {
   // Filtro por nome do fornecedor (busca parcial e case-insensitive)
   comNome(nome) {
     if (nome) {
-      this.filtros.nome_fornecedor = { $regex: nome, $options: "i" };
+      const termo = this.escapeRegex(String(nome));
+      this.filtros.$or = [
+        { nome_fornecedor: { $regex: termo, $options: "i" } },
+        { cnpj: { $regex: termo, $options: "i" } },
+      ];
     }
     return this;
   }
