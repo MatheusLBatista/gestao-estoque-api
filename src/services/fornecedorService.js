@@ -7,31 +7,84 @@ class FornecedorService {
     this.repository = new FornecedorRepository();
   }
 
-  // POST /fornecedores
   async criar(dados) {
+    const cnpjExistente = await this.repository.model.findOne({
+      cnpj: dados.cnpj,
+    });
+    if (cnpjExistente) {
+      throw new CustomError({
+        statusCode: HttpStatusCodes.BAD_REQUEST.code,
+        errorType: "validationError",
+        field: "cnpj",
+        details: [],
+        customMessage: "CNPJ já está cadastrado no sistema.",
+      });
+    }
+
+    const emailExistente = await this.repository.model.findOne({
+      email: dados.email,
+    });
+    if (emailExistente) {
+      throw new CustomError({
+        statusCode: HttpStatusCodes.BAD_REQUEST.code,
+        errorType: "validationError",
+        field: "email",
+        details: [],
+        customMessage: "Email já está cadastrado no sistema.",
+      });
+    }
+
     const data = await this.repository.criar(dados);
     return data;
   }
 
-  // GET /fornecedores ou /fornecedores/:id
   async listar(req) {
     const data = await this.repository.listar(req);
     return data;
   }
 
-  // GET /fornecedores/:id
   async buscarPorId(id) {
     const data = await this.repository.buscarPorId(id);
     return data;
   }
 
-  // PUT /fornecedores/:id
   async atualizar(id, dados) {
+    if (dados.cnpj) {
+      const cnpjExistente = await this.repository.model.findOne({
+        cnpj: dados.cnpj,
+        _id: { $ne: id },
+      });
+      if (cnpjExistente) {
+        throw new CustomError({
+          statusCode: HttpStatusCodes.BAD_REQUEST.code,
+          errorType: "validationError",
+          field: "cnpj",
+          details: [],
+          customMessage: "CNPJ já está cadastrado no sistema.",
+        });
+      }
+    }
+
+    if (dados.email) {
+      const emailExistente = await this.repository.model.findOne({
+        email: dados.email,
+        _id: { $ne: id },
+      });
+      if (emailExistente) {
+        throw new CustomError({
+          statusCode: HttpStatusCodes.BAD_REQUEST.code,
+          errorType: "validationError",
+          field: "email",
+          details: [],
+          customMessage: "Email já está cadastrado no sistema.",
+        });
+      }
+    }
+
     const data = await this.repository.atualizar(id, dados);
     return data;
   }
 
-  // DELETE /fornecedores/:id
   async deletar(id) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new CustomError({
