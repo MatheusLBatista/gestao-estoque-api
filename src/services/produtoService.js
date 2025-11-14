@@ -123,7 +123,6 @@ class ProdutoService {
         delete dadosAtualizacao.fornecedores; 
         delete dadosAtualizacao.data_ultima_entrada; 
         delete dadosAtualizacao.status; 
-        delete dadosAtualizacao.categoria; 
         delete dadosAtualizacao.codigo_produto;
         delete dadosAtualizacao.data_cadastro;
         delete dadosAtualizacao.data_ultima_atualizacao;

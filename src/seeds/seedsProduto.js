@@ -58,7 +58,7 @@ async function seedProduto(fornecedores = []) {
                         data_ultima_entrada: new Date(),
                         // status: true,
                         fornecedores: Math.random() < 0.5 ? fornecedor1._id.toString() : fornecedor2._id.toString(),
-                        codigo_produto: `${fornecedores[0].nome_fornecedor.substring(0,3).toUpperCase()}-${Math.floor(Math.random() * 10000)} ${i}`,
+                        codigo_produto: `${fornecedores[0].nome_fornecedor.substring(0,3).toUpperCase()}-${Math.floor(Math.random() * 10000)}${i}`,
                     };
                     
                     // Validar com Zod
