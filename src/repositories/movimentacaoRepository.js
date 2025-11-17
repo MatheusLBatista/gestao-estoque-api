@@ -48,6 +48,7 @@ class MovimentacaoRepository {
     const {
       tipo,
       destino,
+      movimentacao,
       data_inicio,
       data_fim,
       produto,
@@ -63,10 +64,11 @@ class MovimentacaoRepository {
     const filterBuilder = new MovimentacaoFilterBuilder()
       .comTipo(tipo || "")
       .comDestino(destino || "")
-      .comPeriodo(data_inicio || "", data_fim || "");
+      .comPeriodo(data_inicio || "", data_fim || "")
 
     await Promise.all([
       filterBuilder.comProdutoId(produto || ""),
+      filterBuilder.comMovimentacao(movimentacao || ""),
       filterBuilder.comProdutoNome(nome_produto || ""),
       filterBuilder.comUsuarioId(usuario || ""),
       filterBuilder.comUsuarioNome(nome_usuario || ""),

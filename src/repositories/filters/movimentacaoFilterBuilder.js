@@ -25,6 +25,46 @@ class MovimentacaoFilterBuilder {
     return this;
   }
 
+  async comMovimentacao(movimentacao) {
+    if (movimentacao && movimentacao.trim() !== "") {
+      const termo = this.escapeRegex(movimentacao);
+
+      const produtosEncontrados = await this.produtoRepository.model
+        .find({
+          $or: [
+            { nome_produto: { $regex: termo, $options: "i" } },
+            { codigo_produto: { $regex: termo, $options: "i" } },
+          ],
+        })
+        .select("_id");
+
+      const usuariosEncontrados = await this.usuarioRepository.model
+        .find({
+          nome_usuario: { $regex: termo, $options: "i" },
+        })
+        .select("_id");
+
+      const produtoIds = produtosEncontrados.map((p) => p._id);
+      const usuarioIds = usuariosEncontrados.map((u) => u._id);
+
+      const filtrosOr = [
+        { destino: { $regex: termo, $options: "i" } },
+        { "produtos.codigo_produto": { $regex: termo, $options: "i" } },
+        { observacoes: { $regex: termo, $options: "i" } },
+      ];
+
+      if (produtoIds.length > 0) {
+        filtrosOr.push({ "produtos._id": { $in: produtoIds } });
+      }
+      if (usuarioIds.length > 0) {
+        filtrosOr.push({ id_usuario: { $in: usuarioIds } });
+      }
+
+      this.filtros.$or = filtrosOr;
+    }
+    return this;
+  }
+
   /**
    * Filtra movimentações por destino
    */
@@ -59,11 +99,13 @@ class MovimentacaoFilterBuilder {
       const data_fimObj = parseDate(data_fim, true);
 
       if (!isNaN(data_inicioObj) && !isNaN(data_fimObj)) {
-        console.log(`Filtro de datas: ${data_inicio} -> ${data_inicioObj.toISOString()}, ${data_fim} -> ${data_fimObj.toISOString()}`);
-        
+        console.log(
+          `Filtro de datas: ${data_inicio} -> ${data_inicioObj.toISOString()}, ${data_fim} -> ${data_fimObj.toISOString()}`
+        );
+
         this.filtros.data_movimentacao = {
           $gte: data_inicioObj,
-          $lte: data_fimObj
+          $lte: data_fimObj,
         };
       }
     }
