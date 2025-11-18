@@ -8,7 +8,7 @@ export const ProdutoSchema = z.object({
     descricao: z.string().optional(),
     preco: z.number().positive('Preço deve ser um valor positivo'),
     marca: z.string().optional(), 
-    custo: z.number().positive('Custo deve ser um valor positivo'),
+    custo: z.number().positive('Custo deve ser um valor positivo').optional(),
     categoria: z.enum(['A', 'B', 'C'], {
         errorMap: () => ({ message: "Categoria deve ser A (Premium), B (Intermediário) ou C (Básico)" })
     }).optional(),

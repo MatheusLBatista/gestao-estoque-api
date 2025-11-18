@@ -35,6 +35,7 @@ class ProdutoRepository {
     // Para busca por filtros
     const {
       nome_produto,
+      produto,
       categoria,
       codigo_produto,
       estoque_baixo,
@@ -51,6 +52,7 @@ class ProdutoRepository {
 
     const filterBuilder = new ProdutoFilterBuilder()
       .comNome(nome_produto || "")
+      .comProduto(produto || "")
       .comCategoria(categoria || "")
       .comPrecoMinimo(preco_minimo || null)
       .comPrecoMaximo(preco_maximo || null)

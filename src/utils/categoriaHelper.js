@@ -1,7 +1,7 @@
 // Função para calcular categoria automaticamente baseada no preço
 export class CategoriaHelper {
     static calcularCategoriaPorValor(preco) {
-        if (preco >= 1001 && preco <= 10000) {
+        if (preco >= 1001) {
             return 'A';
         } else if (preco >= 500 && preco <= 1000) {
             return 'B';

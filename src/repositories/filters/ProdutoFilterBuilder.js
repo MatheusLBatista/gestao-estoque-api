@@ -16,6 +16,18 @@ class ProdutoFilterBuilder {
     return this;
   }
 
+  comProduto(produto) {
+    if (produto && produto.trim() !== "") {
+      const termo = this.escapeRegex(produto);
+      this.filters.$or = [
+        { nome_produto: { $regex: termo, $options: "i" } },
+        { codigo_produto: { $regex: termo, $options: "i" } },
+        { marca: { $regex: termo, $options: "i" } },
+      ];
+    }
+    return this;
+  }
+
   comCategoria(categoria) {
     if (categoria && categoria.trim() !== "") {
       this.filters.categoria = { $regex: categoria, $options: "i" };
@@ -126,6 +138,10 @@ class ProdutoFilterBuilder {
       this.filters.status = status;
     }
     return this;
+  }
+
+  escapeRegex(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
 
   build() {

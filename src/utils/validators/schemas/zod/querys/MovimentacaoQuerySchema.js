@@ -70,7 +70,7 @@ export const MovimentacaoQuerySchema = z.object({
         return true;
     },
     {
-        message: 'Ambos data_inicio e data_fim devem ser fornecidos juntos',
+        message: 'Ambos data de início e data final devem ser fornecidos.',
         path: ['data_inicio', 'data_fim']
     }
 );

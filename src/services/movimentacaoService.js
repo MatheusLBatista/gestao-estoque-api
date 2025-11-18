@@ -61,7 +61,10 @@ class MovimentacaoService {
       dadosMovimentacao.id_usuario = req.userId;
     }
 
-    if (!dadosMovimentacao.produtos || dadosMovimentacao.produtos.length === 0) {
+    if (
+      !dadosMovimentacao.produtos ||
+      dadosMovimentacao.produtos.length === 0
+    ) {
       throw new CustomError({
         statusCode: HttpStatusCodes.BAD_REQUEST.code,
         errorType: "validationError",
@@ -72,10 +75,15 @@ class MovimentacaoService {
     }
 
     for (const produtoMov of dadosMovimentacao.produtos) {
-      const produto = await this.produtoService.buscarProdutoPorID(produtoMov._id);
+      const produto = await this.produtoService.buscarProdutoPorID(
+        produtoMov._id
+      );
 
       // Verificação entre _id e codigo_produto
-      if (produtoMov.codigo_produto && produto.codigo_produto !== produtoMov.codigo_produto) {
+      if (
+        produtoMov.codigo_produto &&
+        produto.codigo_produto !== produtoMov.codigo_produto
+      ) {
         throw new CustomError({
           statusCode: HttpStatusCodes.BAD_REQUEST.code,
           errorType: "validationError",
@@ -88,13 +96,24 @@ class MovimentacaoService {
       if (dadosMovimentacao.tipo === "saida") {
         delete dadosMovimentacao.produtos.custo;
 
+        // Validar se o estoque é suficiente (deve ser maior que 0 e maior ou igual à quantidade solicitada)
+        if (produto.estoque <= 0) {
+          throw new CustomError({
+            statusCode: HttpStatusCodes.BAD_REQUEST.code,
+            errorType: "businessRuleViolation",
+            field: "estoque",
+            details: [],
+            customMessage: `O produto ${produto.nome_produto} está sem estoque disponível.`,
+          });
+        }
+
         if (produto.estoque < produtoMov.quantidade_produtos) {
           throw new CustomError({
             statusCode: HttpStatusCodes.BAD_REQUEST.code,
             errorType: "businessRuleViolation",
             field: "quantidade_produtos",
             details: [],
-            customMessage: `Estoque insuficiente para o produto ${produto.nome_produto}. Disponível: ${produto.estoque}.`,
+            customMessage: `Estoque insuficiente para o produto ${produto.nome_produto}. Disponível: ${produto.estoque}, solicitado: ${produtoMov.quantidade_produtos}.`,
           });
         }
 
@@ -103,7 +122,7 @@ class MovimentacaoService {
         });
       } else if (dadosMovimentacao.tipo === "entrada") {
         delete dadosMovimentacao.produtos.preco;
-        
+
         await this.produtoService.atualizarProduto(produto._id, {
           estoque: produto.estoque + produtoMov.quantidade_produtos,
           custo: produtoMov.custo, // manter custo atual
@@ -198,13 +217,24 @@ class MovimentacaoService {
             estoque: produto.estoque + produtoMov.quantidade_produtos,
           });
         } else if (novoTipo === "saida") {
+          // Validar se o estoque é suficiente (deve ser maior que 0 e maior ou igual à quantidade solicitada)
+          if (produto.estoque <= 0) {
+            throw new CustomError({
+              statusCode: HttpStatusCodes.BAD_REQUEST.code,
+              errorType: "businessRuleViolation",
+              field: "estoque",
+              details: [],
+              customMessage: `O produto ${produto.nome_produto} está sem estoque disponível.`,
+            });
+          }
+
           if (produto.estoque < produtoMov.quantidade_produtos) {
             throw new CustomError({
               statusCode: HttpStatusCodes.BAD_REQUEST.code,
               errorType: "businessRuleViolation",
               field: "quantidade_produtos",
               details: [],
-              customMessage: `Estoque insuficiente para o produto ${produto.nome_produto}. Disponível: ${produto.estoque}.`,
+              customMessage: `Estoque insuficiente para o produto ${produto.nome_produto}. Disponível: ${produto.estoque}, solicitado: ${produtoMov.quantidade_produtos}.`,
             });
           }
 
@@ -215,9 +245,11 @@ class MovimentacaoService {
       }
     }
 
-    const allowedFields = ['destino'];
+    const allowedFields = ["destino"];
     dadosAtualizacao = Object.fromEntries(
-      Object.entries(dadosAtualizacao).filter(([key]) => allowedFields.includes(key))
+      Object.entries(dadosAtualizacao).filter(([key]) =>
+        allowedFields.includes(key)
+      )
     );
 
     // sempre atualiza a data
@@ -327,14 +359,24 @@ class MovimentacaoService {
           produtoMov._id
         );
 
-        // Aqui pode dar erro se o estoque não for suficiente
+        // Validar se há estoque suficiente para reativar a movimentação de saída
+        if (produto.estoque <= 0) {
+          throw new CustomError({
+            statusCode: HttpStatusCodes.CONFLICT.code,
+            errorType: "businessRuleViolation",
+            field: "estoque",
+            details: [],
+            customMessage: `O produto ${produto.nome_produto} está sem estoque disponível para reativar a movimentação.`,
+          });
+        }
+
         if (produto.estoque < produtoMov.quantidade_produtos) {
           throw new CustomError({
             statusCode: HttpStatusCodes.CONFLICT.code,
             errorType: "businessRuleViolation",
             field: "estoque",
             details: [],
-            customMessage: `Não há estoque suficiente para reativar a movimentação do produto ${produto.nome_produto}.`,
+            customMessage: `Não há estoque suficiente para reativar a movimentação do produto ${produto.nome_produto}. Disponível: ${produto.estoque}, necessário: ${produtoMov.quantidade_produtos}.`,
           });
         }
 
