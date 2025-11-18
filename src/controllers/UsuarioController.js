@@ -215,22 +215,22 @@ class UsuarioController {
     }
 
     async desativarUsuario(req, res) {
-        console.log('Estou no desativarUsusario em UsuarioController');
+        console.log('Estou no desativarUsuario em UsuarioController');
 
-        const { id } = req.params || {};
-        this.validateId(id, 'id', 'desativar');
+        const { matricula } = req.params || {};
+        this.validateId(matricula, 'matricula', 'desativar');
 
-        const data = await this.service.desativarUsuario(id);
+        const data = await this.service.desativarUsuario(matricula);
         return CommonResponse.success(res, data, 200, 'Usuario desativado com sucesso.');
     }
 
     async reativarUsuario(req, res) {
-        console.log('Estou no reativarUsusario em UsuarioController');
+        console.log('Estou no reativarUsuario em UsuarioController');
 
-        const { id } = req.params || {};
-        this.validateId(id, 'id', 'reativar');
+        const { matricula } = req.params || {};
+        this.validateId(matricula, 'matricula', 'reativar');
 
-        const data = await this.service.reativarUsuario(id);
+        const data = await this.service.reativarUsuario(matricula);
         return CommonResponse.success(res, data, 200, 'Usuario reativado com sucesso.');
     }
 
