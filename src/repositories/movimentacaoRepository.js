@@ -58,7 +58,7 @@ class MovimentacaoRepository {
       page = 1,
     } = req.query || {};
 
-    const limite = Math.min(parseInt(req.query?.limite, 10) || 10, 100);
+    const limite = Math.min(parseInt(req.query?.limite || req.query?.limit, 10) || 10, 10000);
 
     const filterBuilder = new MovimentacaoFilterBuilder()
       .comTipo(tipo || "")
@@ -79,7 +79,7 @@ class MovimentacaoRepository {
 
     const options = {
       page: parseInt(page, 10),
-      limit: Math.min(parseInt(limite, 10), 100),
+      limit: Math.min(parseInt(limite, 10), 10000),
       sort: { data_movimentacao: -1 },
       populate: [
         { path: "id_usuario", select: "nome_usuario email" },

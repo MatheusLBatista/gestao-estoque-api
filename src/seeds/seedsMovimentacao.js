@@ -23,86 +23,68 @@ async function seedMovimentacao(usuarios = [], produtos = []) {
           u.nome_usuario === "Administrador" || u.perfil === "administrador"
       ) || usuarios[0];
 
-    const produtosDb = await Produto.find().limit(2);
-    const produto1 = produtosDb[0];
-    const produto2 = produtosDb[1] || produtosDb[0];
-
-    console.log(
-      `📦 Produto 1 para entrada: ${produto1.nome_produto} (${produto1.codigo_produto}) - Custo: R$ ${produto1.custo}`
-    );
-    console.log(
-      `📦 Produto 2 para saída: ${produto2.nome_produto} (${produto2.codigo_produto}) - Preço: R$ ${produto2.preco}`
-    );
-
-    const movEntrada = {
-      tipo: "entrada",
-      destino: "Estoque",
-      id_usuario: adminUser._id,
-      produtos: [
-        {
-          _id: produto1._id,
-          codigo_produto: produto1.codigo_produto,
-          quantidade_produtos: 30,
-          custo: produto1.custo,
+    // Criar uma movimentação de ENTRADA para CADA produto criado no seed
+    console.log(`📦 Criando movimentação de entrada inicial para ${produtos.length} produtos...`);
+    
+    for (let i = 0; i < produtos.length; i++) {
+      const produto = produtos[i];
+      
+      // Data de movimentação variando nos últimos 6 meses
+      const dataMovimentacao = new Date();
+      const diasAtras = Math.floor(Math.random() * 180); // 0 a 180 dias atrás (6 meses)
+      dataMovimentacao.setDate(dataMovimentacao.getDate() - diasAtras);
+      
+      const numeroNF = 100000 + i; // Número de nota fiscal sequencial
+      const serie = (i % 3) + 1; // Serie 1, 2 ou 3
+      
+      const movEntrada = {
+        tipo: "entrada",
+        destino: "Estoque",
+        data_movimentacao: dataMovimentacao,
+        id_usuario: adminUser._id,
+        produtos: [
+          {
+            _id: produto._id,
+            codigo_produto: produto.codigo_produto,
+            quantidade_produtos: Math.floor(Math.random() * 50) + 20, // 20 a 69 unidades
+            custo: produto.custo,
+          },
+        ],
+        nota_fiscal: {
+          numero: numeroNF.toString().padStart(9, "0"),
+          serie: serie.toString(),
+          chave: `352007142001660001875500${serie}0000${numeroNF}1234567890`,
+          data_emissao: dataMovimentacao,
         },
-      ],
-      nota_fiscal: {
-        numero: "000001234",
-        serie: "1",
-        chave: "35200714200166000187550010000012341234567890",
-        data_emissao: new Date(),
-      },
-      observacoes: "Movimentação de entrada fixa - Seed",
-    };
+        observacoes: `Entrada inicial - Produto ${produto.nome_produto} (Categoria ${produto.categoria})`,
+      };
 
-    const movSaida = {
-      tipo: "saida",
-      destino: "Venda",
-      id_usuario: adminUser._id,
-      produtos: [
-        {
-          _id: produto2._id,
-          codigo_produto: produto2.codigo_produto,
-          quantidade_produtos: 15,
-          preco: produto2.preco,
-        },
-      ],
-      observacoes: "Movimentação de saída fixa - Seed",
-    };
-
-    movimentacoes.push(movEntrada, movSaida);
-
-    try {
-      MovimentacaoSchema.parse(movEntrada);
-      console.log("✅ Movimentação fixa de entrada validada com sucesso");
-    } catch (error) {
-      console.error(
-        "❌ Erro ao validar movimentação fixa de entrada:",
-        error.message
-      );
+      try {
+        MovimentacaoSchema.parse(movEntrada);
+        movimentacoes.push(movEntrada);
+      } catch (error) {
+        console.error(
+          `❌ Erro ao validar movimentação de entrada para produto ${produto.codigo_produto}:`,
+          error.message
+        );
+      }
     }
 
-    try {
-      MovimentacaoSchema.parse(movSaida);
-      console.log("✅ Movimentação fixa de saída validada com sucesso");
-    } catch (error) {
-      console.error(
-        "❌ Erro ao validar movimentação fixa de saída:",
-        error.message
-      );
-    }
+    console.log(`✅ ${movimentacoes.length} movimentações de entrada inicial criadas`);
 
-    for (let i = 0; i < 20; i++) {
+    // Criar movimentações adicionais aleatórias (entradas e saídas)
+    console.log(`📦 Criando 50 movimentações adicionais aleatórias...`);
+    
+    for (let i = 0; i < 50; i++) {
       const tipo = tipos[Math.floor(Math.random() * tipos.length)];
       const usuario = usuarios[Math.floor(Math.random() * usuarios.length)];
       const produto = produtos[Math.floor(Math.random() * produtos.length)];
 
       const dataMovimentacao = new Date();
-      dataMovimentacao.setDate(
-        dataMovimentacao.getDate() - Math.floor(Math.random() * 30)
-      );
+      const diasAtras = Math.floor(Math.random() * 90); // 0 a 90 dias atrás (3 meses)
+      dataMovimentacao.setDate(dataMovimentacao.getDate() - diasAtras);
 
-      const numeroNF = Math.floor(Math.random() * 999999) + 100000;
+      const numeroNF = Math.floor(Math.random() * 999999) + 200000;
       const serie = Math.floor(Math.random() * 3) + 1;
 
       const movimentacaoFake = {
@@ -114,7 +96,7 @@ async function seedMovimentacao(usuarios = [], produtos = []) {
           {
             _id: produto._id.toString(),
             codigo_produto: produto.codigo_produto,
-            quantidade_produtos: Math.floor(Math.random() * 20) + 1,
+            quantidade_produtos: Math.floor(Math.random() * 30) + 5, // 5 a 34 unidades
             // Para entrada: custo obrigatório, preço opcional
             ...(tipo === "entrada" && {
               custo: produto.custo || Math.random() * 50 + 10,
@@ -135,8 +117,8 @@ async function seedMovimentacao(usuarios = [], produtos = []) {
         }),
         observacoes: `Movimentação ${
           tipo === "entrada" ? "de entrada" : "de saída"
-        } - Seed ${i + 1}${
-          tipo === "entrada" ? ` (NF: ${numeroNF})` : " (Sem NF)"
+        } adicional - Produto Cat${produto.categoria}${
+          tipo === "entrada" ? ` (NF: ${numeroNF})` : ""
         }`,
       };
 
@@ -152,7 +134,7 @@ async function seedMovimentacao(usuarios = [], produtos = []) {
         } catch (error) {
           tentativa++;
           console.warn(
-            `Tentativa ${tentativa}: Movimentação inválida: ${error.message}`
+            `Tentativa ${tentativa}: Movimentação adicional inválida: ${error.message}`
           );
 
           // Regenerar valores se inválido
@@ -167,7 +149,7 @@ async function seedMovimentacao(usuarios = [], produtos = []) {
 
       if (!movimentacaoValida) {
         console.error(
-          `❌ Movimentação ${i + 1} não pôde ser validada após 3 tentativas`
+          `❌ Movimentação adicional ${i + 1} não pôde ser validada após 3 tentativas`
         );
       }
     }
@@ -191,7 +173,7 @@ async function seedMovimentacao(usuarios = [], produtos = []) {
           )}`
         );
       } else {
-        console.log(`   📄 Nota Fiscal: Não informada`);
+        console.log(`   � Nota Fiscal: Não informada`);
       }
 
       mov.produtos.forEach((prod, i) => {
