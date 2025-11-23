@@ -15,6 +15,7 @@ export const UsuarioIdSchema = z
 export const UsuarioSchema = z.object({
     nome_usuario: z.string().min(3).regex(/^[A-Za-zÀ-ÿ\s]+$/, 'Nome do usuário deve possuir pelo menos 3 caracteres, não pode conter caracteres especiais ou numeros. Apenas letras.'),
     email: z.string().email('Email inválido').min(5, 'Email deve conter no mínimo 5 caracteres').max(100, 'Email deve conter no máximo 100 caracteres'),
+    telefone: z.string().length(10, 'Telefone deve conter exatamente 10 caracteres').regex(/^\d+$/, 'Telefone deve conter apenas números'),
     perfil: z.enum(['administrador', 'gerente', 'vendedor', 'estoquista'], {
         errorMap: () => ({ message: 'Perfil deve ser um dos seguintes: administrador, gerente, vendedor ou estoquista.' })
     }),

@@ -9,6 +9,7 @@ class Usuario {
         nome_usuario: { type: String, required: true },
         email: { type: String, required: true, unique: true },
         matricula: { type: String, required: true, unique: true },
+        telefone: { type: String },
         senha: { type: String, required: false, select: false }, // Não obrigatório inicialmente
         perfil: {
           type: String,
