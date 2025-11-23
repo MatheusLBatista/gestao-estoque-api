@@ -16,11 +16,13 @@ class Usuario {
           default: "estoquista"
         },
         ativo: { type: Boolean, default: true },
-        senha_definida: { type: Boolean, default: false }, // Nova flag para controlar se senha foi definida
+        senha_definida: { type: Boolean, default: false }, // Flag para controlar se senha foi definida
         accesstoken: { type: String, select: false },
         refreshtoken: { type: String, select: false },
-        token_recuperacao: { type: String, select: false },
-        token_recuperacao_expira: { type: String, select: false },
+        tokenUnico: { type: String, select: false }, // Token único para validação de email, recuperação de senha
+        exp_tokenUnico_recuperacao: { type: Date, select: false }, // Data de expiração do token de recuperação
+        token_recuperacao: { type: String, select: false }, // Compatibilidade com código legado
+        token_recuperacao_expira: { type: String, select: false }, // Compatibilidade com código legado
         codigo_recuperacao: { type: String, select: false },
         data_expiracao_codigo: { type: Date, select: false },
         online: { type: Boolean, default: false },

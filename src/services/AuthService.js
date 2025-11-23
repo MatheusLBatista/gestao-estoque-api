@@ -12,7 +12,8 @@ import {
   StatusService,
   asyncWrapper,
 } from "../utils/helpers/index.js";
-import nodemailer from "nodemailer";
+import { enviarEmail } from "../utils/mailClient.js";
+import { emailRecuperacaoSenha, emailConfirmacaoSenhaAlterada, emailBoasVindas } from "../utils/templates/emailTemplates.js";
 
 dotenv.config();
 
@@ -166,41 +167,32 @@ export class AuthService {
       user._id
     );
 
-    // Salvar no banco
+    // Salvar no banco com os novos campos
     await this.usuarioRepository.atualizarUsuario(user._id, {
-      token_recuperacao: tokenUnico,
-      token_recuperacao_expira: new Date(Date.now() + 60 * 60 * 1000), // 1h
+      tokenUnico: tokenUnico,
+      exp_tokenUnico_recuperacao: new Date(Date.now() + 60 * 60 * 1000), // 1h
+      token_recuperacao: tokenUnico, // Compatibilidade
+      token_recuperacao_expira: new Date(Date.now() + 60 * 60 * 1000), // Compatibilidade
       codigo_recuperacao: codigo,
       data_expiracao_codigo: new Date(Date.now() + 60 * 60 * 1000), // 1h
     });
 
-    const resetUrl = `${process.env.FRONTEND_URL}/reset?token=${tokenUnico}`;
-
-    // Configuração do transporter
-    const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: process.env.EMAIL_PORT,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
+    // Enviar email usando o template
+    const emailData = emailRecuperacaoSenha({
+      email: user.email,
+      nome: user.nome_usuario,
+      token: tokenUnico
     });
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM || '"Equipe Auth" <no-reply@auth.com>',
-      to: user.email,
-      subject: "Redefinir senha",
-      html: `
-                <p>Olá ${user.nome_usuario || user.nome},</p>
-                <p>Clique no link abaixo para redefinir sua senha:</p>
-                <a href="${resetUrl}" target="_blank">${resetUrl}</a>
-                <p>Ou redefina sua senha a partir do código:</p>
-                <h4>${codigo}</h4>
-                <p>Este link expira em 60 minutos.</p>
-            `,
-    });
+    await enviarEmail(emailData);
 
-    return { message: "E-mail de recuperação enviado com sucesso." };
+    console.log(`🔑 Código de recuperação: ${codigo} | Token: ${tokenUnico.substring(0, 20)}...`);
+
+    return { 
+      message: "E-mail de recuperação enviado com sucesso.",
+      // Em desenvolvimento, retornar código para facilitar testes
+      ...(process.env.NODE_ENV === 'development' && { codigo, token: tokenUnico })
+    };
   }
 
   async redefinirSenhaComToken(token, novaSenha) {
@@ -236,9 +228,19 @@ export class AuthService {
       senha_definida: true,
       ativo: true,
       codigo_recuperacao: null,
+      tokenUnico: null,
+      exp_tokenUnico_recuperacao: null,
       token_recuperacao: null,
       token_recuperacao_expira: null,
     });
+
+    // Enviar email de confirmação
+    const emailData = emailConfirmacaoSenhaAlterada({
+      email: usuario.email,
+      nome: usuario.nome_usuario
+    });
+
+    await enviarEmail(emailData);
 
     return { message: "Senha atualizada com sucesso" };
   }
@@ -267,6 +269,9 @@ export class AuthService {
     // Hash da nova senha
     const senhaCriptografada = await bcrypt.hash(novaSenha, 10);
 
+    // Verificar se é primeira definição de senha
+    const isPrimeiraDefinicao = !usuario.senha_definida;
+
     // Atualizar senha, ativar usuário e remover informações de recuperação
     await this.usuarioRepository.atualizarSenhaCompleta(usuario._id, {
       senha: senhaCriptografada,
@@ -274,12 +279,19 @@ export class AuthService {
       ativo: true,
       codigo_recuperacao: null,
       data_expiracao_codigo: null,
+      tokenUnico: null,
+      exp_tokenUnico_recuperacao: null,
       token_recuperacao: null,
       token_recuperacao_expira: null,
     });
 
-    // Verificar se é primeira definição de senha
-    const isPrimeiraDefinicao = !usuario.senha_definida;
+    // Enviar email de confirmação
+    const emailData = emailConfirmacaoSenhaAlterada({
+      email: usuario.email,
+      nome: usuario.nome_usuario
+    });
+
+    await enviarEmail(emailData);
 
     return {
       message: isPrimeiraDefinicao
