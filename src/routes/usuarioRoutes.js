@@ -22,6 +22,13 @@ router
         asyncWrapper(usuarioController.cadastrarUsuario.bind(usuarioController))
     )
 
+    // Rota específica para cadastrar usuário sem senha (primeiro acesso)
+    .post(
+        "/cadastrar-sem-senha",
+        LogMiddleware.log('CADASTRO_USUARIO_SEM_SENHA'),
+        asyncWrapper(usuarioController.cadastrarUsuario.bind(usuarioController))
+    )
+
 router
     
     // Rotas específicas antes das rotas com parâmetros
