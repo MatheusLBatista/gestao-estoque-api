@@ -161,6 +161,21 @@ export class AuthService {
   async recuperarSenha(email) {
     const user = await this.usuarioRepository.buscarPorEmail(email);
 
+    if (!user) {
+      // Por segurança, não revelar se o email existe ou não
+      // Retornar mensagem genérica de sucesso
+      return { 
+        message: "Se existe uma conta com este email, você receberá instruções para redefinir sua senha."
+      };
+    }
+
+    // Verificar se a conta está ativa
+    if (!user.ativo && user.senha_definida) {
+      return { 
+        message: "Se existe uma conta com este email, você receberá instruções para redefinir sua senha."
+      };
+    }
+
     // Gerar código e token único
     const codigo = Math.random().toString(36).substring(2, 6).toUpperCase();
     const tokenUnico = await this.tokenUtil.generatePasswordRecoveryToken(
@@ -177,39 +192,80 @@ export class AuthService {
       data_expiracao_codigo: new Date(Date.now() + 60 * 60 * 1000), // 1h
     });
 
-    // Enviar email usando o template
-    const emailData = emailRecuperacaoSenha({
-      email: user.email,
-      nome: user.nome_usuario,
-      token: tokenUnico
-    });
+    // Determinar tipo de email baseado no status da senha
+    const isPrimeiroAcesso = !user.senha_definida;
 
-    await enviarEmail(emailData);
+    try {
+      if (isPrimeiroAcesso) {
+        // Email de boas-vindas para primeiro acesso
+        const emailData = emailBoasVindas({
+          email: user.email,
+          nome: user.nome_usuario,
+          token: tokenUnico
+        });
+        await enviarEmail(emailData);
+        console.log(`✉️ Email de boas-vindas enviado para ${user.email}`);
+      } else {
+        // Email de recuperação de senha
+        const emailData = emailRecuperacaoSenha({
+          email: user.email,
+          nome: user.nome_usuario,
+          token: tokenUnico
+        });
+        await enviarEmail(emailData);
+        console.log(`🔑 Email de recuperação enviado para ${user.email}`);
+      }
+    } catch (emailError) {
+      console.error('Erro ao enviar email:', emailError);
+      // Continua mesmo se o email falhar
+    }
 
     console.log(`🔑 Código de recuperação: ${codigo} | Token: ${tokenUnico.substring(0, 20)}...`);
 
     return { 
-      message: "E-mail de recuperação enviado com sucesso.",
+      message: "Se existe uma conta com este email, você receberá instruções para redefinir sua senha.",
       // Em desenvolvimento, retornar código para facilitar testes
-      ...(process.env.NODE_ENV === 'development' && { codigo, token: tokenUnico })
+      ...(process.env.NODE_ENV === 'development' && { codigo, token: tokenUnico, isPrimeiroAcesso })
     };
   }
 
   async redefinirSenhaComToken(token, novaSenha) {
+    // Validar formato da senha
+    if (!novaSenha || novaSenha.length < 6) {
+      throw new CustomError({
+        statusCode: 400,
+        errorType: "validationError",
+        field: "senha",
+        details: [],
+        customMessage: "A senha deve ter no mínimo 6 caracteres",
+      });
+    }
+
     const usuarioId = await this.tokenUtil
       .decodePasswordRecoveryToken(token)
       .catch(() => {
         throw new CustomError({
-          statusCode: 404,
+          statusCode: 401,
           errorType: "authError",
-          field: "Usuário",
+          field: "Token",
           details: [],
-          customMessage: messages.error.resourceNotFound("Token"),
+          customMessage: "Token inválido ou expirado",
         });
       });
 
     const usuario = await this.usuarioRepository.buscarPorId(usuarioId);
 
+    if (!usuario) {
+      throw new CustomError({
+        statusCode: 404,
+        errorType: "authError",
+        field: "Usuário",
+        details: [],
+        customMessage: "Usuário não encontrado",
+      });
+    }
+
+    // Verificar se o token não expirou
     if (
       usuario.token_recuperacao_expira &&
       new Date(usuario.token_recuperacao_expira) < new Date()
@@ -217,9 +273,14 @@ export class AuthService {
       throw new CustomError({
         statusCode: 401,
         errorType: "authError",
-        customMessage: "Token expirado",
+        field: "Token",
+        details: [],
+        customMessage: "Token expirado. Solicite um novo link de recuperação.",
       });
     }
+
+    // Verificar se é primeiro acesso
+    const isPrimeiroAcesso = !usuario.senha_definida;
 
     const senhaCriptografada = await bcrypt.hash(novaSenha, 10);
 
@@ -228,6 +289,7 @@ export class AuthService {
       senha_definida: true,
       ativo: true,
       codigo_recuperacao: null,
+      data_expiracao_codigo: null,
       tokenUnico: null,
       exp_tokenUnico_recuperacao: null,
       token_recuperacao: null,
@@ -235,21 +297,69 @@ export class AuthService {
     });
 
     // Enviar email de confirmação
-    const emailData = emailConfirmacaoSenhaAlterada({
-      email: usuario.email,
-      nome: usuario.nome_usuario
-    });
+    try {
+      const emailData = emailConfirmacaoSenhaAlterada({
+        email: usuario.email,
+        nome: usuario.nome_usuario
+      });
+      await enviarEmail(emailData);
+    } catch (emailError) {
+      console.error('Erro ao enviar email de confirmação:', emailError);
+      // Continua mesmo se o email falhar
+    }
 
-    await enviarEmail(emailData);
-
-    return { message: "Senha atualizada com sucesso" };
+    if (isPrimeiroAcesso) {
+      console.log(`✅ Primeira senha definida para ${usuario.email} - Conta ativada`);
+      return { 
+        message: "Senha definida com sucesso! Sua conta está ativa e você já pode fazer login.",
+        isPrimeiroAcesso: true
+      };
+    } else {
+      console.log(`🔄 Senha redefinida para ${usuario.email}`);
+      return { 
+        message: "Senha redefinida com sucesso! Você já pode fazer login com sua nova senha.",
+        isPrimeiroAcesso: false
+      };
+    }
   }
 
   async redefinirSenhaComCodigo(codigo, novaSenha) {
+    // Validar formato da senha
+    if (!novaSenha || novaSenha.length < 6) {
+      throw new CustomError({
+        statusCode: 400,
+        errorType: "validationError",
+        field: "senha",
+        details: [],
+        customMessage: "A senha deve ter no mínimo 6 caracteres",
+      });
+    }
+
+    // Validar formato do código
+    if (!codigo || codigo.length < 4) {
+      throw new CustomError({
+        statusCode: 400,
+        errorType: "validationError",
+        field: "codigo",
+        details: [],
+        customMessage: "Código inválido",
+      });
+    }
+
     // Buscar usuário pelo código de recuperação
     const usuario = await this.usuarioRepository.buscarPorCodigoRecuperacao(
       codigo
     );
+
+    if (!usuario) {
+      throw new CustomError({
+        statusCode: 404,
+        errorType: "authError",
+        field: "Código",
+        details: [],
+        customMessage: "Código inválido ou expirado",
+      });
+    }
 
     // Verificar se o código não expirou
     const agora = new Date();
@@ -260,9 +370,9 @@ export class AuthService {
       throw new CustomError({
         statusCode: 401,
         errorType: "authError",
-        field: "Usuário",
+        field: "Código",
         details: [],
-        customMessage: messages.error.resourceNotFound("Código de recuperação"),
+        customMessage: "Código expirado. Solicite um novo código de recuperação.",
       });
     }
 
@@ -286,17 +396,29 @@ export class AuthService {
     });
 
     // Enviar email de confirmação
-    const emailData = emailConfirmacaoSenhaAlterada({
-      email: usuario.email,
-      nome: usuario.nome_usuario
-    });
+    try {
+      const emailData = emailConfirmacaoSenhaAlterada({
+        email: usuario.email,
+        nome: usuario.nome_usuario
+      });
+      await enviarEmail(emailData);
+    } catch (emailError) {
+      console.error('Erro ao enviar email de confirmação:', emailError);
+      // Continua mesmo se o email falhar
+    }
 
-    await enviarEmail(emailData);
-
-    return {
-      message: isPrimeiraDefinicao
-        ? "Senha definida com sucesso! Sua conta está ativa e você já pode fazer login."
-        : "Senha atualizada com sucesso",
-    };
+    if (isPrimeiraDefinicao) {
+      console.log(`✅ Primeira senha definida via código para ${usuario.email} - Conta ativada`);
+      return {
+        message: "Senha definida com sucesso! Sua conta está ativa e você já pode fazer login.",
+        isPrimeiroAcesso: true
+      };
+    } else {
+      console.log(`🔄 Senha redefinida via código para ${usuario.email}`);
+      return {
+        message: "Senha atualizada com sucesso! Você já pode fazer login com sua nova senha.",
+        isPrimeiroAcesso: false
+      };
+    }
   }
 }

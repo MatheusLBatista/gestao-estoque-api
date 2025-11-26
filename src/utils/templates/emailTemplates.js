@@ -6,33 +6,35 @@ const COR_PRIMARIA = process.env.COR_PRIMARIA || '#4F46E5';
 const SYSTEM_NAME = 'Gestão de Estoque';
 
 /**
- * Template de boas-vindas para novo usuário
+ * Template de boas-vindas para novo usuário (primeiro acesso)
  * @param {Object} data - { email, nome, token }
  */
 export const emailBoasVindas = (data) => ({
     to: data.email,
-    subject: `Bem-vindo(a) ao ${SYSTEM_NAME}!`,
+    subject: `🎉 Bem-vindo(a) ao ${SYSTEM_NAME}!`,
     template: 'generico',
     data: {
         // Header
         mostrarHeader: true,
         logoUrl: LOGO_URL,
-        corPrimaria: COR_PRIMARIA,
+        corPrimaria: '#10B981',
         nomeSistema: SYSTEM_NAME,
         mostrarDivisor: true,
 
         // Conteúdo
-        titulo: `Bem-vindo(a) ao ${SYSTEM_NAME}!`,
+        titulo: `Bem-vindo(a) ao ${SYSTEM_NAME}! 🎉`,
         nome: data.nome,
-        mensagem: `Sua conta foi criada com sucesso e estamos felizes em ter você conosco.<br><br>
-            Para seu primeiro acesso, só falta um passo: <strong>definir sua senha para poder acessar a plataforma!</strong><br><br>
-            Clique no botão abaixo para começar.`,
+        mensagem: `Sua conta foi criada com sucesso e estamos muito felizes em ter você conosco!<br><br>
+            <strong>Próximo passo:</strong> Defina sua senha de acesso para começar a usar o sistema.<br><br>
+            É rápido e simples! Clique no botão abaixo e crie uma senha segura. 
+            Após definir sua senha, sua conta será ativada automaticamente e você já poderá fazer login.`,
+        textoDestaque: '✨ <strong>Primeiro Acesso:</strong> Este link expira em 24 horas.',
 
         // Botão de ação
         mostrarBotao: true,
-        textoBotao: 'Definir minha senha',
+        textoBotao: 'Ativar Minha Conta',
         urlBotao: `${FRONTEND_URL}/definir-senha/${data.token}`,
-        corBotao: COR_PRIMARIA,
+        corBotao: '#10B981',
 
         // Footer
         textoFooter: `Sistema de ${SYSTEM_NAME} - ${new Date().getFullYear()}`
@@ -45,27 +47,29 @@ export const emailBoasVindas = (data) => ({
  */
 export const emailRecuperacaoSenha = (data) => ({
     to: data.email,
-    subject: `Redefinição de Senha - ${SYSTEM_NAME}`,
+    subject: `Recuperação de Senha - ${SYSTEM_NAME}`,
     template: 'generico',
     data: {
         // Header
         mostrarHeader: true,
         logoUrl: LOGO_URL,
-        corPrimaria: COR_PRIMARIA,
+        corPrimaria: '#EF4444',
         nomeSistema: SYSTEM_NAME,
 
         // Conteúdo
         nome: data.nome,
-        titulo: 'Redefina sua senha',
-        mensagem: `Recebemos uma solicitação para redefinir a senha da sua conta.<br><br>
-            Se foi você, clique no botão abaixo para criar uma nova senha. 
-            Se você não fez essa solicitação, pode ignorar este e-mail com segurança.`,
-        textoDestaque: 'Por segurança, este link expira em <strong>1 hora</strong>.',
+        titulo: 'Recuperação de Senha',
+        mensagem: `Recebemos uma solicitação para recuperar a senha da sua conta.<br><br>
+            <strong>Se foi você</strong>, clique no botão abaixo para redefinir sua senha. 
+            Você será direcionado para uma página segura onde poderá criar uma nova senha.<br><br>
+            <strong>Se você não fez essa solicitação</strong>, pode ignorar este e-mail com segurança. 
+            Sua senha atual permanecerá ativa e nenhuma alteração será feita.`,
+        textoDestaque: '⚠️ <strong>Importante:</strong> Este link expira em 1 hora por segurança.',
 
         // Botão de ação
         mostrarBotao: true,
-        textoBotao: 'Criar nova senha',
-        urlBotao: `${FRONTEND_URL}/nova-senha/${data.token}`,
+        textoBotao: 'Redefinir Minha Senha',
+        urlBotao: `${FRONTEND_URL}/redefinir-senha/${data.token}`,
         corBotao: '#EF4444',
 
         // Footer

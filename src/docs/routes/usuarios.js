@@ -119,21 +119,41 @@ const usuariosRoutes = {
   "/usuarios/cadastrar-sem-senha": {
     post: {
       tags: ["Usuários"],
-      summary: "Cadastrar usuário sem senha (gera código de segurança)",
+      summary: "Cadastrar usuário sem senha (Primeiro Acesso - Método Recomendado)",
       description: `
-        Permite ao administrador cadastrar um usuário sem definir senha. 
-        Um código de segurança será gerado para que o usuário defina sua própria senha.
+        **MÉTODO RECOMENDADO** para cadastrar novos usuários no sistema.
         
-        **Fluxo:**
-        1. Administrador cadastra usuário com dados básicos
-        2. Sistema gera código de 6 dígitos válido por 24 horas
-        3. Usuário usa código no endpoint \`/redefinir-senha/codigo\`
-        4. Conta é ativada automaticamente após definir senha
+        Permite ao administrador cadastrar um usuário sem definir senha inicial.
+        O usuário recebe um email de boas-vindas com link para definir sua própria senha.
+        
+        **Fluxo Completo:**
+        1. Administrador cadastra usuário com dados básicos (sem senha)
+        2. Sistema gera automaticamente:
+           - Código de 6 dígitos (backup)
+           - Token JWT único
+           - Ambos válidos por 24 horas
+        3. Usuário recebe **Email de Boas-Vindas** (tema verde 🎉):
+           - Subject: "Bem-vindo(a) ao Sistema!"
+           - Botão: "Ativar Minha Conta"
+           - Link: \`/definir-senha/[token]\`
+        4. Usuário clica no link e define senha
+        5. Conta é **ativada automaticamente**
+        6. Usuário recebe email de confirmação
+        7. Usuário pode fazer login com matrícula + senha
         
         **Vantagens:**
-        - Maior segurança (admin não conhece senhas)
-        - Usuário define sua própria senha
-        - Reutiliza sistema de recuperação existente
+        - ✅ Maior segurança (admin não conhece senhas)
+        - ✅ Usuário define sua própria senha forte
+        - ✅ Interface moderna e intuitiva
+        - ✅ Distinção visual clara (primeiro acesso vs recuperação)
+        - ✅ Código de backup caso email falhe
+        - ✅ Ativação automática da conta
+        
+        **Segurança:**
+        - Conta criada como inativa (\`ativo: false\`)
+        - Campo \`senha_definida: false\`
+        - Tokens únicos com expiração
+        - Email de confirmação após ativação
       `,
       security: [{ bearerAuth: [] }],
       requestBody: {
