@@ -25,6 +25,17 @@ class UsuarioService {
 
         dadosUsuario.data_ultima_atualizacao = new Date();
 
+        if(dadosUsuario.matricula) {
+            const user = await this.repository.buscarPorMatricula(dadosUsuario.matricula); 
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'validationError',
+                field: 'matricula',
+                details: [],
+                customMessage: `A matrícula já foi cadastrada.`
+            });
+        }
+
         // Validar grupos se fornecidos
         if (dadosUsuario.grupos && dadosUsuario.grupos.length > 0) {
             await this.validarGrupos(dadosUsuario.grupos);

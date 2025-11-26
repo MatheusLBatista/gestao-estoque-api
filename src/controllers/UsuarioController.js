@@ -21,35 +21,35 @@ class UsuarioController {
     this.service = new UsuarioService();
   }
 
-  // Função utilitária para validação de ObjectId com erro customizado
-  validateId(id, fieldName = "id", action = "processar") {
-    if (!id) {
-      throw new CustomError({
-        statusCode: HttpStatusCodes.BAD_REQUEST.code,
-        errorType: "validationError",
-        field: fieldName,
-        details: [],
-        customMessage: `ID do usuário é obrigatório para ${action}.`,
-      });
-    }
+  //TODO:revisar essas validações comentadas abaixo se necessário
+  
+  // validateId(id, fieldName = "id", action = "processar") {
+  //   if (!id) {
+  //     throw new CustomError({
+  //       statusCode: HttpStatusCodes.BAD_REQUEST.code,
+  //       errorType: "validationError",
+  //       field: fieldName,
+  //       details: [],
+  //       customMessage: `ID do usuário é obrigatório para ${action}.`,
+  //     });
+  //   }
 
-    UsuarioIdSchema.parse(id);
-  }
+  //   UsuarioIdSchema.parse(id);
+  // }
 
-  // Função utilitária para validação de matrícula com erro customizado
-  validateMatricula(matricula, action = "processar") {
-    if (!matricula) {
-      throw new CustomError({
-        statusCode: HttpStatusCodes.BAD_REQUEST.code,
-        errorType: "validationError",
-        field: "matricula",
-        details: [],
-        customMessage: `Matrícula do usuário é obrigatória para ${action}.`,
-      });
-    }
+  // validateMatricula(matricula, action = "processar") {
+  //   if (!matricula) {
+  //     throw new CustomError({
+  //       statusCode: HttpStatusCodes.BAD_REQUEST.code,
+  //       errorType: "validationError",
+  //       field: "matricula",
+  //       details: [],
+  //       customMessage: `Matrícula do usuário é obrigatória para ${action}.`,
+  //     });
+  //   }
 
-    UsuarioMatriculaSchema.parse(matricula);
-  }
+  //   UsuarioMatriculaSchema.parse(matricula);
+  // }
 
   async listarUsuarios(req, res) {
     console.log("Estou no listarUsuarios em UsuarioController");
@@ -66,7 +66,6 @@ class UsuarioController {
 
     const data = await this.service.listarUsuarios(req);
 
-    // Verificar se a lista está vazia
     if (data.docs && data.docs.length === 0) {
       return CommonResponse.error(
         res,
@@ -81,78 +80,72 @@ class UsuarioController {
     return CommonResponse.success(res, data);
   }
 
-  async buscarUsuarioPorID(req, res) {
-    console.log("Estou no buscarUsuarioPorID em UsuarioController");
+  // async buscarUsuarioPorID(req, res) {
+  //   console.log("Estou no buscarUsuarioPorID em UsuarioController");
 
-    const { id } = req.params || {};
+  //   const { id } = req.params || {};
 
-    UsuarioIdSchema.parse(id);
-    const data = await this.service.buscarUsuarioPorID(id);
-    return CommonResponse.success(
-      res,
-      data,
-      200,
-      "Usuário encontrado com sucesso."
-    );
-  }
+  //   UsuarioIdSchema.parse(id);
+  //   const data = await this.service.buscarUsuarioPorID(id);
+  //   return CommonResponse.success(
+  //     res,
+  //     data,
+  //     200,
+  //     "Usuário encontrado com sucesso."
+  //   );
+  // }
 
-  async buscarUsuarioPorMatricula(req, res) {
-    console.log("Estou no buscarUsuarioPorMatricula em UsuarioController");
+  // async buscarUsuarioPorMatricula(req, res) {
+  //   console.log("Estou no buscarUsuarioPorMatricula em UsuarioController");
 
-    const { matricula } = req.params;
-    if (!matricula) {
-      throw new CustomError({
-        statusCode: HttpStatusCodes.BAD_REQUEST.code,
-        errorType: "validationError",
-        field: "matricula",
-        details: [],
-        customMessage: "A matrícula é obrigatória para esta busca.",
-      });
-    }
+  //   const { matricula } = req.params;
+  //   if (!matricula) {
+  //     throw new CustomError({
+  //       statusCode: HttpStatusCodes.BAD_REQUEST.code,
+  //       errorType: "validationError",
+  //       field: "matricula",
+  //       details: [],
+  //       customMessage: "A matrícula é obrigatória para esta busca.",
+  //     });
+  //   }
 
-    const data = await this.service.buscarUsuarioPorMatricula(matricula);
-    return CommonResponse.success(
-      res,
-      data,
-      200,
-      "Usuário encontrado com sucesso."
-    );
-  }
+  //   const data = await this.service.buscarUsuarioPorMatricula(matricula);
+  //   return CommonResponse.success(
+  //     res,
+  //     data,
+  //     200,
+  //     "Usuário encontrado com sucesso."
+  //   );
+  // }
 
   async cadastrarUsuario(req, res) {
     console.log("Estou no cadastrarUsuario em UsuarioController");
 
     const parsedData = UsuarioSchema.parse(req.body);
-
-    // Se não há senha, será criado usuário para definir senha no primeiro login
+    
     if (!parsedData.senha) {
       console.log(
         "Criando usuário sem senha - será enviado código de segurança"
       );
-
-      // Gerar código de segurança (6 dígitos)
+      
       const codigoSeguranca = Math.random().toString().slice(2, 8);
-
-      // Definir expiração do código (24 horas)
+      
       const dataExpiracao = new Date();
       dataExpiracao.setHours(dataExpiracao.getHours() + 24);
-
-      // Preparar dados do usuário sem senha
+      
       parsedData.senha = null;
-      parsedData.ativo = false; // Usuário inativo até definir senha
+      parsedData.ativo = false;
       parsedData.codigo_recuperacao = codigoSeguranca;
       parsedData.data_expiracao_codigo = dataExpiracao;
       parsedData.senha_definida = false;
 
       const data = await this.service.cadastrarUsuario(parsedData);
 
-      // Tentar enviar email de primeiro acesso
       const emailResult = await EmailService.enviarCodigoCadastro(
         data,
         codigoSeguranca
       );
 
-      // Registra evento crítico de criação de usuário sem senha
       LogMiddleware.logCriticalEvent(
         req.userId,
         "USUARIO_CRIADO_SEM_SENHA",
@@ -167,7 +160,6 @@ class UsuarioController {
         req
       );
 
-      // Resposta baseada no resultado do envio do email
       const responseMessage = emailResult.sentViaEmail
         ? `Usuário cadastrado com sucesso! Código de acesso enviado para ${data.email}. Código: ${codigoSeguranca}`
         : `Usuário cadastrado com sucesso. Código de segurança: ${codigoSeguranca}`;
@@ -191,10 +183,8 @@ class UsuarioController {
         "Usuário cadastrado com sucesso sem senha."
       );
     } else {
-      // Cadastro com senha (caso especial do admin)
       const data = await this.service.cadastrarUsuario(parsedData);
 
-      // Registra evento crítico de criação de usuário
       LogMiddleware.logCriticalEvent(
         req.userId,
         "USUARIO_CRIADO",

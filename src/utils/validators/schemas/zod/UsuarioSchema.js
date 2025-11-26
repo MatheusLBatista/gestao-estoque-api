@@ -1,16 +1,9 @@
 import { z } from "zod";
 
 export const LoginSchema = z.object({
-  matricula: z.string().min(7, "Matrícula deve conter no minimo 7 caracteres"),
+  matricula: z.string().min(2, "Matrícula deve conter no minimo 2 caracteres").max(8, "Matrícula deve conter no máximo 8 caracteres"),
   senha: z.string().min(7, "Senha deve ter pelo menos 7 caracteres"),
 });
-/*
-// Schema exclusivo para validar apenas a matrícula por parâmetro 
-export const UsuarioIdSchema = z
-  .string()
-  .min(7, 'Matrícula deve conter no mínimo 7 caracteres')
-  .max(7, 'Matrícula deve conter no máximo 7 caracteres');
-*/
 
 export const UsuarioSchema = z.object({
   nome_usuario: z
@@ -41,8 +34,8 @@ export const UsuarioSchema = z.object({
   }),
   matricula: z
     .string()
-    .min(7, "Matrícula deve conter no minimo 7 caracteres")
-    .max(7, "Matrícula deve conter no máximo 7 caracteres"),
+    .min(2, "Matrícula deve conter no minimo 2 caracteres")
+    .max(8, "Matrícula deve conter no máximo 8 caracteres"),
   senha: z
     .string()
     .min(7, "Senha deve ter pelo menos 7 caracteres")

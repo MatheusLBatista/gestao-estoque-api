@@ -32,14 +32,12 @@ router
 router
     
     // Rotas específicas antes das rotas com parâmetros
-    .get(
-        "/busca/:matricula",
-        LogMiddleware.log('BUSCA_USUARIO_MATRICULA'),
-        asyncWrapper(usuarioController.buscarUsuarioPorMatricula.bind(usuarioController))
-    )
+    // .get(
+    //     "/busca/:matricula",
+    //     LogMiddleware.log('BUSCA_USUARIO_MATRICULA'),
+    //     asyncWrapper(usuarioController.buscarUsuarioPorMatricula.bind(usuarioController))
+    // )
 
-    
-    //Rota para desativar/ativar usuario por matricula
     .patch(
         "/desativar/:matricula",
         LogMiddleware.log('DESATIVACAO_USUARIO'),
