@@ -132,17 +132,34 @@ class AuthController {
         const { token } = req.query;
         const { senha } = req.body;
 
-        if (!token || !senha) {
+        if (!token) {
             throw new CustomError({
                 statusCode: HttpStatusCodes.BAD_REQUEST.code,
-                errorType: 'authError',
-                field: 'Token e senha',
+                errorType: 'validationError',
+                field: 'Token',
                 details: [],
-                customMessage: messages.error.resourceNotFound("Token ou senha")
+                customMessage: "Token é obrigatório"
+            });
+        }
+
+        if (!senha) {
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'validationError',
+                field: 'Senha',
+                details: [],
+                customMessage: "Senha é obrigatória"
             });
         }
 
         const resultado = await this.service.redefinirSenhaComToken(token, senha);
+
+        // Log do evento
+        if (resultado.isPrimeiroAcesso) {
+            console.log('✅ Primeiro acesso concluído com sucesso');
+        } else {
+            console.log('🔄 Senha redefinida com sucesso');
+        }
 
         return res.status(200).json(resultado);
     }
@@ -150,17 +167,34 @@ class AuthController {
     async redefinirSenhaComCodigo(req, res) {
         const { codigo, senha } = req.body;
 
-        if (!codigo || !senha) {
+        if (!codigo) {
             throw new CustomError({
                 statusCode: HttpStatusCodes.BAD_REQUEST.code,
-                errorType: 'authError',
-                field: 'Código e senha',
+                errorType: 'validationError',
+                field: 'Código',
                 details: [],
-                customMessage: messages.error.resourceNotFound("Código ou senha")
+                customMessage: "Código é obrigatório"
+            });
+        }
+
+        if (!senha) {
+            throw new CustomError({
+                statusCode: HttpStatusCodes.BAD_REQUEST.code,
+                errorType: 'validationError',
+                field: 'Senha',
+                details: [],
+                customMessage: "Senha é obrigatória"
             });
         }
 
         const resultado = await this.service.redefinirSenhaComCodigo(codigo, senha);
+
+        // Log do evento
+        if (resultado.isPrimeiroAcesso) {
+            console.log('✅ Primeiro acesso via código concluído com sucesso');
+        } else {
+            console.log('🔄 Senha redefinida via código com sucesso');
+        }
 
         return res.status(200).json(resultado);
     }

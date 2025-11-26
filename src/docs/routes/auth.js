@@ -226,10 +226,25 @@ const authRoutes = {
     "/recuperar-senha": {
         post: {
             tags: ["Autenticação"],
-            summary: "Solicitar recuperação de senha",
+            summary: "Solicitar recuperação de senha ou reenvio de link de primeiro acesso",
             description: `
-            Inicia o processo de recuperação de senha para um usuário.
-            Um e-mail será enviado com instruções para redefinir a senha.
+            Inicia o processo de recuperação de senha ou reenvia link de primeiro acesso.
+            
+            **Funcionalidades:**
+            - Diferencia automaticamente entre primeiro acesso e recuperação
+            - Envia email de boas-vindas (verde) para usuários sem senha definida
+            - Envia email de recuperação (vermelho) para usuários com senha existente
+            - Não revela se o email existe no sistema (segurança)
+            - Link válido por 24 horas (primeiro acesso) ou 1 hora (recuperação)
+            
+            **Segurança:**
+            - Sempre retorna mensagem de sucesso, independente do email existir
+            - Não expõe enumeração de usuários
+            - Token único gerado com expiração
+            
+            **URLs geradas:**
+            - Primeiro acesso: \`/definir-senha/[token]\`
+            - Recuperação: \`/redefinir-senha/[token]\`
             `,
             requestBody: {
                 required: true,
@@ -243,7 +258,7 @@ const authRoutes = {
             },
             responses: {
                 200: {
-                    description: "E-mail de recuperação enviado com sucesso",
+                    description: "Mensagem genérica de sucesso (não revela se email existe)",
                     content: {
                         "application/json": {
                             schema: {
@@ -255,7 +270,22 @@ const authRoutes = {
                                     },
                                     message: {
                                         type: "string",
-                                        example: "Instruções de recuperação de senha enviadas para seu e-mail."
+                                        example: "Se existe uma conta com este email, você receberá instruções para redefinir sua senha."
+                                    },
+                                    codigo: {
+                                        type: "string",
+                                        example: "ABC123",
+                                        description: "Código de 6 dígitos (apenas em desenvolvimento)"
+                                    },
+                                    token: {
+                                        type: "string",
+                                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                                        description: "Token JWT (apenas em desenvolvimento)"
+                                    },
+                                    isPrimeiroAcesso: {
+                                        type: "boolean",
+                                        example: true,
+                                        description: "Indica se é primeiro acesso (apenas em desenvolvimento)"
                                     }
                                 }
                             }
@@ -268,26 +298,6 @@ const authRoutes = {
                         "application/json": {
                             schema: {
                                 $ref: "#/components/schemas/ValidationErrorResponse"
-                            }
-                        }
-                    }
-                },
-                404: {
-                    description: "Usuário não encontrado",
-                    content: {
-                        "application/json": {
-                            schema: {
-                                type: "object",
-                                properties: {
-                                    success: {
-                                        type: "boolean",
-                                        example: false
-                                    },
-                                    message: {
-                                        type: "string",
-                                        example: "Usuário não encontrado"
-                                    }
-                                }
                             }
                         }
                     }
@@ -309,19 +319,31 @@ const authRoutes = {
     "/redefinir-senha/codigo": {
         post: {
             tags: ["Autenticação"],
-            summary: "Redefinir senha usando código de 6 dígitos",
+            summary: "Redefinir senha usando código de 6 dígitos (alternativa ao token)",
             description: `
-            Redefine a senha do usuário usando um código de 6 dígitos.
+            Redefine senha (recuperação) ou define pela primeira vez usando código de 6 dígitos.
             
             **Casos de uso:**
-            1. **Recuperação de senha**: Usuário esqueceu senha e recebeu código
-            2. **Primeira definição**: Usuário cadastrado sem senha usa código para definir
+            1. **Primeiro Acesso**: Usuário recebe código ao ser cadastrado
+               - Código válido por 24 horas
+               - Ativa conta automaticamente após definir senha
+               - Mensagem: "Senha definida com sucesso! Sua conta está ativa..."
             
-            **Comportamento:**
-            - Código válido por 24 horas
-            - Ativa conta automaticamente se for primeira definição
-            - Limpa dados de recuperação após uso
-            - Mensagem diferente para primeira definição vs recuperação
+            2. **Recuperação**: Usuário esqueceu senha e recebe novo código
+               - Código válido por 1 hora
+               - Atualiza senha existente
+               - Mensagem: "Senha atualizada com sucesso! Você já pode fazer login..."
+            
+            **Validações:**
+            - Código mínimo de 4 caracteres
+            - Senha mínima de 6 caracteres
+            - Código não expirado
+            - Código só pode ser usado uma vez
+            
+            **Segurança:**
+            - Código alfanumérico case-insensitive
+            - Limpa todos os dados de recuperação após uso
+            - Email de confirmação enviado automaticamente
             `,
             requestBody: {
                 required: true,
@@ -349,9 +371,14 @@ const authRoutes = {
                                         type: "string",
                                         oneOf: [
                                             { example: "Senha definida com sucesso! Sua conta está ativa e você já pode fazer login." },
-                                            { example: "Senha atualizada com sucesso" }
+                                            { example: "Senha atualizada com sucesso! Você já pode fazer login com sua nova senha." }
                                         ],
                                         description: "Mensagem varia conforme seja primeira definição ou recuperação"
+                                    },
+                                    isPrimeiroAcesso: {
+                                        type: "boolean",
+                                        example: true,
+                                        description: "Indica se foi primeiro acesso (true) ou recuperação (false)"
                                     }
                                 }
                             }
@@ -359,11 +386,23 @@ const authRoutes = {
                     }
                 },
                 400: {
-                    description: "Código ou senha não fornecidos ou inválidos",
+                    description: "Validação falhou",
                     content: {
                         "application/json": {
                             schema: {
-                                $ref: "#/components/schemas/ValidationErrorResponse"
+                                type: "object",
+                                properties: {
+                                    success: { type: "boolean", example: false },
+                                    message: {
+                                        type: "string",
+                                        oneOf: [
+                                            { example: "Código é obrigatório" },
+                                            { example: "Senha é obrigatória" },
+                                            { example: "Código inválido" },
+                                            { example: "A senha deve ter no mínimo 6 caracteres" }
+                                        ]
+                                    }
+                                }
                             }
                         }
                     }
@@ -375,13 +414,10 @@ const authRoutes = {
                             schema: {
                                 type: "object",
                                 properties: {
-                                    success: {
-                                        type: "boolean",
-                                        example: false
-                                    },
+                                    success: { type: "boolean", example: false },
                                     message: {
                                         type: "string",
-                                        example: "Código de recuperação expirado"
+                                        example: "Código expirado. Solicite um novo código de recuperação."
                                     }
                                 }
                             }
@@ -389,19 +425,16 @@ const authRoutes = {
                     }
                 },
                 404: {
-                    description: "Código inválido",
+                    description: "Código inválido ou não encontrado",
                     content: {
                         "application/json": {
                             schema: {
                                 type: "object",
                                 properties: {
-                                    success: {
-                                        type: "boolean",
-                                        example: false
-                                    },
+                                    success: { type: "boolean", example: false },
                                     message: {
                                         type: "string",
-                                        example: "Código de recuperação inválido"
+                                        example: "Código inválido ou expirado"
                                     }
                                 }
                             }
@@ -425,23 +458,65 @@ const authRoutes = {
     "/redefinir-senha/token": {
         post: {
             tags: ["Autenticação"],
-            summary: "Redefinir senha usando token de recuperação",
+            summary: "Redefinir senha ou definir senha de primeiro acesso usando token",
             description: `
-            Redefine a senha do usuário usando um token de recuperação enviado por e-mail.
+            Redefine senha (recuperação) ou define senha pela primeira vez usando token JWT.
+            
+            **Casos de uso:**
+            1. **Primeiro Acesso**: Usuário clica no link do email de boas-vindas
+               - URL: \`/definir-senha/[token]\`
+               - Ativa conta automaticamente
+               - Mensagem: "Senha definida com sucesso! Sua conta está ativa..."
+            
+            2. **Recuperação**: Usuário esqueceu senha e clica no link do email
+               - URL: \`/redefinir-senha/[token]\`
+               - Atualiza senha existente
+               - Mensagem: "Senha redefinida com sucesso! Você já pode fazer login..."
+            
+            **Validações:**
+            - Token deve ser válido e não expirado
+            - Senha mínima de 6 caracteres
+            - Token só pode ser usado uma vez
+            
+            **Parâmetros:**
+            - Token via query string: \`?token=eyJhbGci...\`
+            - Senha no body
             `,
+            parameters: [
+                {
+                    name: "token",
+                    in: "query",
+                    required: true,
+                    description: "Token JWT de recuperação/primeiro acesso",
+                    schema: {
+                        type: "string",
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    }
+                }
+            ],
             requestBody: {
                 required: true,
                 content: {
                     "application/json": {
                         schema: {
-                            $ref: "#/components/schemas/RedefinirSenhaTokenRequest"
+                            type: "object",
+                            required: ["senha"],
+                            properties: {
+                                senha: {
+                                    type: "string",
+                                    format: "password",
+                                    minLength: 6,
+                                    example: "MinhaS3nh@Segura",
+                                    description: "Nova senha (mínimo 6 caracteres)"
+                                }
+                            }
                         }
                     }
                 }
             },
             responses: {
                 200: {
-                    description: "Senha redefinida com sucesso",
+                    description: "Senha definida/redefinida com sucesso",
                     content: {
                         "application/json": {
                             schema: {
@@ -453,7 +528,16 @@ const authRoutes = {
                                     },
                                     message: {
                                         type: "string",
-                                        example: "Senha atualizada com sucesso"
+                                        oneOf: [
+                                            { example: "Senha definida com sucesso! Sua conta está ativa e você já pode fazer login." },
+                                            { example: "Senha redefinida com sucesso! Você já pode fazer login com sua nova senha." }
+                                        ],
+                                        description: "Mensagem varia se é primeiro acesso ou recuperação"
+                                    },
+                                    isPrimeiroAcesso: {
+                                        type: "boolean",
+                                        example: true,
+                                        description: "Indica se foi primeiro acesso (true) ou recuperação (false)"
                                     }
                                 }
                             }
@@ -461,29 +545,40 @@ const authRoutes = {
                     }
                 },
                 400: {
-                    description: "Dados de entrada inválidos",
-                    content: {
-                        "application/json": {
-                            schema: {
-                                $ref: "#/components/schemas/ValidationErrorResponse"
-                            }
-                        }
-                    }
-                },
-                401: {
-                    description: "Token expirado",
+                    description: "Validação falhou",
                     content: {
                         "application/json": {
                             schema: {
                                 type: "object",
                                 properties: {
-                                    success: {
-                                        type: "boolean",
-                                        example: false
-                                    },
+                                    success: { type: "boolean", example: false },
                                     message: {
                                         type: "string",
-                                        example: "Token de recuperação expirado"
+                                        oneOf: [
+                                            { example: "Token é obrigatório" },
+                                            { example: "Senha é obrigatória" },
+                                            { example: "A senha deve ter no mínimo 6 caracteres" }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                401: {
+                    description: "Token inválido ou expirado",
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    success: { type: "boolean", example: false },
+                                    message: {
+                                        type: "string",
+                                        oneOf: [
+                                            { example: "Token inválido ou expirado" },
+                                            { example: "Token expirado. Solicite um novo link de recuperação." }
+                                        ]
                                     }
                                 }
                             }
@@ -491,20 +586,14 @@ const authRoutes = {
                     }
                 },
                 404: {
-                    description: "Token inválido",
+                    description: "Usuário não encontrado",
                     content: {
                         "application/json": {
                             schema: {
                                 type: "object",
                                 properties: {
-                                    success: {
-                                        type: "boolean",
-                                        example: false
-                                    },
-                                    message: {
-                                        type: "string",
-                                        example: "Token de recuperação inválido"
-                                    }
+                                    success: { type: "boolean", example: false },
+                                    message: { type: "string", example: "Usuário não encontrado" }
                                 }
                             }
                         }
