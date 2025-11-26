@@ -219,18 +219,16 @@ class UsuarioController {
   async atualizarUsuario(req, res) {
     console.log("Estou no atualizarUsuario em UsuarioController");
 
-    const { id } = req.params;
-    if (!id) {
+    const { matricula } = req.params; 
+    if (!matricula) {
       throw new CustomError({
         statusCode: HttpStatusCodes.BAD_REQUEST.code,
         errorType: "validationError",
-        field: "id",
+        field: "matricula",
         details: [],
-        customMessage: "ID do usuário é obrigatório.",
+        customMessage: "Matrícula do usuário é obrigatória.",
       });
     }
-
-    UsuarioIdSchema.parse(id);
 
     const dadosAtualizacao = req.body;
     if (Object.keys(dadosAtualizacao).length === 0) {
@@ -245,7 +243,7 @@ class UsuarioController {
 
     await UsuarioUpdateSchema.parseAsync(dadosAtualizacao);
     const usuarioAtualizado = await this.service.atualizarUsuario(
-      id,
+      matricula,
       dadosAtualizacao
     );
     return CommonResponse.success(
