@@ -258,9 +258,9 @@ const gruposPadrao = [
         dominio: "localhost",
         ativo: true,
         buscar: true,
-        enviar: true,
-        substituir: true,
-        modificar: true,
+        enviar: false,
+        substituir: false,
+        modificar: false,
         excluir: false,
       },
       {
