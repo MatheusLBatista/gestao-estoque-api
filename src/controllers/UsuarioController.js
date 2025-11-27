@@ -21,36 +21,6 @@ class UsuarioController {
     this.service = new UsuarioService();
   }
 
-  //TODO:revisar essas validações comentadas abaixo se necessário
-  
-  // validateId(id, fieldName = "id", action = "processar") {
-  //   if (!id) {
-  //     throw new CustomError({
-  //       statusCode: HttpStatusCodes.BAD_REQUEST.code,
-  //       errorType: "validationError",
-  //       field: fieldName,
-  //       details: [],
-  //       customMessage: `ID do usuário é obrigatório para ${action}.`,
-  //     });
-  //   }
-
-  //   UsuarioIdSchema.parse(id);
-  // }
-
-  // validateMatricula(matricula, action = "processar") {
-  //   if (!matricula) {
-  //     throw new CustomError({
-  //       statusCode: HttpStatusCodes.BAD_REQUEST.code,
-  //       errorType: "validationError",
-  //       field: "matricula",
-  //       details: [],
-  //       customMessage: `Matrícula do usuário é obrigatória para ${action}.`,
-  //     });
-  //   }
-
-  //   UsuarioMatriculaSchema.parse(matricula);
-  // }
-
   async listarUsuarios(req, res) {
     console.log("Estou no listarUsuarios em UsuarioController");
 
@@ -79,44 +49,6 @@ class UsuarioController {
 
     return CommonResponse.success(res, data);
   }
-
-  // async buscarUsuarioPorID(req, res) {
-  //   console.log("Estou no buscarUsuarioPorID em UsuarioController");
-
-  //   const { id } = req.params || {};
-
-  //   UsuarioIdSchema.parse(id);
-  //   const data = await this.service.buscarUsuarioPorID(id);
-  //   return CommonResponse.success(
-  //     res,
-  //     data,
-  //     200,
-  //     "Usuário encontrado com sucesso."
-  //   );
-  // }
-
-  // async buscarUsuarioPorMatricula(req, res) {
-  //   console.log("Estou no buscarUsuarioPorMatricula em UsuarioController");
-
-  //   const { matricula } = req.params;
-  //   if (!matricula) {
-  //     throw new CustomError({
-  //       statusCode: HttpStatusCodes.BAD_REQUEST.code,
-  //       errorType: "validationError",
-  //       field: "matricula",
-  //       details: [],
-  //       customMessage: "A matrícula é obrigatória para esta busca.",
-  //     });
-  //   }
-
-  //   const data = await this.service.buscarUsuarioPorMatricula(matricula);
-  //   return CommonResponse.success(
-  //     res,
-  //     data,
-  //     200,
-  //     "Usuário encontrado com sucesso."
-  //   );
-  // }
 
   async cadastrarUsuario(req, res) {
     console.log("Estou no cadastrarUsuario em UsuarioController");

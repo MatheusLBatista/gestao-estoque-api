@@ -176,6 +176,28 @@ class UsuarioRepository {
     return user;
   }
 
+  async validarMatricula(matricula, incluirSenha = false) {
+    let query = this.model.findOne({ matricula });
+
+    if (incluirSenha) {
+      query = query.select("+senha");
+    }
+
+    const user = await query;
+
+    if (user) {
+      throw new CustomError({
+        statusCode: 409,
+        errorType: "duplicateResource",
+        field: "matricula",
+        details: [],
+        customMessage: `Já existe um usuário cadastrado com a matrícula "${matricula}".`,
+      });
+    }
+
+    return user;
+  }
+
   async cadastrarUsuario(dadosUsuario) {
     console.log("Estou no cadastrarUsuario em UsuarioRepository");
 
@@ -396,7 +418,6 @@ class UsuarioRepository {
   }
 
   async removeToken(id) {
-    //criar objeto com os campos a serem atualizados
     const parsedData = {
       accesstoken: null,
       refreshtoken: null,
@@ -406,7 +427,6 @@ class UsuarioRepository {
       .findByIdAndUpdate(id, parsedData, { new: true })
       .exec();
 
-    //validar se o usuário atualizado foi retornado
     if (!usuario) {
       throw new CustomError({
         statusCode: 404,
@@ -432,6 +452,50 @@ class UsuarioRepository {
       throw new CustomError({
         statusCode: 404,
         errorType: "resourceNotFound",
+        field: "Usuário",
+        details: [],
+        customMessage: messages.error.resourceNotFound("Usuário"),
+      });
+    }
+
+    return user;
+  }
+
+  async buscarPorEmail(email, incluirSenha = false) {
+    let query = this.model.findOne({ email });
+
+    if (incluirSenha) {
+      query = query.select("+senha");
+    }
+
+    const user = await query;
+
+    if (!user) {
+      throw new CustomError({
+        statusCode: 404,
+        errorType: "resourceNotFound",
+        field: "Usuário",
+        details: [],
+        customMessage: messages.error.resourceNotFound("Usuário"),
+      });
+    }
+
+    return user;
+  }
+
+  async validarEmail(email, incluirSenha = false) {
+    let query = this.model.findOne({ email });
+
+    if (incluirSenha) {
+      query = query.select("+senha");
+    }
+
+    const user = await query;
+
+    if (user) {
+      throw new CustomError({
+        statusCode: 409,
+        errorType: "duplicateResource",
         field: "Usuário",
         details: [],
         customMessage: messages.error.resourceNotFound("Usuário"),
