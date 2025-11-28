@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import Fornecedor from '../models/Fornecedor.js';
-import { FornecedorSchema } from '../utils/validators/FornecedorSchema.js';
+import { FornecedorSchema } from '../utils/validators/schemas/zod/FornecedorSchema.js';
 
 async function seedFornecedor() {
     try {
