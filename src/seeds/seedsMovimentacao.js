@@ -24,27 +24,29 @@ async function seedMovimentacao(usuarios = [], produtos = []) {
       ) || usuarios[0];
 
     // Criar uma movimentação de ENTRADA para CADA produto criado no seed
-    console.log(`📦 Criando movimentação de entrada inicial para ${produtos.length} produtos...`);
-    
+    console.log(
+      `📦 Criando movimentação de entrada inicial para ${produtos.length} produtos...`
+    );
+
     for (let i = 0; i < produtos.length; i++) {
       const produto = produtos[i];
-      
+
       // Data de movimentação variando nos últimos 6 meses
       const dataMovimentacao = new Date();
       const diasAtras = Math.floor(Math.random() * 180); // 0 a 180 dias atrás (6 meses)
       dataMovimentacao.setDate(dataMovimentacao.getDate() - diasAtras);
-      
+
       const numeroNF = 100000 + i; // Número de nota fiscal sequencial
       const serie = (i % 3) + 1; // Serie 1, 2 ou 3
-      
+
       const movEntrada = {
         tipo: "entrada",
         destino: "Estoque",
         data_movimentacao: dataMovimentacao,
-        id_usuario: adminUser._id,
+        id_usuario: adminUser._id.toString(),
         produtos: [
           {
-            _id: produto._id,
+            _id: produto._id.toString(),
             codigo_produto: produto.codigo_produto,
             quantidade_produtos: Math.floor(Math.random() * 50) + 20, // 20 a 69 unidades
             custo: produto.custo,
@@ -70,11 +72,13 @@ async function seedMovimentacao(usuarios = [], produtos = []) {
       }
     }
 
-    console.log(`✅ ${movimentacoes.length} movimentações de entrada inicial criadas`);
+    console.log(
+      `✅ ${movimentacoes.length} movimentações de entrada inicial criadas`
+    );
 
     // Criar movimentações adicionais aleatórias (entradas e saídas)
     console.log(`📦 Criando 50 movimentações adicionais aleatórias...`);
-    
+
     for (let i = 0; i < 50; i++) {
       const tipo = tipos[Math.floor(Math.random() * tipos.length)];
       const usuario = usuarios[Math.floor(Math.random() * usuarios.length)];
@@ -149,7 +153,9 @@ async function seedMovimentacao(usuarios = [], produtos = []) {
 
       if (!movimentacaoValida) {
         console.error(
-          `❌ Movimentação adicional ${i + 1} não pôde ser validada após 3 tentativas`
+          `❌ Movimentação adicional ${
+            i + 1
+          } não pôde ser validada após 3 tentativas`
         );
       }
     }
