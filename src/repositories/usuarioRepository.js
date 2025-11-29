@@ -224,7 +224,6 @@ class UsuarioRepository {
       });
     }
 
-    // Buscar o usuário pela matrícula primeiro para validar que existe
     const usuarioExistente = await this.model.findOne({ matricula });
     if (!usuarioExistente) {
       throw new CustomError({
@@ -236,7 +235,6 @@ class UsuarioRepository {
       });
     }
 
-    // Verificar se a matrícula está sendo atualizada e se já existe
     if (
       dadosAtualizacao.matricula &&
       dadosAtualizacao.matricula !== matricula
@@ -498,7 +496,7 @@ class UsuarioRepository {
         errorType: "duplicateResource",
         field: "Usuário",
         details: [],
-        customMessage: messages.error.resourceNotFound("Usuário"),
+        customMessage: `Já existe um usuário cadastrado com o email "${email}".`,
       });
     }
 

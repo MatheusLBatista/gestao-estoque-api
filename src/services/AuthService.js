@@ -183,7 +183,7 @@ export class AuthService {
     );
 
     // Salvar no banco com os novos campos
-    await this.usuarioRepository.atualizarUsuario(user._id, {
+    await this.usuarioRepository.atualizarUsuario(user.matricula, {
       tokenUnico: tokenUnico,
       exp_tokenUnico_recuperacao: new Date(Date.now() + 60 * 60 * 1000), // 1h
       token_recuperacao: tokenUnico, // Compatibilidade
@@ -252,8 +252,11 @@ export class AuthService {
           customMessage: "Token inválido ou expirado",
         });
       });
+    
+    let usuarioMatricula = await this.usuarioRepository.buscarPorId(usuarioId);
+    usuarioMatricula = usuarioMatricula.matricula;
 
-    const usuario = await this.usuarioRepository.buscarPorId(usuarioId);
+    const usuario = await this.usuarioRepository.buscarPorMatricula(usuarioMatricula);
 
     if (!usuario) {
       throw new CustomError({
@@ -284,7 +287,7 @@ export class AuthService {
 
     const senhaCriptografada = await bcrypt.hash(novaSenha, 10);
 
-    await this.usuarioRepository.atualizarUsuario(usuarioId, {
+    await this.usuarioRepository.atualizarUsuario(usuarioMatricula, {
       senha: senhaCriptografada,
       senha_definida: true,
       ativo: true,
