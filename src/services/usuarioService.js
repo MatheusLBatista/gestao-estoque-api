@@ -68,18 +68,7 @@ class UsuarioService {
     }
 
     if (dadosUsuario.email) {
-      const emailExistente = await this.repository.validarEmail(
-        dadosUsuario.email
-      );
-      if (emailExistente) {
-        throw new CustomError({
-          statusCode: HttpStatusCodes.CONFLICT.code,
-          errorType: "duplicateResource",
-          field: "email",
-          details: [],
-          customMessage: `Já existe um usuário cadastrado com o email "${dadosUsuario.email}".`,
-        });
-      }
+      await this.repository.validarEmail(dadosUsuario.email);
     }
 
     if (
