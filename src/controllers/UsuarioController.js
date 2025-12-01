@@ -562,6 +562,64 @@ class UsuarioController {
       "Permissões do usuário obtidas com sucesso."
     );
   }
+
+  /**
+   * Upload de foto de perfil do usuário
+   */
+  async uploadFotoPerfil(req, res) {
+    console.log("Estou no uploadFotoPerfil em UsuarioController");
+
+    const { matricula } = req.params;
+
+    if (!matricula) {
+      throw new CustomError({
+        statusCode: HttpStatusCodes.BAD_REQUEST.code,
+        errorType: "validationError",
+        field: "matricula",
+        details: [],
+        customMessage: "Matrícula do usuário é obrigatória.",
+      });
+    }
+
+    if (!req.file) {
+      throw new CustomError({
+        statusCode: HttpStatusCodes.BAD_REQUEST.code,
+        errorType: "validationError",
+        field: "foto",
+        details: [],
+        customMessage: "Nenhuma imagem foi enviada.",
+      });
+    }
+
+    // Caminho relativo da imagem
+    const fotoUrl = `/uploads/profile-images/${req.file.filename}`;
+
+    console.log('📸 Upload realizado:');
+    console.log('   Arquivo:', req.file.filename);
+    console.log('   Caminho completo:', req.file.path);
+    console.log('   URL da foto:', fotoUrl);
+
+    const data = await this.service.atualizarFotoPerfil(matricula, fotoUrl);
+
+    LogMiddleware.logCriticalEvent(
+      req.userId,
+      "FOTO_PERFIL_ATUALIZADA",
+      {
+        usuario_atualizado: data._id,
+        matricula: data.matricula,
+        foto_perfil: fotoUrl,
+        atualizado_por: req.userMatricula,
+      },
+      req
+    );
+
+    return CommonResponse.success(
+      res,
+      data,
+      200,
+      "Foto de perfil atualizada com sucesso."
+    );
+  }
 }
 
 export default UsuarioController;
