@@ -464,16 +464,47 @@ class UsuarioService {
         const combinacoes = permissoes.map(p => `${p.rota}_${p.dominio || 'localhost'}`);
         const setCombinacoes = new Set(combinacoes);
 
-        if (combinacoes.length !== setCombinacoes.size) {
-            throw new CustomError({
-                statusCode: HttpStatusCodes.BAD_REQUEST.code,
-                errorType: 'validationError',
-                field: 'permissoes',
-                details: [],
-                customMessage: 'Permissões duplicadas encontradas na lista'
-            });
-        }
+    if (combinacoes.length !== setCombinacoes.size) {
+      throw new CustomError({
+        statusCode: HttpStatusCodes.BAD_REQUEST.code,
+        errorType: "validationError",
+        field: "permissoes",
+        details: [],
+        customMessage: "Permissões duplicadas encontradas na lista",
+      });
     }
+  }
+
+  /**
+   * Atualiza a foto de perfil do usuário
+   */
+  async atualizarFotoPerfil(matricula, fotoUrl) {
+    console.log("Estou no atualizarFotoPerfil em UsuarioService");
+    console.log(` Atualizando foto para matrícula: ${matricula}`);
+    console.log(`Nova URL da foto: ${fotoUrl}`);
+
+    const usuario = await this.repository.buscarPorMatricula(matricula);
+
+    if (!usuario) {
+      throw new CustomError({
+        statusCode: HttpStatusCodes.NOT_FOUND.code,
+        errorType: "resourceNotFound",
+        field: "usuario",
+        details: [],
+        customMessage: `Usuário com matrícula ${matricula} não encontrado.`,
+      });
+    }
+
+    console.log(` Foto anterior: ${usuario.foto_perfil}`);
+    
+    // Atualiza a foto de perfil
+    usuario.foto_perfil = fotoUrl;
+    await usuario.save();
+
+    console.log(` Foto atualizada com sucesso: ${usuario.foto_perfil}`);
+
+    return usuario;
+  }
 }
 
 export default UsuarioService;
