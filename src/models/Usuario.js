@@ -10,6 +10,7 @@ class Usuario {
         email: { type: String, required: true, unique: true },
         matricula: { type: String, required: true },
         telefone: { type: String },
+        foto_perfil: { type: String },
         senha: { type: String, required: false, select: false }, 
         perfil: {
           type: String,

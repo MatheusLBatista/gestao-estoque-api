@@ -141,19 +141,6 @@ const usuariosRoutes = {
         6. Usuário recebe email de confirmação
         7. Usuário pode fazer login com matrícula + senha
         
-        **Vantagens:**
-        - ✅ Maior segurança (admin não conhece senhas)
-        - ✅ Usuário define sua própria senha forte
-        - ✅ Interface moderna e intuitiva
-        - ✅ Distinção visual clara (primeiro acesso vs recuperação)
-        - ✅ Código de backup caso email falhe
-        - ✅ Ativação automática da conta
-        
-        **Segurança:**
-        - Conta criada como inativa (\`ativo: false\`)
-        - Campo \`senha_definida: false\`
-        - Tokens únicos com expiração
-        - Email de confirmação após ativação
       `,
       security: [{ bearerAuth: [] }],
       requestBody: {
@@ -583,6 +570,182 @@ const usuariosRoutes = {
                   message: {
                     type: "string",
                     example: "Usuário removido de todos os grupos com sucesso",
+                  },
+                },
+              },
+            },
+          },
+        },
+        ...commonSchemas.CommonResponses,
+      },
+    },
+  },
+  "/usuarios/{matricula}/foto-perfil": {
+    post: {
+      tags: ["Usuários"],
+      summary: "Upload de foto de perfil",
+      description: `
+        Faz upload de uma foto de perfil para um usuário específico.
+        
+        **Validações:**
+        - Matrícula do usuário deve existir
+        - Apenas imagens são aceitas (JPEG, PNG, GIF, WEBP)
+        - Tamanho máximo: 5MB
+        - O arquivo anterior será substituído
+        
+        **Formatos aceitos:**
+        - image/jpeg
+        - image/png
+      `,
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: "matricula",
+          in: "path",
+          required: true,
+          description: "Matrícula do usuário",
+          schema: { type: "string", example: "12345" },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          "multipart/form-data": {
+            schema: {
+              type: "object",
+              required: ["foto"],
+              properties: {
+                foto: {
+                  type: "string",
+                  format: "binary",
+                  description: "Arquivo de imagem (JPEG, PNG, GIF ou WEBP, máx 5MB)",
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Foto de perfil atualizada com sucesso",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean", example: true },
+                  data: {
+                    type: "object",
+                    properties: {
+                      _id: { type: "string", example: "60d5ecb54b24a12a5c8e4f1a" },
+                      nome_usuario: { type: "string", example: "João Silva" },
+                      email: { type: "string", example: "joao.silva@email.com" },
+                      matricula: { type: "string", example: "12345" },
+                      foto_perfil: {
+                        type: "string",
+                        example: "/uploads/profile-images/profile-12345-1733068800000-123456789.jpg",
+                      },
+                      perfil: { type: "string", example: "administrador" },
+                      ativo: { type: "boolean", example: true },
+                    },
+                  },
+                  message: {
+                    type: "string",
+                    example: "Foto de perfil atualizada com sucesso.",
+                  },
+                },
+              },
+            },
+          },
+        },
+        400: {
+          description: "Erro de validação - arquivo não enviado ou formato inválido",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean", example: false },
+                  error: {
+                    type: "object",
+                    properties: {
+                      statusCode: { type: "number", example: 400 },
+                      errorType: { type: "string", example: "validationError" },
+                      field: { type: "string", example: "foto" },
+                      message: {
+                        type: "string",
+                        example: "Nenhuma imagem foi enviada.",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        404: {
+          description: "Usuário não encontrado",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean", example: false },
+                  error: {
+                    type: "object",
+                    properties: {
+                      statusCode: { type: "number", example: 404 },
+                      errorType: { type: "string", example: "resourceNotFound" },
+                      field: { type: "string", example: "usuario" },
+                      message: {
+                        type: "string",
+                        example: "Usuário com matrícula 12345 não encontrado.",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        413: {
+          description: "Arquivo muito grande (máximo 5MB)",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean", example: false },
+                  error: {
+                    type: "object",
+                    properties: {
+                      message: {
+                        type: "string",
+                        example: "Tamanho do arquivo excede o limite de 5MB.",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        415: {
+          description: "Formato de arquivo não suportado",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  success: { type: "boolean", example: false },
+                  error: {
+                    type: "object",
+                    properties: {
+                      message: {
+                        type: "string",
+                        example: "Formato de arquivo não suportado. Use apenas: JPEG, PNG, GIF ou WEBP",
+                      },
+                    },
                   },
                 },
               },
