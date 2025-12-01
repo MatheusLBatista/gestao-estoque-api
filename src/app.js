@@ -9,6 +9,11 @@ import DbConect from './config/DbConnect.js';
 import errorHandler from './utils/helpers/errorHandler.js';
 // import logger from './utils/logger.js';
 import CommonResponse from './utils/helpers/CommonResponse.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -35,14 +40,18 @@ app.use((req, res, next) => {
 });
 
 // Middlewares de segurança
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 // Habilitando CORS
 // app.use(cors());
 app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:5173'],
-  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  exposedHeaders: ['Content-Type', 'Content-Length']
 }));
 
 // Habilitando a compressão de respostas
@@ -53,6 +62,25 @@ app.use(express.json());
 
 // Habilitando o uso de urlencoded pelo express
 app.use(express.urlencoded({ extended: true }));
+
+// Servindo arquivos estáticos da pasta public
+const publicPath = path.join(__dirname, '../public');
+console.log(`📁 Servindo arquivos estáticos de: ${publicPath}`);
+
+// Middleware para adicionar headers CORS em arquivos estáticos
+app.use('/uploads', (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
+
+// Configurar rota específica para uploads
+app.use('/uploads', express.static(path.join(publicPath, 'uploads')));
+
+// Servir outros arquivos estáticos da pasta public
+app.use(express.static(publicPath));
 
 // Passando para o arquivo de rotas o app
 routes(app);
