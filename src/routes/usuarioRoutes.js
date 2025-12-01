@@ -3,6 +3,7 @@ import UsuarioController from '../controllers/UsuarioController.js';
 import authMiddleware from '../middlewares/AuthMiddleware.js';
 import asyncWrapper from '../middlewares/asyncWrapper.js';
 import LogMiddleware from '../middlewares/LogMiddleware.js';
+import upload from '../middlewares/uploadMiddleware.js';
 
 const router = express.Router();
 const usuarioController = new UsuarioController();
@@ -108,6 +109,15 @@ router
         authMiddleware,
         LogMiddleware.log('CONSULTA_PERMISSOES_USUARIO'),
         asyncWrapper(usuarioController.obterPermissoesUsuario.bind(usuarioController))
+    )
+
+    // Upload de foto de perfil
+    .post(
+        "/:matricula/foto-perfil",
+        authMiddleware,
+        upload.single('foto'),
+        LogMiddleware.log('UPLOAD_FOTO_PERFIL'),
+        asyncWrapper(usuarioController.uploadFotoPerfil.bind(usuarioController))
     );
 
 export default router;

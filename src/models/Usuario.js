@@ -10,7 +10,8 @@ class Usuario {
         email: { type: String, required: true, unique: true },
         matricula: { type: String, required: true, unique: true },
         telefone: { type: String },
-        senha: { type: String, required: false, select: false }, // Não obrigatório inicialmente
+        foto_perfil: { type: String },
+        senha: { type: String, required: false, select: false }, 
         perfil: {
           type: String,
           enum: ["administrador", "gerente", "estoquista"],
