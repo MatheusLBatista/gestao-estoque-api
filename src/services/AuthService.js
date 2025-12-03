@@ -93,6 +93,7 @@ export class AuthService {
       email: usuario.email,
       matricula: usuario.matricula,
       perfil: usuario.perfil,
+      telefone: usuario.telefone,
     };
 
     return {
@@ -162,8 +163,6 @@ export class AuthService {
     const user = await this.usuarioRepository.buscarPorEmail(email);
 
     if (!user) {
-      // Por segurança, não revelar se o email existe ou não
-      // Retornar mensagem genérica de sucesso
       return { 
         message: "Se existe uma conta com este email, você receberá instruções para redefinir sua senha."
       };
@@ -185,11 +184,11 @@ export class AuthService {
     // Salvar no banco com os novos campos
     await this.usuarioRepository.atualizarUsuario(user.matricula, {
       tokenUnico: tokenUnico,
-      exp_tokenUnico_recuperacao: new Date(Date.now() + 60 * 60 * 1000), // 1h
-      token_recuperacao: tokenUnico, // Compatibilidade
-      token_recuperacao_expira: new Date(Date.now() + 60 * 60 * 1000), // Compatibilidade
+      exp_tokenUnico_recuperacao: new Date(Date.now() + 60 * 60 * 1000), 
+      token_recuperacao: tokenUnico, 
+      token_recuperacao_expira: new Date(Date.now() + 60 * 60 * 1000),
       codigo_recuperacao: codigo,
-      data_expiracao_codigo: new Date(Date.now() + 60 * 60 * 1000), // 1h
+      data_expiracao_codigo: new Date(Date.now() + 60 * 60 * 1000), 
     });
 
     // Determinar tipo de email baseado no status da senha
@@ -204,7 +203,7 @@ export class AuthService {
           token: tokenUnico
         });
         await enviarEmail(emailData);
-        console.log(`✉️ Email de boas-vindas enviado para ${user.email}`);
+        console.log(`Email de boas-vindas enviado para ${user.email}`);
       } else {
         // Email de recuperação de senha
         const emailData = emailRecuperacaoSenha({
@@ -213,14 +212,14 @@ export class AuthService {
           token: tokenUnico
         });
         await enviarEmail(emailData);
-        console.log(`🔑 Email de recuperação enviado para ${user.email}`);
+        console.log(`Email de recuperação enviado para ${user.email}`);
       }
     } catch (emailError) {
       console.error('Erro ao enviar email:', emailError);
       // Continua mesmo se o email falhar
     }
 
-    console.log(`🔑 Código de recuperação: ${codigo} | Token: ${tokenUnico.substring(0, 20)}...`);
+    console.log(`Código de recuperação: ${codigo} | Token: ${tokenUnico.substring(0, 20)}...`);
 
     return { 
       message: "Se existe uma conta com este email, você receberá instruções para redefinir sua senha.",
@@ -312,13 +311,13 @@ export class AuthService {
     }
 
     if (isPrimeiroAcesso) {
-      console.log(`✅ Primeira senha definida para ${usuario.email} - Conta ativada`);
+      console.log(`Primeira senha definida para ${usuario.email} - Conta ativada`);
       return { 
         message: "Senha definida com sucesso! Sua conta está ativa e você já pode fazer login.",
         isPrimeiroAcesso: true
       };
     } else {
-      console.log(`🔄 Senha redefinida para ${usuario.email}`);
+      console.log(`Senha redefinida para ${usuario.email}`);
       return { 
         message: "Senha redefinida com sucesso! Você já pode fazer login com sua nova senha.",
         isPrimeiroAcesso: false
@@ -411,13 +410,13 @@ export class AuthService {
     }
 
     if (isPrimeiraDefinicao) {
-      console.log(`✅ Primeira senha definida via código para ${usuario.email} - Conta ativada`);
+      console.log(`Primeira senha definida via código para ${usuario.email} - Conta ativada`);
       return {
         message: "Senha definida com sucesso! Sua conta está ativa e você já pode fazer login.",
         isPrimeiroAcesso: true
       };
     } else {
-      console.log(`🔄 Senha redefinida via código para ${usuario.email}`);
+      console.log(`Senha redefinida via código para ${usuario.email}`);
       return {
         message: "Senha atualizada com sucesso! Você já pode fazer login com sua nova senha.",
         isPrimeiroAcesso: false
