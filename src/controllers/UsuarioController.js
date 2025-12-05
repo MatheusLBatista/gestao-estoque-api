@@ -203,7 +203,7 @@ class UsuarioController {
     console.log("Estou no desativarUsuario em UsuarioController");
 
     const { matricula } = req.params || {};
-    this.validateMatricula(matricula, "desativar");
+    // this.validateMatricula(matricula, "desativar");
 
     const data = await this.service.desativarUsuario(matricula);
     return CommonResponse.success(
@@ -218,7 +218,7 @@ class UsuarioController {
     console.log("Estou no reativarUsuario em UsuarioController");
 
     const { matricula } = req.params || {};
-    this.validateMatricula(matricula, "reativar");
+    // this.validateMatricula(matricula, "reativar");
 
     const data = await this.service.reativarUsuario(matricula);
     return CommonResponse.success(
